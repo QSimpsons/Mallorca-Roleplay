@@ -105,10 +105,12 @@ function Events.Create(source, data)
         }
     }
 
+    Buckets.Assign(event)
     Events.Active[eventId] = event
     Events.Join(source, eventId, true)
 
     TriggerClientEvent('snelle-events:client:syncEvents', -1, Events.GetPublicList())
+    Announce.EventCreated(event)
     Permissions.SendWebhook(L('webhook_created'), ('**%s** (%s)\nHost: %s\nSpelers: 0/%s'):format(event.name, event.type, event.hostName, event.maxPlayers), 3066993)
 
     return true, event
@@ -143,6 +145,7 @@ function Events.Join(source, eventId, isHost)
 
     event.players[#event.players + 1] = source
     setPlayerEvent(source, eventId)
+    Buckets.SetPlayer(source, event.bucket)
 
     TriggerClientEvent('snelle-events:client:joinedEvent', source, event, isHost == true)
     TriggerClientEvent('snelle-events:client:playerJoined', -1, eventId, Permissions.GetPlayerName(source), #event.players)
@@ -176,6 +179,7 @@ function Events.Leave(source, skipReturn)
 
     clearPlayerEvent(source)
     event.playerData[source] = nil
+    Buckets.ResetPlayer(source)
 
     TriggerClientEvent('snelle-events:client:leftEvent', source, event, skipReturn == true)
     TriggerClientEvent('snelle-events:client:playerLeft', -1, eventId, Permissions.GetPlayerName(source), #event.players)
@@ -239,7 +243,7 @@ function Events.Start(source, eventId)
         end
 
         TriggerClientEvent('snelle-events:client:syncEvents', -1, Events.GetPublicList())
-        TriggerClientEvent('snelle-events:client:globalAnnounce', -1, L('event_started', event.name))
+        Announce.ToAll(L('event_started', event.name))
         Permissions.SendWebhook(L('webhook_started'), ('**%s** gestart\nSpelers: %s'):format(event.name, #event.players), 5763719)
     end)
 
@@ -266,7 +270,7 @@ function Events.Stop(source, eventId, autoStop)
     event.playerData = {}
 
     TriggerClientEvent('snelle-events:client:syncEvents', -1, Events.GetPublicList())
-    TriggerClientEvent('snelle-events:client:globalAnnounce', -1, L('event_stopped', event.name))
+    Announce.ToAll(L('event_stopped', event.name))
     Permissions.SendWebhook(L('webhook_stopped'), ('**%s** gestopt'):format(event.name), 15158332)
 
     SetTimeout(60000, function()
@@ -290,7 +294,7 @@ function Events.Announce(source, eventId, message)
         TriggerClientEvent('snelle-events:client:notify', playerId, L('event_announce', message))
     end
 
-    TriggerClientEvent('snelle-events:client:globalAnnounce', -1, L('event_announce', ('[%s] %s'):format(event.name, message)))
+    Announce.ToAll(L('event_announce', ('[%s] %s'):format(event.name, message)))
     return true
 end
 
@@ -315,7 +319,7 @@ function Events.SetWinner(source, eventId, winnerSource)
         end
     end
 
-    TriggerClientEvent('snelle-events:client:globalAnnounce', -1, L('winner_announced', winnerName))
+    Announce.ToAll(L('winner_announced', winnerName))
     return true
 end
 

@@ -3,10 +3,49 @@ currentEvent = nil
 local activeBlips = {}
 local isFrozen = false
 local eventVehicle = nil
+local ClientFramework = nil
+local ClientFrameworkName = 'standalone'
+
+CreateThread(function()
+    if Config.Framework == 'auto' or Config.Framework == 'esx' then
+        if GetResourceState('es_extended') == 'started' then
+            ClientFramework = exports['es_extended']:getSharedObject()
+            ClientFrameworkName = 'esx'
+            return
+        end
+    end
+
+    if Config.Framework == 'auto' or Config.Framework == 'qbcore' then
+        if GetResourceState('qb-core') == 'started' then
+            ClientFramework = exports['qb-core']:GetCoreObject()
+            ClientFrameworkName = 'qbcore'
+        end
+    end
+end)
+
+local function resolveNotifyType()
+    if Config.Notify ~= 'auto' then return Config.Notify end
+    if GetResourceState('ox_lib') == 'started' then return 'ox' end
+    if ClientFrameworkName == 'esx' then return 'esx' end
+    if ClientFrameworkName == 'qbcore' then return 'qb' end
+    return 'native'
+end
 
 function NotifyClient(message)
-    if Config.Notify == 'ox' and GetResourceState('ox_lib') == 'started' then
+    local notifyType = resolveNotifyType()
+
+    if notifyType == 'ox' and GetResourceState('ox_lib') == 'started' then
         exports.ox_lib:notify({ description = message, type = 'inform' })
+        return
+    end
+
+    if notifyType == 'esx' and ClientFramework then
+        ClientFramework.ShowNotification(message)
+        return
+    end
+
+    if notifyType == 'qb' and ClientFramework then
+        ClientFramework.Functions.Notify(message, 'primary', 5000)
         return
     end
 
@@ -14,6 +53,17 @@ function NotifyClient(message)
     AddTextComponentSubstringPlayerName(message)
     EndTextCommandThefeedPostTicker(false, true)
 end
+
+RegisterNetEvent('snelle-events:client:chatMessage', function(message)
+    local prefix = Config.ChatPrefix or '[EVENT]'
+    local color = Config.ChatColor or { 56, 189, 248 }
+
+    TriggerEvent('chat:addMessage', {
+        color = color,
+        multiline = false,
+        args = { prefix, message }
+    })
+end)
 
 local function savePosition()
     local ped = PlayerPedId()
@@ -100,6 +150,7 @@ local function setFrozen(state)
 end
 
 local function cleanupVehicle()
+    if not Config.DeleteEventVehicleOnLeave then return end
     if eventVehicle and DoesEntityExist(eventVehicle) then
         DeleteEntity(eventVehicle)
     end
@@ -173,6 +224,14 @@ RegisterNetEvent('snelle-events:client:globalAnnounce', function(message)
     NotifyClient(message)
 end)
 
+local function stripWeaponsForEvent(event)
+    if not Config.StripWeaponsOnJoin then return end
+    if event.settings.allowWeapons or event.type == 'pvp' then return end
+
+    local ped = PlayerPedId()
+    RemoveAllPedWeapons(ped, true)
+end
+
 RegisterNetEvent('snelle-events:client:syncEvents', function(events)
     updateBlips(events)
     SendNUIMessage({ action = 'syncEvents', events = events })
@@ -190,6 +249,7 @@ RegisterNetEvent('snelle-events:client:joinedEvent', function(event, isHost)
     end
 
     currentEvent = event
+    stripWeaponsForEvent(event)
     teleportToEvent(event)
 
     if event.settings.freezeOnStart and event.status == 'waiting' then

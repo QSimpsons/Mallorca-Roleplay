@@ -1,10 +1,31 @@
 Config = {}
 
+-- ═══════════════════════════════════════════════════════════════
+-- FiveM GTA Roleplay instellingen (Mallorca Roleplay / ESX / QBCore)
+-- ═══════════════════════════════════════════════════════════════
+
 -- Framework: 'auto', 'esx', 'qbcore', 'standalone'
 Config.Framework = 'auto'
 
--- Notificaties: 'native', 'ox', 'esx', 'qb'
-Config.Notify = 'native'
+-- Notificaties: 'auto', 'native', 'ox', 'esx', 'qb'
+Config.Notify = 'auto'
+
+-- Serverbrede aankondigingen: 'chat', 'notify', 'both'
+Config.AnnounceMethod = 'both'
+
+-- Chat prefix voor RP aankondigingen
+Config.ChatPrefix = '[EVENT]'
+Config.ChatColor = { 56, 189, 248 }
+
+-- Routing buckets: isoleer event deelnemers in aparte wereld (aanbevolen voor RP)
+Config.UseRoutingBuckets = true
+Config.RoutingBucketBase = 5000
+
+-- Wapens afnemen bij join (behalve PvP events)
+Config.StripWeaponsOnJoin = true
+
+-- Voertuig despawnen bij verlaten event
+Config.DeleteEventVehicleOnLeave = true
 
 -- Taal: 'nl' of 'en'
 Config.Locale = 'nl'

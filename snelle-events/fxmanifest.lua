@@ -22,6 +22,8 @@ client_scripts {
 
 server_scripts {
     'server/permissions.lua',
+    'server/buckets.lua',
+    'server/announce.lua',
     'server/events.lua',
     'server/main.lua'
 }

@@ -1,0 +1,20 @@
+# ═══════════════════════════════════════════════════════════════
+# Snelle Events - FiveM GTA Roleplay (Mallorca Roleplay)
+# Voeg deze regels toe aan je server.cfg
+# ═══════════════════════════════════════════════════════════════
+
+# Start de resource (na es_extended of qb-core)
+ensure es_extended
+# ensure qb-core
+ensure snelle-events
+
+# Staff permissies via ACE
+add_ace group.admin snelle-events.manage allow
+add_ace group.admin snelle-events.host allow
+
+# Koppel je admin license aan de admin groep
+# add_principal identifier.license:JOUW_LICENSE_HIER group.admin
+
+# Optioneel: mod groep alleen host rechten
+add_ace group.mod snelle-events.host allow
+# add_principal identifier.license:MOD_LICENSE group.mod
