@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snelle Events</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Staff Panel -->
+    <div id="panel" class="panel hidden">
+        <div class="panel-header">
+            <div>
+                <h1>Snelle Events</h1>
+                <p>Event beheer voor Mallorca Roleplay</p>
+            </div>
+            <button class="btn-icon" id="closePanel" title="Sluiten">&times;</button>
+        </div>
+
+        <div class="panel-tabs">
+            <button class="tab active" data-tab="create">Nieuw Event</button>
+            <button class="tab" data-tab="active">Actieve Events</button>
+        </div>
+
+        <div class="panel-body">
+            <!-- Create Tab -->
+            <div class="tab-content active" id="tab-create">
+                <div class="form-grid">
+                    <label>
+                        Event naam
+                        <input type="text" id="eventName" placeholder="Bijv. Zomer Meetup 2026" maxlength="64">
+                    </label>
+
+                    <label>
+                        Event type
+                        <select id="eventType"></select>
+                    </label>
+
+                    <label>
+                        Max spelers
+                        <input type="number" id="maxPlayers" min="2" max="128" value="32">
+                    </label>
+
+                    <label>
+                        Countdown (sec)
+                        <input type="number" id="countdown" min="3" max="120" value="10">
+                    </label>
+
+                    <label class="full">
+                        Beschrijving
+                        <textarea id="eventDescription" rows="2" placeholder="Korte beschrijving voor spelers..."></textarea>
+                    </label>
+
+                    <label class="full">
+                        Locatie preset
+                        <select id="locationPreset">
+                            <option value="">Huidige positie</option>
+                        </select>
+                    </label>
+
+                    <div class="coords-row full">
+                        <label>X <input type="number" id="coordX" step="0.01"></label>
+                        <label>Y <input type="number" id="coordY" step="0.01"></label>
+                        <label>Z <input type="number" id="coordZ" step="0.01"></label>
+                        <label>H <input type="number" id="coordH" step="0.1"></label>
+                        <button class="btn secondary" id="useCurrentCoords">Huidige locatie</button>
+                    </div>
+
+                    <div class="toggles full">
+                        <label class="toggle"><input type="checkbox" id="allowWeapons"> Wapens toestaan</label>
+                        <label class="toggle"><input type="checkbox" id="pvpEnabled"> PvP aan</label>
+                        <label class="toggle"><input type="checkbox" id="freezeOnStart"> Bevriezen bij wachten</label>
+                    </div>
+                </div>
+
+                <button class="btn primary full" id="createEventBtn">Event Aanmaken</button>
+            </div>
+
+            <!-- Active Tab -->
+            <div class="tab-content" id="tab-active">
+                <div class="toolbar">
+                    <button class="btn secondary" id="refreshEvents">Vernieuwen</button>
+                </div>
+                <div id="eventsList" class="events-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Join Menu -->
+    <div id="joinMenu" class="join-menu hidden">
+        <div class="join-header">
+            <h2>Deelnemen aan Event</h2>
+            <button class="btn-icon" id="closeJoin">&times;</button>
+        </div>
+        <div id="joinList" class="events-list"></div>
+    </div>
+
+    <!-- Event HUD -->
+    <div id="eventHud" class="event-hud hidden">
+        <div class="hud-title" id="hudEventName">Event</div>
+        <div class="hud-meta">
+            <span id="hudEventType">Type</span>
+            <span id="hudPlayerCount">0/0</span>
+            <span id="hudStatus" class="status-badge">Wachten</span>
+        </div>
+        <div id="hudCountdown" class="hud-countdown hidden"></div>
+        <div class="hud-actions" id="hudHostActions">
+            <button class="btn small primary" id="hudStart">Start</button>
+            <button class="btn small danger" id="hudStop">Stop</button>
+            <button class="btn small secondary" id="hudLeave">Verlaten</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
