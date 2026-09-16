@@ -51,6 +51,7 @@ Locales['en'] = {
     invite_usage = 'Usage: /eventinvite [player-id]',
     no_invite = 'You have no pending invite.',
     invite_expired = 'This invite has expired.',
+    quick_event_hint = 'Players can join with /joinevent (they spawn at your location).',
     eliminated = 'You have been eliminated! %s',
     out_of_bounds = 'You are outside the event zone! Return.',
     out_of_bounds_eliminated = 'Eliminated: too long outside the zone.',

@@ -75,7 +75,11 @@ local function returnToPosition()
     if not shouldReturnOnLeave() or not savedPosition then return end
 
     local c = savedPosition.coords
-    TeleportToCoords({ x = c.x, y = c.y, z = c.z, heading = savedPosition.heading }, { force = true, noSpread = true })
+    TeleportToCoords({ x = c.x, y = c.y, z = c.z, heading = savedPosition.heading }, {
+        force = true,
+        noSpread = true,
+        silent = true
+    })
     savedPosition = nil
     NotifyClient(L('returned_to_position'))
 end
@@ -153,7 +157,9 @@ function TeleportToCoords(coords, options)
         DoScreenFadeIn(400)
     end
 
-    NotifyClient(L('teleported'))
+    if not options.silent then
+        NotifyClient(L('teleported'))
+    end
 end
 
 local function setFrozen(state)

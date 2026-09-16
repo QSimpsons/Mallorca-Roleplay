@@ -27,17 +27,31 @@ ensure snelle-events
 
 Zie `snelle-events/server.cfg.example`.
 
-## Commando's
+## Commando's & spawn
 
-| Commando | Beschrijving |
+| Commando | Actie |
 |---|---|
-| `/event` | Staff beheerpaneel |
-| `/joinevent` | Join-menu of `/joinevent [id] [wachtwoord]` |
-| `/eventleave` | Event verlaten |
-| `/eventinfo` | Huidige event info |
-| `/eventinvite [id]` | Nodig speler uit |
-| `/eventspectate` | Spectate modus |
+| `/event` | Staff panel openen |
+| `/event [naam]` | Snel event op **jouw huidige positie** |
+| `/joinevent` | Join-menu (of auto-join bij 1 event) → **spawn op eventlocatie** |
+| `/joinevent [id]` | Direct joinen → **spawn op eventlocatie** |
+| `/eventleave` | Verlaten → terug naar oude positie |
+| `/eventinvite [id]` | Speler uitnodigen |
+| `/eventspectate` | Spectate |
 | `F6` | Panel openen |
+
+Teleport staat in `config.lua` onder `Config.Teleport`:
+
+```lua
+Config.Teleport = {
+    onJoin = true,              -- /joinevent → spawn op eventlocatie
+    onCreate = true,            -- host ook op locatie bij create
+    returnOnLeave = true,       -- /eventleave → terug
+    autoJoinSingleEvent = true, -- 1 event = direct joinen
+    quickCreateType = 'meetup', -- type bij /event [naam]
+    spreadPlayers = true,       -- niet op elkaar spawnen
+}
+```
 
 ## Eventtypes
 

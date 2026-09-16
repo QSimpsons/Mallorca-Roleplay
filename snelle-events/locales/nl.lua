@@ -51,6 +51,7 @@ Locales['nl'] = {
     invite_usage = 'Gebruik: /eventinvite [speler-id]',
     no_invite = 'Je hebt geen openstaande uitnodiging.',
     invite_expired = 'Deze uitnodiging is verlopen.',
+    quick_event_hint = 'Spelers kunnen joinen met /joinevent (ze spawnen op jouw locatie).',
     eliminated = 'Je bent geëlimineerd! %s',
     out_of_bounds = 'Je bent buiten de eventzone! Keer terug.',
     out_of_bounds_eliminated = 'Geëlimineerd: te lang buiten de zone.',
