@@ -29,16 +29,29 @@ OUT_DIR = REPO / "politie_logo" / "stream"
 PREVIEW_DIR = Path("/tmp/politie")
 
 # A small lift so more of the blue O stays visible under the shield.
-GOLD_LIFT_PX = 11.0  # at 2x photo resolution
+GOLD_LIFT_PX = 8.0
 TARGET_WIDTH_M = 6.0
-DEPTH_M = 0.30
-BEVEL_M = 0.055
-GOLD_FORWARD_M = 0.04
-UPSAMPLE = 2.0
+DEPTH_M = 0.28
+BEVEL_M = 0.038
+GOLD_FORWARD_M = 0.045
+FONT_PATH = ROOT / "Montserrat-Black.ttf"
 
 # Match the 3D render colours.
 BLUE_RGBA = (22, 108, 230, 255)
 GOLD_RGBA = (226, 190, 68, 255)
+
+# Photo pixel boxes for the blue letters (1024x435 source).
+LETTER_BOXES = {
+    "P": (67.0, 138.0, 223.0, 315.0),
+    "L": (444.0, 139.0, 549.0, 314.0),
+    "I1": (564.0, 139.0, 611.0, 314.0),
+    "T": (623.0, 138.0, 769.0, 314.0),
+    "I2": (776.0, 139.0, 833.0, 314.0),
+    "E": (845.0, 137.0, 973.0, 314.0),
+}
+O_CENTER = (329.5, 293.5)
+O_RADIUS_OUT = 97.6
+O_RADIUS_IN = 50.4
 
 
 def _pt_xy(contour: np.ndarray) -> np.ndarray:
@@ -111,45 +124,115 @@ def complete_o_ring(o_mask: np.ndarray) -> Polygon:
     )
 
 
+def glyph_polygon(character: str, size: float = 240) -> Polygon:
+    from matplotlib.font_manager import FontProperties
+    from matplotlib.textpath import TextPath
+
+    path = TextPath((0.0, 0.0), character, size=size, prop=FontProperties(fname=str(FONT_PATH), size=size))
+    polys: list[Polygon] = []
+    for coords in path.to_polygons():
+        poly = Polygon(coords)
+        if not poly.is_valid:
+            poly = make_valid(poly)
+        if not poly.is_empty and poly.area > 1.0:
+            polys.append(poly)
+    if not polys:
+        raise ValueError(f"No outline for {character!r}")
+    polys = sorted(polys, key=lambda item: item.area, reverse=True)
+    result = polys[0]
+    for extra in polys[1:]:
+        if result.contains(extra):
+            result = result.difference(extra)
+        else:
+            result = unary_union([result, extra])
+    return orient(make_valid(result), sign=1.0)
+
+
+def place_letter(poly: Polygon, box: tuple[float, float, float, float]) -> Polygon:
+    from shapely.ops import transform as shapely_map
+
+    tx0, ty0, tx1, ty1 = box
+    minx, miny, maxx, maxy = poly.bounds
+    scale = min((tx1 - tx0 - 6.0) / (maxx - minx), (ty1 - ty0) / (maxy - miny))
+    x_left = (tx0 + tx1) / 2.0 - (maxx - minx) * scale / 2.0
+
+    def mapper(x, y, z=None):
+        return (x_left + (x - minx) * scale, ty1 - (y - miny) * scale)
+
+    placed = shapely_map(mapper, poly)
+    return smooth_poly(placed, round_px=2.8, simplify=0.12)
+
+
+def smooth_ring(coords, samples: int, smoothing: float) -> np.ndarray:
+    from scipy.interpolate import splprep, splev
+
+    pts = np.asarray(coords, dtype=np.float64)
+    if len(pts) >= 2 and np.allclose(pts[0], pts[-1]):
+        pts = pts[:-1]
+    if len(pts) < 8:
+        return pts
+    tck, _u = splprep([pts[:, 0], pts[:, 1]], s=smoothing, per=True, quiet=2)
+    u_new = np.linspace(0.0, 1.0, samples, endpoint=False)
+    x, y = splev(u_new, tck)
+    return np.column_stack([x, y])
+
+
+def smooth_traced(poly: Polygon) -> Polygon:
+    exterior = smooth_ring(np.asarray(poly.exterior.coords), samples=280, smoothing=42.0)
+    holes = [
+        smooth_ring(np.asarray(inner.coords), samples=96, smoothing=14.0)
+        for inner in poly.interiors
+        if len(inner.coords) >= 12
+    ]
+    result = Polygon(exterior, holes)
+    if not result.is_valid:
+        result = make_valid(result)
+    return smooth_poly(result, round_px=1.6, simplify=0.35)
+
+
+def load_gold_polygon() -> Polygon | None:
+    arr = np.asarray(Image.open(PHOTO_PATH).convert("RGB")).astype(np.float32)
+    r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+    gold = (r > 140) & (g > 110) & (r > b + 30) & (g > b + 15) & ((r + g) > 2.2 * b)
+    gold = ndimage.zoom(gold.astype(np.float32), 4.0, order=1)
+    gold = ndimage.gaussian_filter(gold, 1.2) > 0.45
+    gold = ndimage.binary_closing(gold, iterations=2)
+    gold = ndimage.binary_opening(gold, iterations=1)
+    geom = contours_to_polygon(gold, min_area=1200)
+    if geom is None:
+        return None
+    from shapely.affinity import scale as shapely_scale
+    from shapely.affinity import translate
+
+    # Contours are in 4x photo pixels; scale back to the 1024-wide photo.
+    geom = shapely_scale(geom, xfact=0.25, yfact=0.25, origin=(0.0, 0.0))
+    parts = []
+    for part in iter_polygons(geom):
+        parts.append(translate(smooth_traced(part), xoff=0.0, yoff=-GOLD_LIFT_PX))
+    return unary_union(parts) if parts else None
+
+
 def load_logo_polygons() -> tuple[list[Polygon], list[Polygon]]:
-    blue_mask, gold_mask = mask_from_photo(PHOTO_PATH)
-    labels, count = ndimage.label(blue_mask)
     blue: list[Polygon] = []
-    o_mask = None
-    for index in range(1, count + 1):
-        component = labels == index
-        if int(component.sum()) < 800:
-            continue
-        ys, _xs = np.where(component)
-        if ys.max() > blue_mask.shape[0] * 0.78:
-            o_mask = component
-            continue
-        geom = contours_to_polygon(component, min_area=400)
-        if geom is None:
-            continue
-        for part in iter_polygons(geom):
-            blue.append(smooth_poly(part, round_px=2.2, simplify=0.9))
-    if o_mask is not None:
-        blue.append(complete_o_ring(o_mask))
-    gold_geom = contours_to_polygon(gold_mask, min_area=300)
+    for key, box in LETTER_BOXES.items():
+        letter = "I" if key.startswith("I") else key
+        blue.append(place_letter(glyph_polygon(letter), box))
+    blue.append(
+        Point(*O_CENTER).buffer(O_RADIUS_OUT, resolution=96).difference(
+            Point(*O_CENTER).buffer(O_RADIUS_IN, resolution=96)
+        )
+    )
+    gold_geom = load_gold_polygon()
     gold: list[Polygon] = []
     if gold_geom is not None:
-        from shapely.affinity import translate
-
-        for part in iter_polygons(gold_geom):
-            part = smooth_poly(part, round_px=1.1, simplify=0.55)
-            gold.append(translate(part, xoff=0.0, yoff=-GOLD_LIFT_PX))
-    # Cut blue out from behind the gold so the O does not show through the shield.
-    if gold:
+        gold.extend(iter_polygons(gold_geom))
         gold_cut = unary_union([Polygon(part.exterior) for part in gold if not part.is_empty])
-        gold_cut = make_valid(gold_cut.buffer(3.5))
+        gold_cut = make_valid(gold_cut.buffer(2.8))
         cut_blue: list[Polygon] = []
         for part in blue:
             leftover = make_valid(part.difference(gold_cut))
-            if leftover.is_empty:
-                continue
             for piece in iter_polygons(leftover):
-                if piece.area > 80:
+                if piece.area > 40:
                     cut_blue.append(orient(piece, sign=1.0) if piece.geom_type == "Polygon" else piece)
         blue = cut_blue
     return blue, gold
@@ -242,58 +325,19 @@ def loft_polygon(poly: Polygon, depth: float, bevel: float) -> trimesh.Trimesh:
     poly = orient(make_valid(poly), sign=1.0)
     if poly.is_empty or poly.area < 1e-6:
         raise ValueError("empty polygon")
-    inset_poly, used_bevel = safe_inset(poly, bevel)
-    if used_bevel < bevel * 0.25 or inset_poly.geom_type != "Polygon":
-        mesh = trimesh.creation.extrude_polygon(poly, height=float(depth))
-        trimesh.repair.fix_normals(mesh)
-        return mesh
-
-    steps = 5
-    body_z = depth - used_bevel
-    layers = [(0.0, 0.0), (body_z, 0.0)]
-    for i in range(1, steps + 1):
-        t = i / steps
-        angle = t * math.pi / 2.0
-        layers.append((body_z + used_bevel * math.sin(angle), used_bevel * (1.0 - math.cos(angle))))
-
-    sample_n = int(np.clip(poly.exterior.length / 2.4, 72, 280))
-    parts = [cap_mesh(poly, 0.0, flip=True)]
-    front = inset_poly if inset_poly.geom_type == "Polygon" else poly
-    if layers[-1][1] > 0:
-        front, _ = safe_inset(poly, layers[-1][1])
-        if front.geom_type == "MultiPolygon":
-            front = max(front.geoms, key=lambda p: p.area)
-        front = orient(front, sign=1.0)
-    parts.append(cap_mesh(front, layers[-1][0], flip=False))
-
-    prev_ext = resample_closed(np.asarray(poly.exterior.coords), sample_n)
-    prev_holes = [
-        resample_closed(np.asarray(inner.coords), max(36, sample_n // 2))
-        for inner in poly.interiors
-    ]
-    prev_z = 0.0
-    for z, inset in layers[1:]:
-        current, _ = safe_inset(poly, inset)
-        if current.geom_type == "MultiPolygon":
-            current = max(current.geoms, key=lambda p: p.area)
-        current = orient(current, sign=1.0)
-        ext = align_ring(resample_closed(np.asarray(current.exterior.coords), sample_n), prev_ext)
-        parts.append(stitch_sides(prev_ext, ext, prev_z, z))
-        new_holes = []
-        unused = [
-            resample_closed(np.asarray(inner.coords), max(36, sample_n // 2))
-            for inner in current.interiors
-        ]
-        for prev in prev_holes:
-            if not unused:
-                break
-            dists = [np.linalg.norm(u.mean(0) - prev.mean(0)) for u in unused]
-            hole = align_ring(unused.pop(int(np.argmin(dists))), prev)
-            parts.append(stitch_sides(prev, hole, prev_z, z))
-            new_holes.append(hole)
-        prev_ext, prev_holes, prev_z = ext, new_holes, z
-
-    mesh = trimesh.util.concatenate(parts)
+    mesh = trimesh.creation.extrude_polygon(poly, height=float(depth))
+    if bevel > 1e-6:
+        inset, used = safe_inset(poly, bevel)
+        if (
+            used > bevel * 0.35
+            and inset.geom_type == "Polygon"
+            and len(inset.interiors) == len(poly.interiors)
+        ):
+            lip = trimesh.creation.extrude_polygon(
+                inset, height=float(max(depth * 0.10, used * 0.40))
+            )
+            lip.apply_translation([0.0, 0.0, float(depth)])
+            mesh = trimesh.util.concatenate([mesh, lip])
     mesh.merge_vertices()
     mesh.remove_unreferenced_vertices()
     trimesh.repair.fix_normals(mesh)
@@ -349,8 +393,8 @@ def build_meshes() -> tuple[trimesh.Trimesh, trimesh.Trimesh]:
         combined.apply_scale(scale)
         return combined
 
-    blue_mesh = loft_group(flipped_blue, 0.0, bevel_svg)
-    gold_mesh = loft_group(flipped_gold, gold_z, bevel_svg * 0.22)
+    blue_mesh = loft_group(flipped_blue, 0.0, 0.0)
+    gold_mesh = loft_group(flipped_gold, gold_z, 0.0)
     mins, maxs = combined_bounds(blue_mesh, gold_mesh)
     shift = np.array(
         [-(mins[0] + maxs[0]) / 2.0, -(mins[1] + maxs[1]) / 2.0, -mins[2]],
@@ -373,7 +417,7 @@ def render_photo_like(blue: trimesh.Trimesh, gold: trimesh.Trimesh, path: Path) 
     width, height = 1600, 680
     img = Image.new("RGB", (width, height), (45, 45, 45))
     draw = ImageDraw.Draw(img)
-    rot = _rotation(math.radians(9), math.radians(-5))
+    rot = _rotation(math.radians(6), math.radians(-3))
     combined = trimesh.util.concatenate([blue, gold])
     center = combined.bounds.mean(axis=0)
     light = np.array([-0.38, 0.62, 0.68], dtype=np.float64)
