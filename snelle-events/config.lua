@@ -267,5 +267,11 @@ Config.Rewards = {
     thirdPlace = { money = 1000, account = 'money' }
 }
 
+-- Database logging (importeer sql/snelle_events.sql)
+-- Vereist oxmysql of mysql-async
+Config.Database = {
+    enabled = true
+}
+
 -- Discord webhook (leeg = uit)
 Config.DiscordWebhook = ''

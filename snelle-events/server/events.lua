@@ -487,6 +487,11 @@ function Events.Stop(source, eventId, autoStop)
     event.status = 'ended'
     local playersCopy = Utils.CopyTable(event.players)
 
+    if not event._dbSaved then
+        Database.SaveEvent(event, event.winnerSource)
+        event._dbSaved = true
+    end
+
     for _, playerId in ipairs(playersCopy) do
         Buckets.ResetPlayer(playerId)
         TriggerClientEvent('snelle-events:client:eventStopped', playerId, buildPublicEvent(event))
@@ -569,6 +574,10 @@ function Events.SetWinner(source, eventId, winnerSource)
     local winnerName = Permissions.GetPlayerName(winnerSource)
     payPlaceRewards(event, { winnerSource })
     Announce.ToAll(L('winner_announced', winnerName))
+
+    event.winnerSource = winnerSource
+    Database.SaveEvent(event, winnerSource)
+    event._dbSaved = true
 
     Events.Stop(source, eventId, true)
     return true

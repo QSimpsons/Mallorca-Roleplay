@@ -28,6 +28,7 @@ server_scripts {
     'server/permissions.lua',
     'server/buckets.lua',
     'server/announce.lua',
+    'server/database.lua',
     'server/events.lua',
     'server/main.lua'
 }

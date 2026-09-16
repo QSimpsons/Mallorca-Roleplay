@@ -1,17 +1,16 @@
 # ═══════════════════════════════════════════════════════════════
 # Snelle Events - ESX Legacy (Mallorca Roleplay)
-# Voeg deze regels toe aan je server.cfg
 # ═══════════════════════════════════════════════════════════════
 
 ensure es_extended
-ensure ox_lib              # optioneel, mooiere notificaties
+ensure oxmysql
+ensure ox_lib
 ensure snelle-events
 
-# Staff permissies via ACE (optioneel naast ESX groepen)
 add_ace group.admin snelle-events.manage allow
 add_ace group.admin snelle-events.host allow
 # add_principal identifier.license:JOUW_LICENSE_HIER group.admin
 
-# ESX groepen worden automatisch gelezen uit config.lua:
-# admin, superadmin = volledig beheer
-# mod = event hosten
+# 1) Importeer sql/snelle_events.sql in je database
+# 2) Herstart de server
+# 3) Staff: /event   |   Spelers: /joinevent
