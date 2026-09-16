@@ -33,7 +33,7 @@ Config.Locale = 'nl'
 -- Commando's
 Config.Commands = {
     manage = 'event',
-    join = 'eventjoin',
+    join = 'joinevent',
     leave = 'eventleave',
     info = 'eventinfo'
 }

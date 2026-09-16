@@ -8,7 +8,7 @@ Volledig **FiveM GTA Roleplay** event-beheersysteem voor **Mallorca Roleplay**. 
 
 - **6 eventtypes**: Meetup, Race, PvP/Redzone, Sumo/Derby, Party, Custom
 - **NUI beheerpaneel** voor staff (F6 of `/event`)
-- **Join-menu** voor spelers (`/eventjoin`)
+- **Join-menu** voor spelers (`/joinevent`)
 - **Teleportatie** naar eventlocatie met terugkeer naar originele positie
 - **Countdown timer** voor event start
 - **Blips** op de kaart voor actieve events
@@ -51,7 +51,7 @@ ensure snelle-events
 | Commando | Beschrijving |
 |---|---|
 | `/event` | Open staff beheerpaneel |
-| `/eventjoin` | Open join-menu of `/eventjoin [id]` |
+| `/joinevent` | Open join-menu of `/joinevent [id]` |
 | `/eventleave` | Verlaat huidig event |
 | `/eventinfo` | Toon info over je huidige event |
 

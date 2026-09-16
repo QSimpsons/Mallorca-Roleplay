@@ -19,5 +19,5 @@ function Announce.ToPlayer(source, message)
 end
 
 function Announce.EventCreated(event)
-    Announce.ToAll(L('event_announce', ('Nieuw event: %s (%s) - /eventjoin'):format(event.name, Utils.GetEventTypeConfig(event.type).label)))
+    Announce.ToAll(L('event_announce', ('Nieuw event: %s (%s) - /joinevent'):format(event.name, Utils.GetEventTypeConfig(event.type).label)))
 end
