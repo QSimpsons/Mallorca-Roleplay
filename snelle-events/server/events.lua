@@ -262,6 +262,7 @@ function Events.Stop(source, eventId, autoStop)
     local playersCopy = Utils.CopyTable(event.players)
 
     for _, playerId in ipairs(playersCopy) do
+        Buckets.ResetPlayer(playerId)
         TriggerClientEvent('snelle-events:client:eventStopped', playerId, event)
         clearPlayerEvent(playerId)
     end

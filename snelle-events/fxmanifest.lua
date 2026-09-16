@@ -3,8 +3,12 @@ game 'gta5'
 lua54 'yes'
 
 author 'Snelle / Mallorca Roleplay'
-description 'Volledig event-beheersysteem met NUI panel, teleportatie en meerdere eventtypes'
-version '1.0.0'
+description 'ESX event-beheersysteem met NUI panel, teleportatie en meerdere eventtypes'
+version '1.1.0'
+
+dependencies {
+    'es_extended'
+}
 
 ui_page 'html/index.html'
 

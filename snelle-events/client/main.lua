@@ -7,19 +7,13 @@ local ClientFramework = nil
 local ClientFrameworkName = 'standalone'
 
 CreateThread(function()
-    if Config.Framework == 'auto' or Config.Framework == 'esx' then
+    while Config.Framework == 'esx' and not ClientFramework do
         if GetResourceState('es_extended') == 'started' then
             ClientFramework = exports['es_extended']:getSharedObject()
             ClientFrameworkName = 'esx'
-            return
+            break
         end
-    end
-
-    if Config.Framework == 'auto' or Config.Framework == 'qbcore' then
-        if GetResourceState('qb-core') == 'started' then
-            ClientFramework = exports['qb-core']:GetCoreObject()
-            ClientFrameworkName = 'qbcore'
-        end
+        Wait(500)
     end
 end)
 

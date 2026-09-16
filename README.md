@@ -2,7 +2,7 @@
 
 Volledig **FiveM GTA Roleplay** event-beheersysteem voor **Mallorca Roleplay**. Staff kunnen events aanmaken en beheren via een modern NUI-panel. Spelers kunnen deelnemen via commando's of het join-menu.
 
-> Werkt met **ESX**, **QBCore** en **Standalone** FiveM servers.
+> Geconfigureerd voor **ESX Legacy** (Mallorca Roleplay).
 
 ## Features
 
@@ -32,21 +32,19 @@ Volledig **FiveM GTA Roleplay** event-beheersysteem voor **Mallorca Roleplay**. 
 | `Config.StripWeaponsOnJoin` | Neemt wapens af bij non-PvP events |
 | `Config.Rewards` | Geld beloningen via ESX/QBCore |
 
-### ESX Legacy server
+### ESX Legacy server (standaard)
 
 ```cfg
 ensure es_extended
-ensure ox_lib          # optioneel, aanbevolen
+ensure ox_lib          # optioneel, mooiere notificaties
 ensure snelle-events
 ```
 
-### QBCore server
+**ESX groepen** in `config.lua`:
+- `admin` / `superadmin` → volledig event beheer
+- `mod` → events hosten
 
-```cfg
-ensure qb-core
-ensure ox_lib          # optioneel, aanbevolen
-ensure snelle-events
-```
+**Beloningen** gaan via ESX `addMoney()` (cash) of `addAccountMoney('bank')`.
 
 ## Commando's
 

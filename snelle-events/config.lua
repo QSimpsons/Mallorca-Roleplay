@@ -4,10 +4,10 @@ Config = {}
 -- FiveM GTA Roleplay instellingen (Mallorca Roleplay / ESX / QBCore)
 -- ═══════════════════════════════════════════════════════════════
 
--- Framework: 'auto', 'esx', 'qbcore', 'standalone'
-Config.Framework = 'auto'
+-- Framework: ingesteld op ESX voor Mallorca Roleplay
+Config.Framework = 'esx'
 
--- Notificaties: 'auto', 'native', 'ox', 'esx', 'qb'
+-- Notificaties: 'auto' = ox_lib (indien aanwezig) anders ESX notify
 Config.Notify = 'auto'
 
 -- Serverbrede aankondigingen: 'chat', 'notify', 'both'
@@ -49,11 +49,9 @@ Config.Permissions = {
     aceManage = 'snelle-events.manage',
     aceHost = 'snelle-events.host',
 
-    -- ESX groepen
-    esxGroups = { 'admin', 'superadmin', 'mod' },
-
-    -- QBCore permissies
-    qbPermissions = { 'admin', 'god' }
+    -- ESX groepen met event-rechten (pas aan jouw server)
+    esxGroups = { 'admin', 'superadmin' },
+    esxHostGroups = { 'mod' } -- mod mag hosten, geen volledig beheer
 }
 
 -- Wie mag events hosten zonder admin-rechten
@@ -177,12 +175,12 @@ Config.PresetLocations = {
     }
 }
 
--- Beloningen (optioneel, vereist framework)
+-- Beloningen via ESX (addMoney / addAccountMoney)
 Config.Rewards = {
     enabled = true,
     winner = {
         money = 5000,
-        account = 'money' -- ESX: money/bank, QBCore: cash/bank
+        account = 'money' -- 'money' = cash, 'bank' = bankrekening
     },
     participant = {
         money = 500,
