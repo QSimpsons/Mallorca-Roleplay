@@ -1,10 +1,15 @@
 savedPosition = nil
 currentEvent = nil
+syncedEvents = {}
+outOfBoundsTimer = 0
+raceFinished = false
 local activeBlips = {}
 local isFrozen = false
 local eventVehicle = nil
 local ClientFramework = nil
 local ClientFrameworkName = 'standalone'
+local isSpectating = false
+local spectateIndex = 1
 
 CreateThread(function()
     while Config.Framework == 'esx' and not ClientFramework do
@@ -21,7 +26,6 @@ local function resolveNotifyType()
     if Config.Notify ~= 'auto' then return Config.Notify end
     if GetResourceState('ox_lib') == 'started' then return 'ox' end
     if ClientFrameworkName == 'esx' then return 'esx' end
-    if ClientFrameworkName == 'qbcore' then return 'qb' end
     return 'native'
 end
 
@@ -38,24 +42,16 @@ function NotifyClient(message)
         return
     end
 
-    if notifyType == 'qb' and ClientFramework then
-        ClientFramework.Functions.Notify(message, 'primary', 5000)
-        return
-    end
-
     BeginTextCommandThefeedPost('STRING')
     AddTextComponentSubstringPlayerName(message)
     EndTextCommandThefeedPostTicker(false, true)
 end
 
 RegisterNetEvent('snelle-events:client:chatMessage', function(message)
-    local prefix = Config.ChatPrefix or '[EVENT]'
-    local color = Config.ChatColor or { 56, 189, 248 }
-
     TriggerEvent('chat:addMessage', {
-        color = color,
+        color = Config.ChatColor or { 56, 189, 248 },
         multiline = false,
-        args = { prefix, message }
+        args = { Config.ChatPrefix or '[EVENT]', message }
     })
 end)
 
@@ -76,10 +72,8 @@ local function returnToPosition()
 
     DoScreenFadeOut(500)
     Wait(600)
-
     SetEntityCoordsNoOffset(ped, c.x, c.y, c.z, false, false, false)
     SetEntityHeading(ped, savedPosition.heading)
-
     Wait(200)
     DoScreenFadeIn(500)
 
@@ -89,9 +83,7 @@ end
 
 local function clearBlips()
     for _, blip in pairs(activeBlips) do
-        if DoesBlipExist(blip) then
-            RemoveBlip(blip)
-        end
+        if DoesBlipExist(blip) then RemoveBlip(blip) end
     end
     activeBlips = {}
 end
@@ -111,40 +103,43 @@ local function updateBlips(events)
             AddTextComponentString(L('blip_label', event.name))
             EndTextCommandSetBlipName(blip)
             activeBlips[event.id] = blip
+
+            if event.finishCoords and event.type == 'race' then
+                local finish = AddBlipForCoord(event.finishCoords.x, event.finishCoords.y, event.finishCoords.z)
+                SetBlipSprite(finish, 38)
+                SetBlipColour(finish, 2)
+                SetBlipScale(finish, 0.85)
+                BeginTextCommandSetBlipName('STRING')
+                AddTextComponentString('Finish: ' .. event.name)
+                EndTextCommandSetBlipName(finish)
+                activeBlips[event.id .. '_finish'] = finish
+            end
         end
     end
 end
 
-local function teleportToEvent(event)
+function TeleportToCoords(coords)
     local ped = PlayerPedId()
-    local coords, heading = Utils.CoordsToVector(event.coords)
-
     DoScreenFadeOut(400)
     Wait(500)
-
     SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false)
-    SetEntityHeading(ped, heading)
-
+    SetEntityHeading(ped, coords.heading or 0.0)
     Wait(200)
     DoScreenFadeIn(400)
-
     NotifyClient(L('teleported'))
 end
 
 local function setFrozen(state)
     isFrozen = state
-    local ped = PlayerPedId()
-    FreezeEntityPosition(ped, state)
-
-    if state then
-        NotifyClient(L('frozen'))
-    else
-        NotifyClient(L('unfrozen'))
-    end
+    FreezeEntityPosition(PlayerPedId(), state)
+    NotifyClient(state and L('frozen') or L('unfrozen'))
 end
 
 local function cleanupVehicle()
-    if not Config.DeleteEventVehicleOnLeave then return end
+    if not Config.DeleteEventVehicleOnLeave then
+        eventVehicle = nil
+        return
+    end
     if eventVehicle and DoesEntityExist(eventVehicle) then
         DeleteEntity(eventVehicle)
     end
@@ -153,7 +148,6 @@ end
 
 local function spawnEventVehicle(modelName)
     cleanupVehicle()
-
     local model = joaat(modelName)
     RequestModel(model)
 
@@ -162,47 +156,55 @@ local function spawnEventVehicle(modelName)
         Wait(50)
         timeout = timeout + 1
     end
-
     if not HasModelLoaded(model) then return end
 
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
     local heading = GetEntityHeading(ped)
-
     eventVehicle = CreateVehicle(model, coords.x, coords.y, coords.z, heading, true, false)
     SetPedIntoVehicle(ped, eventVehicle, -1)
     SetVehicleOnGroundProperly(eventVehicle)
     SetModelAsNoLongerNeeded(model)
-
     NotifyClient(L('vehicle_spawned'))
 end
 
 local function giveEventLoadout(event)
-    if not event.settings.allowWeapons or not event.settings.loadout then return end
-
+    if not event.settings or not event.settings.allowWeapons or not event.settings.loadout then return end
     local ped = PlayerPedId()
     RemoveAllPedWeapons(ped, true)
-
     for _, weapon in ipairs(event.settings.loadout) do
         GiveWeaponToPed(ped, joaat(weapon), event.settings.ammo or 120, false, false)
     end
-
     NotifyClient(L('weapons_given'))
 end
 
+local function stripWeaponsForEvent(event)
+    if not Config.StripWeaponsOnJoin then return end
+    if event.settings and (event.settings.allowWeapons or event.type == 'pvp' or event.type == 'deathmatch') then return end
+    RemoveAllPedWeapons(PlayerPedId(), true)
+end
+
+local function stopSpectate()
+    if not isSpectating then return end
+    isSpectating = false
+    local ped = PlayerPedId()
+    NetworkSetInSpectatorMode(false, ped)
+    SetEntityVisible(ped, true, false)
+    SetEntityCollision(ped, true, true)
+    NotifyClient(L('spectate_off'))
+end
+
 local function resetEventState(skipReturn)
-    if isFrozen then
-        setFrozen(false)
-    end
-
+    stopSpectate()
+    if isFrozen then setFrozen(false) end
     cleanupVehicle()
-
     local ped = PlayerPedId()
     SetEntityInvincible(ped, false)
     SetPlayerInvincible(PlayerId(), false)
-
+    NetworkSetFriendlyFireOption(true)
     currentEvent = nil
-
+    raceFinished = false
+    outOfBoundsTimer = 0
     if not skipReturn then
         returnToPosition()
     else
@@ -218,22 +220,19 @@ RegisterNetEvent('snelle-events:client:globalAnnounce', function(message)
     NotifyClient(message)
 end)
 
-local function stripWeaponsForEvent(event)
-    if not Config.StripWeaponsOnJoin then return end
-    if event.settings.allowWeapons or event.type == 'pvp' then return end
-
-    local ped = PlayerPedId()
-    RemoveAllPedWeapons(ped, true)
-end
-
 RegisterNetEvent('snelle-events:client:syncEvents', function(events)
-    updateBlips(events)
-    SendNUIMessage({ action = 'syncEvents', events = events })
+    syncedEvents = events or {}
+    updateBlips(syncedEvents)
+    SendNUIMessage({ action = 'syncEvents', events = syncedEvents })
 end)
 
 RegisterNetEvent('snelle-events:client:openJoinMenu', function(events)
     SendNUIMessage({ action = 'openJoin', events = events })
     SetNuiFocus(true, true)
+end)
+
+RegisterNetEvent('snelle-events:client:teleportToEvent', function(coords)
+    TeleportToCoords(coords)
 end)
 
 RegisterNetEvent('snelle-events:client:joinedEvent', function(event, isHost)
@@ -243,18 +242,15 @@ RegisterNetEvent('snelle-events:client:joinedEvent', function(event, isHost)
     end
 
     currentEvent = event
+    raceFinished = false
     stripWeaponsForEvent(event)
-    teleportToEvent(event)
+    TeleportToCoords(event.coords)
 
-    if event.settings.freezeOnStart and event.status == 'waiting' then
+    if event.settings and event.settings.freezeOnStart and event.status == 'waiting' then
         setFrozen(true)
     end
 
-    SendNUIMessage({
-        action = 'showEventHud',
-        event = event,
-        isHost = isHost
-    })
+    SendNUIMessage({ action = 'showEventHud', event = event, isHost = isHost })
 end)
 
 RegisterNetEvent('snelle-events:client:leftEvent', function(event, skipReturn)
@@ -264,7 +260,6 @@ end)
 
 RegisterNetEvent('snelle-events:client:countdown', function(seconds, event)
     currentEvent = event
-
     CreateThread(function()
         for i = seconds, 1, -1 do
             NotifyClient(L('countdown', i))
@@ -276,27 +271,52 @@ end)
 
 RegisterNetEvent('snelle-events:client:eventStarted', function(event)
     currentEvent = event
+    raceFinished = false
 
-    if isFrozen then
-        setFrozen(false)
-    end
+    if isFrozen then setFrozen(false) end
 
     if event.type == 'race' or event.type == 'derby' then
-        if event.settings.vehicle then
+        if event.settings and event.settings.vehicle then
             spawnEventVehicle(event.settings.vehicle)
         end
     end
 
-    if event.type == 'pvp' or event.settings.allowWeapons then
+    if event.type == 'pvp' or event.type == 'deathmatch' or event.type == 'hunt' or (event.settings and event.settings.allowWeapons) then
         giveEventLoadout(event)
+    end
+
+    if event.type == 'parachute' then
+        local ped = PlayerPedId()
+        local coords = GetEntityCoords(ped)
+        local height = (event.settings and event.settings.dropHeight) or 800.0
+        SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z + height, false, false, false)
+        GiveWeaponToPed(ped, joaat('GADGET_PARACHUTE'), 1, false, true)
+        NotifyClient(L('parachute_ready'))
+    end
+
+    if event.roles then
+        local myId = GetPlayerServerId(PlayerId())
+        local role = nil
+        for _, p in ipairs(event.players or {}) do
+            if p.id == myId then role = p.role break end
+        end
+        if role == 'target' then NotifyClient(L('role_target'))
+        elseif role == 'hunter' then NotifyClient(L('role_hunter'))
+        elseif role == 'hider' then NotifyClient(L('role_hider'))
+        elseif role == 'seeker' then NotifyClient(L('role_seeker')) end
     end
 
     SendNUIMessage({ action = 'eventStarted', event = event })
 end)
 
-RegisterNetEvent('snelle-events:client:eventStopped', function(event)
+RegisterNetEvent('snelle-events:client:eventStopped', function()
     SendNUIMessage({ action = 'hideEventHud' })
     resetEventState(false)
+end)
+
+RegisterNetEvent('snelle-events:client:eventUpdate', function(event)
+    currentEvent = event
+    SendNUIMessage({ action = 'eventUpdate', event = event })
 end)
 
 RegisterNetEvent('snelle-events:client:becameHost', function(event)
@@ -318,17 +338,58 @@ RegisterNetEvent('snelle-events:client:playerLeft', function(eventId, playerName
     end
 end)
 
--- Sync events bij spawn
+RegisterNetEvent('snelle-events:client:invite', function(data)
+    SendNUIMessage({ action = 'showInvite', data = data })
+    SetNuiFocus(true, true)
+end)
+
+RegisterNetEvent('snelle-events:client:eliminated', function(event)
+    currentEvent = event
+    local ped = PlayerPedId()
+    SetEntityInvincible(ped, true)
+    NotifyClient(L('eliminated', ''))
+    SendNUIMessage({ action = 'eliminated', event = event })
+end)
+
+RegisterNetEvent('snelle-events:client:toggleSpectate', function(event)
+    if not event then return end
+    currentEvent = event
+
+    if isSpectating then
+        stopSpectate()
+        return
+    end
+
+    local targets = {}
+    local myId = GetPlayerServerId(PlayerId())
+    for _, p in ipairs(event.players or {}) do
+        if p.id ~= myId and not p.eliminated then
+            targets[#targets + 1] = p.id
+        end
+    end
+
+    if #targets == 0 then return end
+
+    isSpectating = true
+    spectateIndex = 1
+    local targetPed = GetPlayerPed(GetPlayerFromServerId(targets[spectateIndex]))
+    if targetPed and targetPed ~= 0 then
+        local ped = PlayerPedId()
+        SetEntityVisible(ped, false, false)
+        SetEntityCollision(ped, false, false)
+        NetworkSetInSpectatorMode(true, targetPed)
+        NotifyClient(L('spectate_on'))
+    end
+end)
+
 CreateThread(function()
     Wait(2000)
     TriggerServerEvent('snelle-events:server:requestEvents')
 end)
 
--- F6 keybind voor staff panel
 RegisterCommand('+snelleEventsPanel', function()
     TriggerServerEvent('snelle-events:server:requestOpenPanel')
 end, false)
-
 RegisterCommand('-snelleEventsPanel', function() end, false)
 RegisterKeyMapping('+snelleEventsPanel', 'Open Event Panel', 'keyboard', Config.Keys.openPanel)
 
@@ -336,9 +397,7 @@ AddEventHandler('onResourceStop', function(resourceName)
     if resourceName ~= GetCurrentResourceName() then return end
     clearBlips()
     cleanupVehicle()
+    stopSpectate()
     SetNuiFocus(false, false)
-
-    if isFrozen then
-        FreezeEntityPosition(PlayerPedId(), false)
-    end
+    if isFrozen then FreezeEntityPosition(PlayerPedId(), false) end
 end)
