@@ -139,6 +139,19 @@ def load_logo_polygons() -> tuple[list[Polygon], list[Polygon]]:
         for part in iter_polygons(gold_geom):
             part = smooth_poly(part, round_px=1.1, simplify=0.55)
             gold.append(translate(part, xoff=0.0, yoff=-GOLD_LIFT_PX))
+    # Cut blue out from behind the gold so the O does not show through the shield.
+    if gold:
+        gold_cut = unary_union([Polygon(part.exterior) for part in gold if not part.is_empty])
+        gold_cut = make_valid(gold_cut.buffer(3.5))
+        cut_blue: list[Polygon] = []
+        for part in blue:
+            leftover = make_valid(part.difference(gold_cut))
+            if leftover.is_empty:
+                continue
+            for piece in iter_polygons(leftover):
+                if piece.area > 80:
+                    cut_blue.append(orient(piece, sign=1.0) if piece.geom_type == "Polygon" else piece)
+        blue = cut_blue
     return blue, gold
 
 
