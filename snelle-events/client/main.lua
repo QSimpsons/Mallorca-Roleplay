@@ -64,19 +64,18 @@ local function savePosition()
     }
 end
 
+local function shouldReturnOnLeave()
+    if Config.Teleport and Config.Teleport.returnOnLeave ~= nil then
+        return Config.Teleport.returnOnLeave
+    end
+    return Config.ReturnToPosition
+end
+
 local function returnToPosition()
-    if not Config.ReturnToPosition or not savedPosition then return end
+    if not shouldReturnOnLeave() or not savedPosition then return end
 
-    local ped = PlayerPedId()
     local c = savedPosition.coords
-
-    DoScreenFadeOut(500)
-    Wait(600)
-    SetEntityCoordsNoOffset(ped, c.x, c.y, c.z, false, false, false)
-    SetEntityHeading(ped, savedPosition.heading)
-    Wait(200)
-    DoScreenFadeIn(500)
-
+    TeleportToCoords({ x = c.x, y = c.y, z = c.z, heading = savedPosition.heading }, { force = true, noSpread = true })
     savedPosition = nil
     NotifyClient(L('returned_to_position'))
 end
@@ -118,14 +117,42 @@ local function updateBlips(events)
     end
 end
 
-function TeleportToCoords(coords)
+function TeleportToCoords(coords, options)
+    options = options or {}
+
     local ped = PlayerPedId()
-    DoScreenFadeOut(400)
-    Wait(500)
-    SetEntityCoordsNoOffset(ped, coords.x, coords.y, coords.z, false, false, false)
-    SetEntityHeading(ped, coords.heading or 0.0)
-    Wait(200)
-    DoScreenFadeIn(400)
+    local x, y, z = coords.x + 0.0, coords.y + 0.0, coords.z + 0.0
+    local heading = coords.heading or 0.0
+
+    if Config.Teleport and Config.Teleport.spreadPlayers and not options.noSpread then
+        local radius = Config.Teleport.spreadRadius or 3.0
+        local angle = math.random() * math.pi * 2
+        local dist = math.random() * radius
+        x = x + math.cos(angle) * dist
+        y = y + math.sin(angle) * dist
+    end
+
+    local useFade = not (Config.Teleport and Config.Teleport.useScreenFade == false)
+    if useFade then
+        DoScreenFadeOut(400)
+        Wait(500)
+    end
+
+    RequestCollisionAtCoord(x, y, z)
+    SetEntityCoordsNoOffset(ped, x, y, z, false, false, false)
+    SetEntityHeading(ped, heading)
+
+    local timeout = 0
+    while not HasCollisionLoadedAroundEntity(ped) and timeout < 50 do
+        Wait(50)
+        timeout = timeout + 1
+    end
+
+    if useFade then
+        Wait(100)
+        DoScreenFadeIn(400)
+    end
+
     NotifyClient(L('teleported'))
 end
 
@@ -244,7 +271,18 @@ RegisterNetEvent('snelle-events:client:joinedEvent', function(event, isHost)
     currentEvent = event
     raceFinished = false
     stripWeaponsForEvent(event)
-    TeleportToCoords(event.coords)
+
+    -- Spawn / teleport naar eventlocatie (config: Config.Teleport.onJoin / onCreate)
+    local shouldTeleport = true
+    if isHost and Config.Teleport and Config.Teleport.onCreate == false then
+        shouldTeleport = false
+    elseif not isHost and Config.Teleport and Config.Teleport.onJoin == false then
+        shouldTeleport = false
+    end
+
+    if shouldTeleport and event.coords then
+        TeleportToCoords(event.coords, { noSpread = isHost == true })
+    end
 
     if event.settings and event.settings.freezeOnStart and event.status == 'waiting' then
         setFrozen(true)

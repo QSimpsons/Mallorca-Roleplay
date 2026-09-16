@@ -8,6 +8,43 @@ Config.Framework = 'esx'
 Config.Notify = 'auto' -- ox_lib → ESX notify
 Config.Locale = 'nl'
 
+-- ═══════════════════════════════════════════════════════════════
+-- Commando's & teleport / spawn naar eventlocatie
+-- ═══════════════════════════════════════════════════════════════
+-- Staff:   /event              → open panel (event aanmaken)
+--          /event [naam]       → snel event op jouw huidige positie
+-- Spelers: /joinevent          → join-menu of auto-join (1 event)
+--          /joinevent [id]     → direct joinen + spawnen op locatie
+--          /eventleave         → event verlaten + terug naar oude plek
+
+Config.Commands = {
+    manage = 'event',
+    join = 'joinevent',
+    leave = 'eventleave',
+    info = 'eventinfo',
+    invite = 'eventinvite',
+    spectate = 'eventspectate'
+}
+
+-- Teleport / spawn bij joinen en aanmaken
+Config.Teleport = {
+    -- Spelers die /joinevent doen worden naar de eventlocatie geteleporteerd
+    onJoin = true,
+    -- Host wordt ook naar (zijn eigen) eventlocatie gezet bij aanmaken
+    onCreate = true,
+    -- Na /eventleave terug naar de positie van vóór het event
+    returnOnLeave = true,
+    -- Fade in/out bij teleport
+    useScreenFade = true,
+    -- Spelers iets uit elkaar spawnen (geen stacking)
+    spreadPlayers = true,
+    spreadRadius = 3.0,
+    -- Standaard type bij /event [naam] (snel aanmaken)
+    quickCreateType = 'meetup',
+    -- Als er maar 1 actief event is: /joinevent joint direct (zonder menu)
+    autoJoinSingleEvent = true
+}
+
 -- Aankondigingen
 Config.AnnounceMethod = 'both' -- 'chat', 'notify', 'both'
 Config.ChatPrefix = '[EVENT]'
@@ -20,7 +57,7 @@ Config.RoutingBucketBase = 5000
 -- RP gedrag
 Config.StripWeaponsOnJoin = true
 Config.DeleteEventVehicleOnLeave = true
-Config.ReturnToPosition = true
+Config.ReturnToPosition = true -- wordt ook gestuurd via Config.Teleport.returnOnLeave
 Config.AllowDeadPlayers = false
 Config.CleanupOnRestart = true
 Config.MaxActiveEvents = 8
@@ -30,16 +67,6 @@ Config.DefaultZoneRadius = 80.0
 Config.MarkerJoinDistance = 2.5
 Config.OutOfBoundsWarnSeconds = 5
 Config.InviteExpireSeconds = 60
-
--- Commando's
-Config.Commands = {
-    manage = 'event',
-    join = 'joinevent',
-    leave = 'eventleave',
-    info = 'eventinfo',
-    invite = 'eventinvite',
-    spectate = 'eventspectate'
-}
 
 Config.Keys = {
     openPanel = 'F6'

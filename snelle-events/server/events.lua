@@ -65,6 +65,21 @@ local function buildPublicEvent(event)
         hasPassword = event.password ~= nil and event.password ~= '',
         duration = event.settings.duration,
         scoreToWin = event.settings.scoreToWin,
+        settings = {
+            allowWeapons = event.settings.allowWeapons,
+            pvpEnabled = event.settings.pvpEnabled,
+            freezeOnStart = event.settings.freezeOnStart,
+            vehicle = event.settings.vehicle,
+            loadout = event.settings.loadout,
+            ammo = event.settings.ammo,
+            zoneRadius = event.settings.zoneRadius,
+            enforceZone = event.settings.enforceZone,
+            duration = event.settings.duration,
+            scoreToWin = event.settings.scoreToWin,
+            dropHeight = event.settings.dropHeight,
+            autoWinner = event.settings.autoWinner,
+            finishDistance = event.settings.finishDistance
+        },
         players = buildRoster(event)
     }
 end

@@ -195,33 +195,77 @@ RegisterNetEvent('snelle-events:server:getOnlinePlayers', function()
     TriggerClientEvent('snelle-events:client:onlinePlayers', source, players)
 end)
 
--- Commando's
-RegisterCommand(Config.Commands.manage, function(source)
+local function tryJoin(source, eventId, password)
+    local ok, result, a, b = Events.Join(source, eventId, false, password)
+    if not ok then
+        if result == 'event_full' or result == 'not_enough_players' then
+            notify(source, result, b, a)
+        else
+            notify(source, result)
+        end
+        return false
+    end
+
+    notify(source, 'joined_event', result.name)
+    return true
+end
+
+-- /event → panel | /event [naam] → snel event op huidige positie
+RegisterCommand(Config.Commands.manage, function(source, args)
     if source == 0 then return end
+
+    if args[1] then
+        if not Permissions.CanManage(source) then
+            notify(source, 'no_permission')
+            return
+        end
+
+        local name = table.concat(args, ' ')
+        local ped = GetPlayerPed(source)
+        local coords = Utils.SerializeCoords(GetEntityCoords(ped), GetEntityHeading(ped))
+        local eventType = (Config.Teleport and Config.Teleport.quickCreateType) or 'meetup'
+
+        local ok, result = Events.Create(source, {
+            name = name,
+            type = eventType,
+            coords = coords
+        })
+
+        if not ok then
+            notify(source, result)
+            return
+        end
+
+        notify(source, 'event_created', result.name)
+        notify(source, 'quick_event_hint')
+        return
+    end
+
     openPanel(source)
 end, false)
 
+-- /joinevent → menu of auto-join | /joinevent [id] → direct joinen + spawn op locatie
 RegisterCommand(Config.Commands.join, function(source, args)
     if source == 0 then return end
 
     if args[1] then
-        local password = args[2]
-        local ok, result, a, b = Events.Join(source, args[1], false, password)
-        if not ok then
-            if result == 'event_full' then
-                notify(source, result, b, a)
-            else
-                notify(source, result)
-            end
-            return
-        end
-        notify(source, 'joined_event', result.name)
+        tryJoin(source, args[1], args[2])
         return
     end
 
     local list = Events.GetPublicList()
     if #list == 0 then
         notify(source, 'no_events_available')
+        return
+    end
+
+    -- Eén open event: direct joinen (spawn naar locatie gebeurt client-side)
+    if Config.Teleport and Config.Teleport.autoJoinSingleEvent and #list == 1 and list[1].status == 'waiting' then
+        if list[1].hasPassword then
+            TriggerClientEvent('snelle-events:client:openJoinMenu', source, list)
+            return
+        end
+        tryJoin(source, list[1].id)
         return
     end
 
