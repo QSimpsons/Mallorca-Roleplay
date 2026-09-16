@@ -1,8 +1,8 @@
 # POLITIE 3D logo
 
-Streamable FiveM-prop van het Nederlandse POLITIE-woordmerk, als 3D-letters met gouden embleem.
+3D POLITIE-bord nagetekend van de referentiefoto: blauwe letters met afronding, gouden vlam/schild op de O.
 
-Het gouden logo zit **iets hoger** dan op de referentiefoto, zodat er meer van de blauwe O zichtbaar blijft.
+Het gouden logo zit **iets hoger** dan op de foto, zodat er meer van de blauwe O zichtbaar blijft.
 
 ## Gebruik
 

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Build a FiveM/GTA V .ydr of the Dutch POLITIE 3D wordmark.
+"""Build a FiveM/GTA V .ydr of the 3D POLITIE sign from the reference photo.
 
-The golden emblem is shifted slightly upward compared to the source photo.
+Letters and the gold shield are traced from the photo, extruded with a rounded
+bevel, and the gold emblem is shifted slightly upward.
 """
 
 from __future__ import annotations
@@ -11,158 +12,134 @@ from pathlib import Path
 
 import numpy as np
 import trimesh
+from PIL import Image, ImageDraw
+from scipy import ndimage
 from shapely.geometry import MultiPolygon, Point, Polygon
 from shapely.geometry.polygon import orient
+from shapely.ops import transform as shapely_transform
 from shapely.ops import unary_union
 from shapely.validation import make_valid
-from svgelements import Close, Line, Move, Path as SvgPath, Polygon as SvgPolygon, Rect, SVG
+from skimage import measure
 from trimesh.visual.material import SimpleMaterial
 
 ROOT = Path(__file__).resolve().parent
 REPO = ROOT.parent.parent
-SVG_PATH = ROOT / "logo.svg"
+PHOTO_PATH = ROOT / "reference.jpg"
 OUT_DIR = REPO / "politie_logo" / "stream"
 PREVIEW_DIR = Path("/tmp/politie")
 
-# Source photo is a 3D extrusion of the official wordmark. Raise the gold
-# emblem a little so more of the blue O stays visible underneath.
-GOLD_LIFT_SVG = 1.5
+# A small lift so more of the blue O stays visible under the shield.
+GOLD_LIFT_PX = 11.0  # at 2x photo resolution
 TARGET_WIDTH_M = 6.0
-DEPTH_M = 0.22
-BEVEL_M = 0.042
-GOLD_FORWARD_M = 0.03
-BEVEL_STEPS = 6
-RING_SAMPLES = 96
+DEPTH_M = 0.30
+BEVEL_M = 0.055
+GOLD_FORWARD_M = 0.04
+UPSAMPLE = 2.0
 
-# Match the supplied 3D render (brighter than the flat #004682 / #BE965A).
+# Match the 3D render colours.
 BLUE_RGBA = (22, 108, 230, 255)
 GOLD_RGBA = (226, 190, 68, 255)
 
 
-def _pt(value) -> tuple[float, float]:
-    if hasattr(value, "real"):
-        return float(value.real), float(value.imag)
-    return float(value.x), float(value.y)
+def _pt_xy(contour: np.ndarray) -> np.ndarray:
+    # skimage contours are (row, col) = (y, x)
+    return np.column_stack([contour[:, 1], contour[:, 0]])
 
 
-def sample_path_rings(path: SvgPath, curve_samples: int = 36) -> list[list[tuple[float, float]]]:
-    rings: list[list[tuple[float, float]]] = []
-    current: list[tuple[float, float]] = []
-    for seg in path:
-        if isinstance(seg, Move):
-            if len(current) >= 3:
-                rings.append(current)
-            current = [_pt(seg.end)]
-            continue
-        if isinstance(seg, Close):
-            if len(current) >= 3:
-                rings.append(current)
-            current = []
-            continue
-        steps = 1 if isinstance(seg, Line) else curve_samples
-        for i in range(1, steps + 1):
-            current.append(_pt(seg.point(i / steps)))
-    if len(current) >= 3:
-        rings.append(current)
-    return rings
+def mask_from_photo(path: Path) -> tuple[np.ndarray, np.ndarray]:
+    arr = np.asarray(Image.open(path).convert("RGB")).astype(np.float32)
+    r, g, b = arr[:, :, 0], arr[:, :, 1], arr[:, :, 2]
+    blue = (b > 90) & (b > r + 25) & (b > g + 15) & (b > 1.15 * g)
+    gold = (r > 140) & (g > 110) & (r > b + 30) & (g > b + 15) & ((r + g) > 2.2 * b)
+    blue = ndimage.zoom(blue.astype(np.float32), UPSAMPLE, order=1)
+    gold = ndimage.zoom(gold.astype(np.float32), UPSAMPLE, order=1)
+    blue = ndimage.gaussian_filter(blue, 0.55) > 0.45
+    gold = ndimage.gaussian_filter(gold, 0.55) > 0.45
+    blue = ndimage.binary_closing(blue, iterations=1)
+    gold = ndimage.binary_closing(gold, iterations=1)
+    return blue, gold
 
 
-def rings_to_polygon(rings: list[list[tuple[float, float]]]) -> Polygon | MultiPolygon | None:
+def contours_to_polygon(mask: np.ndarray, min_area: float) -> Polygon | MultiPolygon | None:
+    contours = measure.find_contours(mask.astype(float), 0.5)
     polys: list[Polygon] = []
-    for ring in rings:
-        coords = list(ring)
-        if coords[0] != coords[-1]:
-            coords = coords + [coords[0]]
-        poly = Polygon(coords)
+    for contour in contours:
+        if len(contour) < 10:
+            continue
+        poly = Polygon(_pt_xy(contour))
         if not poly.is_valid:
             poly = make_valid(poly)
         if poly.is_empty:
             continue
-        if poly.geom_type == "Polygon":
+        if poly.geom_type == "MultiPolygon":
+            polys.extend(p for p in poly.geoms if p.area >= min_area)
+        elif poly.area >= min_area:
             polys.append(poly)
-        elif poly.geom_type == "MultiPolygon":
-            polys.extend(p for p in poly.geoms if not p.is_empty)
     if not polys:
         return None
     polys = sorted(polys, key=lambda p: p.area, reverse=True)
     result = polys[0]
     for extra in polys[1:]:
-        if result.contains(extra):
+        if result.contains(extra) or result.contains(extra.representative_point()):
             result = result.difference(extra)
-        elif extra.contains(result):
-            result = extra.difference(result)
         else:
             result = unary_union([result, extra])
     result = make_valid(result)
-    if result.is_empty:
-        return None
-    return result
+    return None if result.is_empty else result
 
 
-def svg_polygon_to_shapely(elem: SvgPolygon) -> Polygon:
-    pts = [(float(p.x), float(p.y)) for p in elem]
-    if pts[0] != pts[-1]:
-        pts.append(pts[0])
-    return make_valid(Polygon(pts))
-
-
-def svg_rect_to_shapely(elem: Rect) -> Polygon:
-    x, y, w, h = float(elem.x), float(elem.y), float(elem.width), float(elem.height)
-    return Polygon([(x, y), (x + w, y), (x + w, y + h), (x, y + h)])
-
-
-def complete_o_ring() -> Polygon:
-    # Measured from the official wordmark path: outer r=14, inner r=7.2.
-    center = Point(45.3, 55.1)
-    return center.buffer(14.0, resolution=64).difference(center.buffer(7.2, resolution=64))
-
-
-def load_logo_polygons(gold_lift: float) -> tuple[list[Polygon], list[Polygon]]:
-    svg = SVG.parse(SVG_PATH)
-    blue: list[Polygon] = []
-    gold: list[Polygon] = []
-    for elem in svg.elements():
-        fill = str(getattr(elem, "fill", "") or "").lower()
-        geom = None
-        if isinstance(elem, SvgPath):
-            geom = rings_to_polygon(sample_path_rings(elem))
-        elif isinstance(elem, SvgPolygon):
-            geom = svg_polygon_to_shapely(elem)
-        elif isinstance(elem, Rect):
-            geom = svg_rect_to_shapely(elem)
-        if geom is None or geom.is_empty:
-            continue
-        geoms = list(geom.geoms) if geom.geom_type == "MultiPolygon" else [geom]
-        if fill == "#be965a":
-            gold.extend(geoms)
-        elif fill == "#004682":
-            minx, miny, maxx, maxy = geom.bounds
-            # Replace the open bottom-O with a full ring like the 3D photo.
-            if minx > 25 and maxy > 60:
-                continue
-            blue.extend(geoms)
-    blue.append(complete_o_ring())
-    lifted = []
-    for poly in gold:
-        lifted.append(shapely_translate(poly, 0.0, -gold_lift))
-    return [_orient_clean(p) for p in blue if not p.is_empty], [
-        _orient_clean(p) for p in lifted if not p.is_empty
-    ]
-
-
-def shapely_translate(poly, dx: float, dy: float):
-    from shapely.affinity import translate
-
-    return translate(poly, xoff=dx, yoff=dy)
-
-
-def _orient_clean(poly):
-    poly = make_valid(poly)
+def smooth_poly(poly: Polygon, round_px: float, simplify: float) -> Polygon:
+    if round_px > 0:
+        poly = poly.buffer(round_px, join_style=1).buffer(-round_px, join_style=1)
+    poly = make_valid(poly.simplify(simplify, preserve_topology=True))
     if poly.geom_type == "Polygon":
         return orient(poly, sign=1.0)
     if poly.geom_type == "MultiPolygon":
-        return unary_union([orient(p, sign=1.0) for p in poly.geoms])
+        return unary_union([orient(p, sign=1.0) for p in poly.geoms if not p.is_empty])
     return poly
+
+
+def complete_o_ring(o_mask: np.ndarray) -> Polygon:
+    ys, xs = np.where(o_mask)
+    r_out = (float(xs.max() - xs.min())) / 2.0
+    cx = (float(xs.min()) + float(xs.max())) / 2.0
+    cy = float(ys.max()) - r_out
+    # Stroke width is close to the 'I' width; keep a thick torus like the photo.
+    r_in = r_out - 95.0
+    return Point(cx, cy).buffer(r_out, resolution=72).difference(
+        Point(cx, cy).buffer(r_in, resolution=72)
+    )
+
+
+def load_logo_polygons() -> tuple[list[Polygon], list[Polygon]]:
+    blue_mask, gold_mask = mask_from_photo(PHOTO_PATH)
+    labels, count = ndimage.label(blue_mask)
+    blue: list[Polygon] = []
+    o_mask = None
+    for index in range(1, count + 1):
+        component = labels == index
+        if int(component.sum()) < 800:
+            continue
+        ys, _xs = np.where(component)
+        if ys.max() > blue_mask.shape[0] * 0.78:
+            o_mask = component
+            continue
+        geom = contours_to_polygon(component, min_area=400)
+        if geom is None:
+            continue
+        for part in iter_polygons(geom):
+            blue.append(smooth_poly(part, round_px=2.2, simplify=0.9))
+    if o_mask is not None:
+        blue.append(complete_o_ring(o_mask))
+    gold_geom = contours_to_polygon(gold_mask, min_area=300)
+    gold: list[Polygon] = []
+    if gold_geom is not None:
+        from shapely.affinity import translate
+
+        for part in iter_polygons(gold_geom):
+            part = smooth_poly(part, round_px=1.1, simplify=0.55)
+            gold.append(translate(part, xoff=0.0, yoff=-GOLD_LIFT_PX))
+    return blue, gold
 
 
 def iter_polygons(geom):
@@ -178,29 +155,15 @@ def resample_closed(points: np.ndarray, count: int) -> np.ndarray:
     pts = np.asarray(points, dtype=np.float64)
     if len(pts) >= 2 and np.allclose(pts[0], pts[-1]):
         pts = pts[:-1]
-    if len(pts) < 3:
-        raise ValueError("ring is too small to resample")
     closed = np.vstack([pts, pts[0]])
-    seg = np.diff(closed, axis=0)
-    dist = np.linalg.norm(seg, axis=1)
-    dist[dist < 1e-10] = 1e-10
+    dist = np.linalg.norm(np.diff(closed, axis=0), axis=1)
+    dist[dist < 1e-9] = 1e-9
     u = np.concatenate([[0.0], np.cumsum(dist)])
     u /= u[-1]
     t = np.linspace(0.0, 1.0, count, endpoint=False)
-    x = np.interp(t, u, closed[:, 0])
-    y = np.interp(t, u, closed[:, 1])
-    return np.column_stack([x, y])
-
-
-def align_ring(ring: np.ndarray, reference: np.ndarray) -> np.ndarray:
-    idx = int(np.argmin(np.linalg.norm(ring - reference[0], axis=1)))
-    aligned = np.roll(ring, -idx, axis=0)
-    # Keep winding consistent with the reference ring.
-    if winding(aligned) != winding(reference):
-        aligned = aligned[::-1]
-        idx = int(np.argmin(np.linalg.norm(aligned - reference[0], axis=1)))
-        aligned = np.roll(aligned, -idx, axis=0)
-    return aligned
+    return np.column_stack(
+        [np.interp(t, u, closed[:, 0]), np.interp(t, u, closed[:, 1])]
+    )
 
 
 def winding(ring: np.ndarray) -> float:
@@ -208,58 +171,50 @@ def winding(ring: np.ndarray) -> float:
     return float(np.sum(closed[:-1, 0] * closed[1:, 1] - closed[1:, 0] * closed[:-1, 1]))
 
 
+def align_ring(ring: np.ndarray, reference: np.ndarray) -> np.ndarray:
+    idx = int(np.argmin(np.linalg.norm(ring - reference[0], axis=1)))
+    aligned = np.roll(ring, -idx, axis=0)
+    if np.sign(winding(aligned)) != np.sign(winding(reference)):
+        aligned = aligned[::-1]
+        idx = int(np.argmin(np.linalg.norm(aligned - reference[0], axis=1)))
+        aligned = np.roll(aligned, -idx, axis=0)
+    return aligned
+
+
 def triangulate(poly: Polygon) -> tuple[np.ndarray, np.ndarray]:
     from trimesh.creation import triangulate_polygon
 
-    vertices, faces = triangulate_polygon(poly, triangle_args="p")
+    vertices, faces = triangulate_polygon(poly)
     return np.asarray(vertices, dtype=np.float64), np.asarray(faces, dtype=np.int64)
 
 
 def safe_inset(poly: Polygon, distance: float) -> tuple[Polygon | MultiPolygon, float]:
     if distance <= 0:
         return poly, 0.0
-    for scale in (1.0, 0.7, 0.45, 0.25, 0.12, 0.0):
+    for scale in (1.0, 0.65, 0.4, 0.22, 0.1, 0.0):
         inset = distance * scale
         candidate = poly if inset <= 1e-8 else poly.buffer(-inset)
         candidate = make_valid(candidate)
         if candidate.is_empty:
             continue
-        if candidate.area >= poly.area * 0.18:
+        if candidate.area >= poly.area * 0.25:
             return candidate, inset
     return poly, 0.0
 
 
-def layer_profile(depth: float, bevel: float, steps: int) -> list[tuple[float, float]]:
-    """Return (z, inset) samples: straight body, then a rounded front bevel."""
-    body_z = max(depth - bevel, depth * 0.55)
-    used_bevel = depth - body_z
-    layers = [(0.0, 0.0), (body_z, 0.0)]
-    for i in range(1, steps + 1):
-        t = i / steps
-        angle = t * math.pi / 2.0
-        z = body_z + used_bevel * math.sin(angle)
-        inset = used_bevel * (1.0 - math.cos(angle))
-        layers.append((z, inset))
-    return layers
-
-
-def stitch_sides(r0: np.ndarray, r1: np.ndarray, z0: float, z1: float) -> tuple[np.ndarray, np.ndarray]:
+def stitch_sides(r0: np.ndarray, r1: np.ndarray, z0: float, z1: float) -> trimesh.Trimesh:
     n = len(r0)
     verts = np.zeros((n * 2, 3), dtype=np.float64)
-    verts[:n, 0] = r0[:, 0]
-    verts[:n, 1] = r0[:, 1]
+    verts[:n, 0:2] = r0
     verts[:n, 2] = z0
-    verts[n:, 0] = r1[:, 0]
-    verts[n:, 1] = r1[:, 1]
+    verts[n:, 0:2] = r1
     verts[n:, 2] = z1
     faces = []
     for i in range(n):
         j = (i + 1) % n
-        a, b = i, j
-        c, d = n + j, n + i
-        faces.append((a, b, c))
-        faces.append((a, c, d))
-    return verts, np.asarray(faces, dtype=np.int64)
+        faces.append((i, j, n + j))
+        faces.append((i, n + j, n + i))
+    return trimesh.Trimesh(vertices=verts, faces=np.asarray(faces), process=False)
 
 
 def cap_mesh(poly: Polygon, z: float, flip: bool) -> trimesh.Trimesh:
@@ -274,55 +229,80 @@ def loft_polygon(poly: Polygon, depth: float, bevel: float) -> trimesh.Trimesh:
     poly = orient(make_valid(poly), sign=1.0)
     if poly.is_empty or poly.area < 1e-6:
         raise ValueError("empty polygon")
-    # Keep emblem cut-outs; only drop tiny bezier oversampling.
-    poly = poly.simplify(0.035, preserve_topology=True)
-    poly = orient(make_valid(poly), sign=1.0)
-    mesh = trimesh.creation.extrude_polygon(poly, height=float(depth))
-    if bevel > 1e-5:
-        inset, used = safe_inset(poly, bevel)
-        if used > bevel * 0.35 and _same_topology(poly, inset):
-            lip = trimesh.creation.extrude_polygon(inset, height=float(max(depth * 0.06, used * 0.2)))
-            lip.apply_translation([0.0, 0.0, float(depth)])
-            mesh = trimesh.util.concatenate([mesh, lip])
+    inset_poly, used_bevel = safe_inset(poly, bevel)
+    if used_bevel < bevel * 0.25 or inset_poly.geom_type != "Polygon":
+        mesh = trimesh.creation.extrude_polygon(poly, height=float(depth))
+        trimesh.repair.fix_normals(mesh)
+        return mesh
+
+    steps = 5
+    body_z = depth - used_bevel
+    layers = [(0.0, 0.0), (body_z, 0.0)]
+    for i in range(1, steps + 1):
+        t = i / steps
+        angle = t * math.pi / 2.0
+        layers.append((body_z + used_bevel * math.sin(angle), used_bevel * (1.0 - math.cos(angle))))
+
+    sample_n = int(np.clip(poly.exterior.length / 2.4, 72, 280))
+    parts = [cap_mesh(poly, 0.0, flip=True)]
+    front = inset_poly if inset_poly.geom_type == "Polygon" else poly
+    if layers[-1][1] > 0:
+        front, _ = safe_inset(poly, layers[-1][1])
+        if front.geom_type == "MultiPolygon":
+            front = max(front.geoms, key=lambda p: p.area)
+        front = orient(front, sign=1.0)
+    parts.append(cap_mesh(front, layers[-1][0], flip=False))
+
+    prev_ext = resample_closed(np.asarray(poly.exterior.coords), sample_n)
+    prev_holes = [
+        resample_closed(np.asarray(inner.coords), max(36, sample_n // 2))
+        for inner in poly.interiors
+    ]
+    prev_z = 0.0
+    for z, inset in layers[1:]:
+        current, _ = safe_inset(poly, inset)
+        if current.geom_type == "MultiPolygon":
+            current = max(current.geoms, key=lambda p: p.area)
+        current = orient(current, sign=1.0)
+        ext = align_ring(resample_closed(np.asarray(current.exterior.coords), sample_n), prev_ext)
+        parts.append(stitch_sides(prev_ext, ext, prev_z, z))
+        new_holes = []
+        unused = [
+            resample_closed(np.asarray(inner.coords), max(36, sample_n // 2))
+            for inner in current.interiors
+        ]
+        for prev in prev_holes:
+            if not unused:
+                break
+            dists = [np.linalg.norm(u.mean(0) - prev.mean(0)) for u in unused]
+            hole = align_ring(unused.pop(int(np.argmin(dists))), prev)
+            parts.append(stitch_sides(prev, hole, prev_z, z))
+            new_holes.append(hole)
+        prev_ext, prev_holes, prev_z = ext, new_holes, z
+
+    mesh = trimesh.util.concatenate(parts)
     mesh.merge_vertices()
     mesh.remove_unreferenced_vertices()
     trimesh.repair.fix_normals(mesh)
     return mesh
 
 
-def _same_topology(a: Polygon, b) -> bool:
-    if b.geom_type != "Polygon":
-        return False
-    if len(a.interiors) != len(b.interiors):
-        return False
-    # Reject insets that swallow thin negative space (gold emblem).
-    if b.area > a.area * 1.08:
-        return False
-    return True
-
-
-def svg_to_world(poly: Polygon, scale: float, bounds) -> Polygon:
+def svg_to_world(poly: Polygon, bounds) -> Polygon:
     minx, miny, maxx, maxy = bounds
     cx = (minx + maxx) / 2.0
     cy = (miny + maxy) / 2.0
-
-    def _map(x, y, z=None):
-        # Flip SVG Y so letters stand on +Y before the GTA axis convert.
-        return ((x - cx) * scale, -(y - cy) * scale)
-
-    return shapely_transform(poly, _map)
-
-
-def shapely_transform(poly, func):
-    from shapely.ops import transform
-
-    return transform(lambda x, y, z=None: func(x, y, z), poly)
+    return shapely_transform(lambda x, y, z=None: ((x - cx), -(y - cy)), poly)
 
 
 def color_mesh(mesh: trimesh.Trimesh, rgba: tuple[int, int, int, int], name: str) -> trimesh.Trimesh:
     mesh = mesh.copy()
+    mins = mesh.vertices.min(axis=0)
+    span = np.maximum(mesh.vertices.max(axis=0) - mins, 1e-6)
+    uv = np.zeros((len(mesh.vertices), 2), dtype=np.float64)
+    uv[:, 0] = (mesh.vertices[:, 0] - mins[0]) / span[0]
+    uv[:, 1] = (mesh.vertices[:, 1] - mins[1]) / span[1]
     mesh.visual = trimesh.visual.TextureVisuals(
-        uv=_box_uvs(mesh.vertices),
+        uv=uv,
         material=SimpleMaterial(diffuse=np.array(rgba, dtype=np.uint8), name=name),
     )
     mesh.visual.vertex_colors = np.tile(np.array(rgba, dtype=np.uint8), (len(mesh.vertices), 1))
@@ -330,28 +310,34 @@ def color_mesh(mesh: trimesh.Trimesh, rgba: tuple[int, int, int, int], name: str
     return mesh
 
 
-def _box_uvs(vertices: np.ndarray) -> np.ndarray:
-    mins = vertices.min(axis=0)
-    span = np.maximum(vertices.max(axis=0) - mins, 1e-6)
-    uv = np.zeros((len(vertices), 2), dtype=np.float64)
-    uv[:, 0] = (vertices[:, 0] - mins[0]) / span[0]
-    uv[:, 1] = (vertices[:, 1] - mins[1]) / span[1]
-    return uv
+def combined_bounds(a: trimesh.Trimesh, b: trimesh.Trimesh):
+    return np.minimum(a.bounds[0], b.bounds[0]), np.maximum(a.bounds[1], b.bounds[1])
 
 
-def build_meshes() -> tuple[trimesh.Trimesh, trimesh.Trimesh, tuple]:
-    blue_polys, gold_polys = load_logo_polygons(GOLD_LIFT_SVG)
+def build_meshes() -> tuple[trimesh.Trimesh, trimesh.Trimesh]:
+    blue_polys, gold_polys = load_logo_polygons()
     bounds = unary_union(blue_polys + gold_polys).bounds
-    flipped_blue = [svg_to_world(p, 1.0, bounds) for p in blue_polys]
-    flipped_gold = [svg_to_world(p, 1.0, bounds) for p in gold_polys]
+    flipped_blue = [svg_to_world(p, bounds) for p in blue_polys]
+    flipped_gold = [svg_to_world(p, bounds) for p in gold_polys]
     flip_bounds = unary_union(flipped_blue + flipped_gold).bounds
     scale = TARGET_WIDTH_M / (flip_bounds[2] - flip_bounds[0])
-    world_bevel = BEVEL_M / scale
+    bevel_svg = BEVEL_M / scale
     depth_svg = DEPTH_M / scale
     gold_z = GOLD_FORWARD_M / scale
 
-    blue_mesh = _loft_group(flipped_blue, depth_svg, 0.0, world_bevel, scale)
-    gold_mesh = _loft_group(flipped_gold, depth_svg, gold_z, 0.0, scale)
+    def loft_group(polys: list[Polygon], z_off: float, bevel: float) -> trimesh.Trimesh:
+        meshes = []
+        for poly in polys:
+            for part in iter_polygons(poly):
+                mesh = loft_polygon(part, depth=depth_svg, bevel=bevel)
+                mesh.apply_translation([0.0, 0.0, z_off])
+                meshes.append(mesh)
+        combined = trimesh.util.concatenate(meshes)
+        combined.apply_scale(scale)
+        return combined
+
+    blue_mesh = loft_group(flipped_blue, 0.0, bevel_svg)
+    gold_mesh = loft_group(flipped_gold, gold_z, bevel_svg * 0.22)
     mins, maxs = combined_bounds(blue_mesh, gold_mesh)
     shift = np.array(
         [-(mins[0] + maxs[0]) / 2.0, -(mins[1] + maxs[1]) / 2.0, -mins[2]],
@@ -359,93 +345,71 @@ def build_meshes() -> tuple[trimesh.Trimesh, trimesh.Trimesh, tuple]:
     )
     blue_mesh.apply_translation(shift)
     gold_mesh.apply_translation(shift)
-    return blue_mesh, gold_mesh, (scale, flip_bounds)
+    return blue_mesh, gold_mesh
 
 
-def _loft_group(
-    polys: list[Polygon],
-    depth_svg: float,
-    z_offset: float,
-    bevel_svg: float,
-    scale: float,
-) -> trimesh.Trimesh:
-    meshes = []
-    for poly in polys:
-        for part in iter_polygons(poly):
-            mesh = loft_polygon(part, depth=depth_svg, bevel=bevel_svg)
-            mesh.apply_translation([0.0, 0.0, z_offset])
-            meshes.append(mesh)
-    combined = trimesh.util.concatenate(meshes)
-    combined.apply_scale(scale)
-    return combined
+def _rotation(yaw: float, pitch: float) -> np.ndarray:
+    cy, sy = math.cos(yaw), math.sin(yaw)
+    cp, sp = math.cos(pitch), math.sin(pitch)
+    ry = np.array([[cy, 0.0, sy], [0.0, 1.0, 0.0], [-sy, 0.0, cy]])
+    rx = np.array([[1.0, 0.0, 0.0], [0.0, cp, -sp], [0.0, sp, cp]])
+    return rx @ ry
 
 
-def render_preview(blue: trimesh.Trimesh, gold: trimesh.Trimesh, path: Path) -> None:
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d.art3d import Poly3DCollection
-
-    fig = plt.figure(figsize=(14, 5.4), facecolor="#303030")
-    ax = fig.add_subplot(111, projection="3d", facecolor="#303030")
+def render_photo_like(blue: trimesh.Trimesh, gold: trimesh.Trimesh, path: Path) -> None:
+    width, height = 1600, 680
+    img = Image.new("RGB", (width, height), (45, 45, 45))
+    draw = ImageDraw.Draw(img)
+    rot = _rotation(math.radians(9), math.radians(-5))
     combined = trimesh.util.concatenate([blue, gold])
     center = combined.bounds.mean(axis=0)
+    light = np.array([-0.38, 0.62, 0.68], dtype=np.float64)
+    light /= np.linalg.norm(light)
+    view = np.array([0.08, 0.10, 0.99], dtype=np.float64)
+    view /= np.linalg.norm(view)
 
-    def add(mesh: trimesh.Trimesh, color: tuple[float, float, float]) -> None:
-        verts = mesh.vertices - center
-        # Keep the preview interactive: draw a decimated front-facing subset.
-        faces = mesh.faces[::3]
-        tris = verts[faces]
-        col = Poly3DCollection(
-            tris,
-            linewidths=0.0,
-            shade=False,
-            facecolors=[(*color, 1.0)],
-            edgecolors="none",
-        )
-        ax.add_collection3d(col)
+    projected = []
+    for mesh, rgb in ((blue, BLUE_RGBA[:3]), (gold, GOLD_RGBA[:3])):
+        verts = (mesh.vertices - center) @ rot.T
+        normals = mesh.face_normals @ rot.T
+        faces = mesh.faces
+        facing = normals[:, 2] > 0.02
+        tris = verts[faces[facing]]
+        nrm = normals[facing]
+        lambert = np.clip(nrm @ light, 0.0, 1.0)
+        half = light + view
+        half /= np.linalg.norm(half)
+        spec = np.clip(nrm @ half, 0.0, 1.0) ** 28
+        depth = tris[:, :, 2].mean(axis=1)
+        for i in range(len(tris)):
+            shade = 0.28 + 0.72 * float(lambert[i])
+            color = tuple(
+                max(0, min(255, int(c * shade + 255 * 0.22 * float(spec[i]))))
+                for c in rgb
+            )
+            projected.append((float(depth[i]), tris[i], color))
 
-    add(blue, tuple(c / 255.0 for c in BLUE_RGBA[:3]))
-    add(gold, tuple(c / 255.0 for c in GOLD_RGBA[:3]))
-    extents = combined.extents
-    ax.set_xlim(-extents[0] / 1.6, extents[0] / 1.6)
-    ax.set_ylim(-extents[1] / 1.6, extents[1] / 1.6)
-    ax.set_zlim(-extents[2] / 1.2, extents[2] * 1.4)
-    ax.view_init(elev=78, azim=-92)
-    ax.set_axis_off()
-    ax.set_box_aspect((extents[0], max(extents[1], 0.35), extents[2]))
+    projected.sort(key=lambda item: item[0])
+    xs = [float(p[0]) for _z, tri, _c in projected for p in tri]
+    ys = [float(p[1]) for _z, tri, _c in projected for p in tri]
+    minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
+    pad = 0.08 * max(maxx - minx, maxy - miny)
+    minx -= pad
+    maxx += pad
+    miny -= pad
+    maxy += pad
+    scale = min(width / (maxx - minx), height / (maxy - miny))
+    ox = width * 0.5 - (minx + maxx) * 0.5 * scale
+    oy = height * 0.5 + (miny + maxy) * 0.5 * scale
+    for _z, tri, color in projected:
+        pts = [(ox + float(p[0]) * scale, oy - float(p[1]) * scale) for p in tri]
+        draw.polygon(pts, fill=color)
     path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=130, bbox_inches="tight", facecolor=fig.get_facecolor())
-    plt.close(fig)
-
-
-def render_front(blue: trimesh.Trimesh, gold: trimesh.Trimesh, path: Path) -> None:
-    import matplotlib.pyplot as plt
-    from matplotlib.collections import PolyCollection
-
-    fig, ax = plt.subplots(figsize=(14, 5.2), facecolor="#2d2d2d")
-    ax.set_facecolor("#2d2d2d")
-
-    def add(mesh: trimesh.Trimesh, color) -> None:
-        normals = mesh.face_normals
-        faces = mesh.faces[normals[:, 2] > 0.15]
-        tris = mesh.vertices[faces][:, :, :2]
-        col = PolyCollection(tris, facecolors=color, edgecolors="none")
-        ax.add_collection(col)
-
-    add(blue, tuple(c / 255.0 for c in BLUE_RGBA[:3]))
-    add(gold, tuple(c / 255.0 for c in GOLD_RGBA[:3]))
-    mins, maxs = combined_bounds(blue, gold)
-    pad = 0.15
-    ax.set_xlim(mins[0] - pad, maxs[0] + pad)
-    ax.set_ylim(mins[1] - pad, maxs[1] + pad)
-    ax.set_aspect("equal")
-    ax.axis("off")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(path, dpi=140, bbox_inches="tight", facecolor=fig.get_facecolor())
-    plt.close(fig)
+    img.save(path)
 
 
 def export_ydr(blue: trimesh.Trimesh, gold: trimesh.Trimesh) -> Path:
-    from fivefury import Texture, Ytd, Ytyp, create_ydr
+    from fivefury import Texture, Ytd, Ytyp, create_ydr, read_ydr
     from fivefury.vector import Vector3
     from fivefury.ytd.defs import TextureFormat
     from fivefury.ydr.build_types import YdrMaterialInput
@@ -457,35 +421,28 @@ def export_ydr(blue: trimesh.Trimesh, gold: trimesh.Trimesh) -> Path:
     identity = np.eye(4, dtype=np.float64)
     blue_c = color_mesh(blue, BLUE_RGBA, "politie_blue")
     gold_c = color_mesh(gold, GOLD_RGBA, "politie_gold")
-    meshes = [
-        mesh_to_ydr_input(blue_c, identity, "politie_blue", default_colour=None),
-        mesh_to_ydr_input(gold_c, identity, "politie_gold", default_colour=None),
-    ]
-    materials = [
-        YdrMaterialInput(
-            name="politie_blue",
-            shader="default.sps",
-            textures={"DiffuseSampler": "politie_blue"},
-        ),
-        YdrMaterialInput(
-            name="politie_gold",
-            shader="default.sps",
-            textures={"DiffuseSampler": "politie_gold"},
-        ),
-    ]
-    embedded = Ytd()
-    embedded.texture(_solid_colour_texture("politie_blue", BLUE_RGBA))
-    embedded.texture(_solid_colour_texture("politie_gold", GOLD_RGBA))
     build = create_ydr(
-        meshes=meshes,
-        materials=materials,
-        embedded_textures=embedded,
+        meshes=[
+            mesh_to_ydr_input(blue_c, identity, "politie_blue", default_colour=None),
+            mesh_to_ydr_input(gold_c, identity, "politie_gold", default_colour=None),
+        ],
+        materials=[
+            YdrMaterialInput(
+                name="politie_blue",
+                shader="default.sps",
+                textures={"DiffuseSampler": "politie_blue"},
+            ),
+            YdrMaterialInput(
+                name="politie_gold",
+                shader="default.sps",
+                textures={"DiffuseSampler": "politie_gold"},
+            ),
+        ],
+        embedded_textures=_embedded_colours(),
         name="politie_logo",
     )
     ydr_path = OUT_DIR / "politie_logo.ydr"
     build.save(ydr_path)
-    from fivefury import read_ydr
-
     drawable = read_ydr(ydr_path)
     try:
         drawable.ensure_bound_from_render_geometry()
@@ -494,27 +451,18 @@ def export_ydr(blue: trimesh.Trimesh, gold: trimesh.Trimesh) -> Path:
         print(f"Skipping embedded collision: {exc}")
 
     mins, maxs = combined_bounds(blue, gold)
-    # Bounds after GTA axis convert: (x, y, z) -> (x, -z, y)
     gta_min = np.array([mins[0], -maxs[2], mins[1]])
     gta_max = np.array([maxs[0], -mins[2], maxs[1]])
-    bb_min = Vector3(float(gta_min[0]), float(gta_min[1]), float(gta_min[2]))
-    bb_max = Vector3(float(gta_max[0]), float(gta_max[1]), float(gta_max[2]))
-    centre = Vector3(
-        float((gta_min[0] + gta_max[0]) / 2.0),
-        float((gta_min[1] + gta_max[1]) / 2.0),
-        float((gta_min[2] + gta_max[2]) / 2.0),
-    )
-    radius = float(np.linalg.norm(gta_max - gta_min) / 2.0)
     ytyp = Ytyp(name="politie_logo_meta")
     ytyp.archetypes.append(
         Archetype(
             name="politie_logo",
             asset_name="politie_logo",
             asset_type=ArchetypeAssetType.DRAWABLE,
-            bb_min=bb_min,
-            bb_max=bb_max,
-            bs_centre=centre,
-            bs_radius=radius,
+            bb_min=Vector3(*map(float, gta_min)),
+            bb_max=Vector3(*map(float, gta_max)),
+            bs_centre=Vector3(*map(float, (gta_min + gta_max) / 2.0)),
+            bs_radius=float(np.linalg.norm(gta_max - gta_min) / 2.0),
             lod_dist=220.0,
             hd_texture_dist=180.0,
         )
@@ -523,46 +471,28 @@ def export_ydr(blue: trimesh.Trimesh, gold: trimesh.Trimesh) -> Path:
     return ydr_path
 
 
-def _solid_colour_texture(name: str, rgba: tuple[int, int, int, int]):
-    from fivefury import Texture
+def _embedded_colours() -> "Ytd":
+    from fivefury import Texture, Ytd
     from fivefury.ytd.defs import TextureFormat
 
-    width = height = 16
-    r, g, b, a = rgba
-    pixel = bytes((b & 255, g & 255, r & 255, a & 255))
-    data = pixel * (width * height)
-    return Texture.from_raw(
-        data,
-        width,
-        height,
-        TextureFormat.A8R8G8B8,
-        1,
-        name=name,
-    )
-
-
-def combined_bounds(a: trimesh.Trimesh, b: trimesh.Trimesh):
-    mins = np.minimum(a.bounds[0], b.bounds[0])
-    maxs = np.maximum(a.bounds[1], b.bounds[1])
-    return mins, maxs
+    ytd = Ytd()
+    for name, rgba in (("politie_blue", BLUE_RGBA), ("politie_gold", GOLD_RGBA)):
+        r, g, b, a = rgba
+        pixel = bytes((b, g, r, a))
+        ytd.texture(
+            Texture.from_raw(pixel * (16 * 16), 16, 16, TextureFormat.A8R8G8B8, 1, name=name)
+        )
+    return ytd
 
 
 def main() -> None:
     PREVIEW_DIR.mkdir(parents=True, exist_ok=True)
-    blue, gold, meta = build_meshes()
-    print("blue verts", len(blue.vertices), "faces", len(blue.faces))
-    print("gold verts", len(gold.vertices), "faces", len(gold.faces))
-    print("blue bounds", blue.bounds)
-    print("gold bounds", gold.bounds)
-    preview = PREVIEW_DIR / "politie_logo_preview.png"
-    try:
-        render_preview(blue, gold, preview)
-        print("preview", preview)
-    except Exception as exc:
-        print("preview failed", exc)
-    front = PREVIEW_DIR / "politie_logo_front.png"
-    render_front(blue, gold, front)
-    print("front", front)
+    blue, gold = build_meshes()
+    print("blue verts", len(blue.vertices), "faces", len(blue.faces), "bounds", blue.bounds)
+    print("gold verts", len(gold.vertices), "faces", len(gold.faces), "bounds", gold.bounds)
+    preview = PREVIEW_DIR / "politie_logo_photo_like.png"
+    render_photo_like(blue, gold, preview)
+    print("preview", preview)
     ydr_path = export_ydr(blue, gold)
     print("ydr", ydr_path, "size", ydr_path.stat().st_size)
 
