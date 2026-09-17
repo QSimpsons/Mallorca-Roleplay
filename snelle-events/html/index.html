@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snelle Events</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="panel" class="panel hidden">
+        <div class="panel-header">
+            <div>
+                <h1>Snelle Events</h1>
+                <p>ESX event beheer · Mallorca Roleplay</p>
+            </div>
+            <button class="btn-icon" id="closePanel" title="Sluiten">&times;</button>
+        </div>
+
+        <div class="panel-tabs">
+            <button class="tab active" data-tab="create">Nieuw Event</button>
+            <button class="tab" data-tab="active">Actieve Events</button>
+            <button class="tab" data-tab="manage">Beheer</button>
+        </div>
+
+        <div class="panel-body">
+            <div class="tab-content active" id="tab-create">
+                <div class="form-grid">
+                    <label>Event naam<input type="text" id="eventName" placeholder="Bijv. Zomer Meetup 2026" maxlength="64"></label>
+                    <label>Event type<select id="eventType"></select></label>
+                    <label>Min spelers<input type="number" id="minPlayers" min="1" max="128" value="1"></label>
+                    <label>Max spelers<input type="number" id="maxPlayers" min="2" max="128" value="32"></label>
+                    <label>Countdown (sec)<input type="number" id="countdown" min="3" max="120" value="10"></label>
+                    <label>Zone radius<input type="number" id="zoneRadius" min="10" max="500" value="80"></label>
+                    <label>Duur (sec, 0=uit)<input type="number" id="duration" min="0" max="3600" value="0"></label>
+                    <label>Score om te winnen<input type="number" id="scoreToWin" min="0" max="100" value="0"></label>
+                    <label>Voertuig model<input type="text" id="vehicle" placeholder="sultanrs"></label>
+                    <label>Wachtwoord (optioneel)<input type="text" id="password" placeholder="Leeg = openbaar"></label>
+                    <label class="full">Beschrijving<textarea id="eventDescription" rows="2" placeholder="Korte beschrijving..."></textarea></label>
+                    <label class="full">Locatie preset<select id="locationPreset"><option value="">Huidige positie</option></select></label>
+                    <div class="coords-row full">
+                        <label>X <input type="number" id="coordX" step="0.01"></label>
+                        <label>Y <input type="number" id="coordY" step="0.01"></label>
+                        <label>Z <input type="number" id="coordZ" step="0.01"></label>
+                        <label>H <input type="number" id="coordH" step="0.1"></label>
+                        <button class="btn secondary" id="useCurrentCoords">Huidige locatie</button>
+                    </div>
+                    <div class="coords-row full" id="finishRow">
+                        <label class="full-label">Finish (race)</label>
+                        <label>X <input type="number" id="finishX" step="0.01"></label>
+                        <label>Y <input type="number" id="finishY" step="0.01"></label>
+                        <label>Z <input type="number" id="finishZ" step="0.01"></label>
+                        <button class="btn secondary" id="useFinishCoords">Finish = hier</button>
+                    </div>
+                    <div class="toggles full">
+                        <label class="toggle"><input type="checkbox" id="allowWeapons"> Wapens</label>
+                        <label class="toggle"><input type="checkbox" id="pvpEnabled"> PvP</label>
+                        <label class="toggle"><input type="checkbox" id="freezeOnStart"> Bevriezen</label>
+                        <label class="toggle"><input type="checkbox" id="enforceZone"> Zone forceren</label>
+                    </div>
+                </div>
+                <button class="btn primary full" id="createEventBtn">Event Aanmaken</button>
+            </div>
+
+            <div class="tab-content" id="tab-active">
+                <div class="toolbar">
+                    <button class="btn secondary" id="refreshEvents">Vernieuwen</button>
+                </div>
+                <div id="eventsList" class="events-list"></div>
+            </div>
+
+            <div class="tab-content" id="tab-manage">
+                <div class="manage-select">
+                    <label>Selecteer event
+                        <select id="manageEventSelect"><option value="">— kies event —</option></select>
+                    </label>
+                    <button class="btn secondary" id="loadManageEvent">Laden</button>
+                </div>
+                <div id="manageDetail" class="manage-detail hidden">
+                    <div class="manage-header">
+                        <div>
+                            <h3 id="manageName">—</h3>
+                            <p id="manageMeta">—</p>
+                        </div>
+                        <div class="manage-actions">
+                            <button class="btn small primary" id="manageStart">Start</button>
+                            <button class="btn small danger" id="manageStop">Stop</button>
+                            <button class="btn small secondary" id="manageAnnounce">Aankondiging</button>
+                            <button class="btn small secondary" id="manageTeleport">TP allen</button>
+                        </div>
+                    </div>
+                    <div class="roster-toolbar">
+                        <button class="btn small secondary" id="loadOnlinePlayers">Nodig speler uit</button>
+                        <select id="invitePlayerSelect" class="hidden"></select>
+                        <button class="btn small primary hidden" id="sendInviteBtn">Uitnodigen</button>
+                    </div>
+                    <div id="rosterList" class="roster-list"></div>
+                </div>
+                <div id="manageEmpty" class="empty-state">Selecteer een event om spelers te beheren</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="joinMenu" class="join-menu hidden">
+        <div class="join-header">
+            <h2>Deelnemen aan Event</h2>
+            <button class="btn-icon" id="closeJoin">&times;</button>
+        </div>
+        <div id="joinList" class="events-list"></div>
+    </div>
+
+    <div id="passwordModal" class="modal hidden">
+        <div class="modal-card">
+            <h3 id="passwordTitle">Wachtwoord vereist</h3>
+            <input type="password" id="passwordInput" placeholder="Wachtwoord">
+            <div class="modal-actions">
+                <button class="btn secondary" id="passwordCancel">Annuleren</button>
+                <button class="btn primary" id="passwordConfirm">Deelnemen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="inviteModal" class="modal hidden">
+        <div class="modal-card">
+            <h3>Event uitnodiging</h3>
+            <p id="inviteText">Je bent uitgenodigd</p>
+            <div class="modal-actions">
+                <button class="btn secondary" id="inviteDecline">Weigeren</button>
+                <button class="btn primary" id="inviteAccept">Accepteren</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="announceModal" class="modal hidden">
+        <div class="modal-card">
+            <h3>Aankondiging</h3>
+            <input type="text" id="announceInput" placeholder="Bericht voor alle spelers..." maxlength="200">
+            <div class="modal-actions">
+                <button class="btn secondary" id="announceCancel">Annuleren</button>
+                <button class="btn primary" id="announceConfirm">Versturen</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="eventHud" class="event-hud hidden">
+        <div class="hud-title" id="hudEventName">Event</div>
+        <div class="hud-meta">
+            <span id="hudEventType">Type</span>
+            <span id="hudPlayerCount">0/0</span>
+            <span id="hudStatus" class="status-badge">Wachten</span>
+            <span id="hudRole" class="hidden"></span>
+        </div>
+        <div id="hudCountdown" class="hud-countdown hidden"></div>
+        <div id="hudScoreboard" class="hud-scoreboard"></div>
+        <div class="hud-actions">
+            <button class="btn small primary" id="hudStart">Start</button>
+            <button class="btn small danger" id="hudStop">Stop</button>
+            <button class="btn small secondary" id="hudLeave">Verlaten</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+# ═══════════════════════════════════════════════════════════════
+# Snelle Events - ESX Legacy (Mallorca Roleplay)
+# ═══════════════════════════════════════════════════════════════
+
+ensure es_extended
+ensure oxmysql
+ensure ox_lib
+ensure snelle-events
+
+add_ace group.admin snelle-events.manage allow
+add_ace group.admin snelle-events.host allow
+# add_principal identifier.license:JOUW_LICENSE_HIER group.admin
+
+# 1) Importeer sql/snelle_events.sql in je database
+# 2) Herstart de server
+# 3) Staff: /event   |   Spelers: /joinevent
