@@ -36,6 +36,7 @@ Locales['en'] = {
     blip_label = 'Event: %s',
     press_to_join = 'Press ~INPUT_CONTEXT~ to join the event',
     panel_opened = 'Event panel opened.',
+    panel_closed = 'Event panel closed. Use /eventclose if it gets stuck.',
     teleported = 'Teleported to event location.',
     teleported_all = 'All players re-teleported.',
     frozen = 'You are frozen until the event starts.',

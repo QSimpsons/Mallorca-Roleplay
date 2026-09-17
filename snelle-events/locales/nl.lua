@@ -36,6 +36,7 @@ Locales['nl'] = {
     blip_label = 'Event: %s',
     press_to_join = 'Druk ~INPUT_CONTEXT~ om deel te nemen aan het event',
     panel_opened = 'Event panel geopend.',
+    panel_closed = 'Event panel gesloten. Gebruik /eventclose als het blijft hangen.',
     teleported = 'Geteleporteerd naar event locatie.',
     teleported_all = 'Alle spelers opnieuw geteleporteerd.',
     frozen = 'Je bent bevroren tot het event start.',

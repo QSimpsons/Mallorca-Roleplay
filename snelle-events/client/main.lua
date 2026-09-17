@@ -261,7 +261,7 @@ end)
 
 RegisterNetEvent('snelle-events:client:openJoinMenu', function(events)
     SendNUIMessage({ action = 'openJoin', events = events })
-    SetNuiFocus(true, true)
+    SetEventNuiFocus(true)
 end)
 
 RegisterNetEvent('snelle-events:client:teleportToEvent', function(coords)
@@ -384,7 +384,7 @@ end)
 
 RegisterNetEvent('snelle-events:client:invite', function(data)
     SendNUIMessage({ action = 'showInvite', data = data })
-    SetNuiFocus(true, true)
+    SetEventNuiFocus(true)
 end)
 
 RegisterNetEvent('snelle-events:client:eliminated', function(event)

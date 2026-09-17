@@ -3,6 +3,7 @@ const joinMenu = document.getElementById('joinMenu');
 const eventHud = document.getElementById('eventHud');
 const passwordModal = document.getElementById('passwordModal');
 const inviteModal = document.getElementById('inviteModal');
+const announceModal = document.getElementById('announceModal');
 
 let panelData = null;
 let currentHudEvent = null;
@@ -10,13 +11,22 @@ let managedEvent = null;
 let isHost = false;
 let pendingPasswordEventId = null;
 let onlinePlayers = [];
+let menuOpen = false;
+
+function resourceName() {
+    try {
+        return GetParentResourceName();
+    } catch (e) {
+        return 'snelle-events';
+    }
+}
 
 function post(endpoint, data = {}) {
-    return fetch(`https://${GetParentResourceName()}/${endpoint}`, {
+    return fetch(`https://${resourceName()}/${endpoint}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
         body: JSON.stringify(data)
-    });
+    }).catch(() => null);
 }
 
 function escapeHtml(text) {
@@ -26,11 +36,24 @@ function escapeHtml(text) {
 }
 
 function closeAll() {
-    panel.classList.add('hidden');
-    joinMenu.classList.add('hidden');
-    passwordModal.classList.add('hidden');
-    inviteModal.classList.add('hidden');
+    try {
+        panel.classList.add('hidden');
+        joinMenu.classList.add('hidden');
+        passwordModal.classList.add('hidden');
+        inviteModal.classList.add('hidden');
+        if (announceModal) announceModal.classList.add('hidden');
+    } catch (e) {}
+
+    menuOpen = false;
+    pendingPasswordEventId = null;
     post('close');
+}
+
+function openAnnounceModal() {
+    if (!managedEvent || !announceModal) return;
+    document.getElementById('announceInput').value = '';
+    announceModal.classList.remove('hidden');
+    document.getElementById('announceInput').focus();
 }
 
 function switchTab(tabName) {
@@ -41,7 +64,7 @@ function switchTab(tabName) {
 function populateEventTypes(types) {
     const select = document.getElementById('eventType');
     select.innerHTML = '';
-    for (const [key, cfg] of Object.entries(types)) {
+    for (const [key, cfg] of Object.entries(types || {})) {
         const opt = document.createElement('option');
         opt.value = key;
         opt.textContent = cfg.label;
@@ -72,7 +95,7 @@ function populateEventTypes(types) {
 function populatePresets(presets) {
     const select = document.getElementById('locationPreset');
     select.innerHTML = '<option value="">Huidige positie</option>';
-    presets.forEach((preset, index) => {
+    (presets || []).forEach((preset, index) => {
         const opt = document.createElement('option');
         opt.value = index;
         opt.textContent = preset.name;
@@ -87,6 +110,7 @@ function populatePresets(presets) {
 }
 
 function setCoords(coords, heading) {
+    if (!coords) return;
     document.getElementById('coordX').value = Number(coords.x).toFixed(2);
     document.getElementById('coordY').value = Number(coords.y).toFixed(2);
     document.getElementById('coordZ').value = Number(coords.z).toFixed(2);
@@ -265,21 +289,30 @@ function hideEventHud() {
     document.getElementById('hudCountdown').classList.add('hidden');
 }
 
-// Listeners
 document.getElementById('closePanel').onclick = closeAll;
 document.getElementById('closeJoin').onclick = closeAll;
-document.querySelectorAll('.tab').forEach(tab => tab.onclick = () => switchTab(tab.dataset.tab));
+document.querySelectorAll('.tab').forEach(tab => {
+    tab.onclick = () => switchTab(tab.dataset.tab);
+});
 
 document.getElementById('useCurrentCoords').onclick = async () => {
-    const coords = await post('getCurrentCoords').then(r => r.json());
-    setCoords(coords);
+    try {
+        const res = await post('getCurrentCoords');
+        if (!res) return;
+        const coords = await res.json();
+        setCoords(coords);
+    } catch (e) {}
 };
 
 document.getElementById('useFinishCoords').onclick = async () => {
-    const coords = await post('getCurrentCoords').then(r => r.json());
-    document.getElementById('finishX').value = Number(coords.x).toFixed(2);
-    document.getElementById('finishY').value = Number(coords.y).toFixed(2);
-    document.getElementById('finishZ').value = Number(coords.z).toFixed(2);
+    try {
+        const res = await post('getCurrentCoords');
+        if (!res) return;
+        const coords = await res.json();
+        document.getElementById('finishX').value = Number(coords.x).toFixed(2);
+        document.getElementById('finishY').value = Number(coords.y).toFixed(2);
+        document.getElementById('finishZ').value = Number(coords.z).toFixed(2);
+    } catch (e) {}
 };
 
 document.getElementById('createEventBtn').onclick = () => {
@@ -322,7 +355,6 @@ document.getElementById('createEventBtn').onclick = () => {
 };
 
 document.getElementById('refreshEvents').onclick = () => post('refreshEvents');
-
 document.getElementById('loadManageEvent').onclick = () => {
     const id = document.getElementById('manageEventSelect').value;
     if (id) post('getEventDetail', { eventId: id });
@@ -331,11 +363,18 @@ document.getElementById('loadManageEvent').onclick = () => {
 document.getElementById('manageStart').onclick = () => managedEvent && post('startEvent', { eventId: managedEvent.id });
 document.getElementById('manageStop').onclick = () => managedEvent && post('stopEvent', { eventId: managedEvent.id });
 document.getElementById('manageTeleport').onclick = () => managedEvent && post('teleportAll', { eventId: managedEvent.id });
-document.getElementById('manageAnnounce').onclick = () => {
-    if (!managedEvent) return;
-    const msg = prompt('Aankondiging:');
-    if (msg) post('announceEvent', { eventId: managedEvent.id, message: msg });
-};
+document.getElementById('manageAnnounce').onclick = openAnnounceModal;
+
+if (announceModal) {
+    document.getElementById('announceCancel').onclick = () => announceModal.classList.add('hidden');
+    document.getElementById('announceConfirm').onclick = () => {
+        const msg = (document.getElementById('announceInput').value || '').trim();
+        if (managedEvent && msg) {
+            post('announceEvent', { eventId: managedEvent.id, message: msg });
+        }
+        announceModal.classList.add('hidden');
+    };
+}
 
 document.getElementById('loadOnlinePlayers').onclick = () => post('getOnlinePlayers');
 document.getElementById('sendInviteBtn').onclick = () => {
@@ -346,7 +385,9 @@ document.getElementById('sendInviteBtn').onclick = () => {
 document.getElementById('passwordCancel').onclick = () => {
     passwordModal.classList.add('hidden');
     pendingPasswordEventId = null;
-    post('close');
+    if (panel.classList.contains('hidden') && joinMenu.classList.contains('hidden')) {
+        closeAll();
+    }
 };
 
 document.getElementById('passwordConfirm').onclick = () => {
@@ -360,7 +401,7 @@ document.getElementById('passwordConfirm').onclick = () => {
 
 document.getElementById('inviteDecline').onclick = () => {
     inviteModal.classList.add('hidden');
-    post('close');
+    closeAll();
 };
 
 document.getElementById('inviteAccept').onclick = () => {
@@ -373,110 +414,139 @@ document.getElementById('hudStop').onclick = () => currentHudEvent && post('stop
 document.getElementById('hudLeave').onclick = () => post('leaveEvent');
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeAll();
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        closeAll();
+        return;
+    }
+
+    if (e.key === 'Backspace') {
+        const tag = (document.activeElement && document.activeElement.tagName) || '';
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+        e.preventDefault();
+        closeAll();
+    }
 });
 
 window.addEventListener('message', (event) => {
-    const { action } = event.data;
+    const data = event.data || {};
+    const action = data.action;
 
-    switch (action) {
-        case 'openPanel':
-            panelData = event.data.data;
-            populateEventTypes(panelData.eventTypes);
-            populatePresets(panelData.presets || []);
-            if (panelData.playerCoords) setCoords(panelData.playerCoords);
-            renderEventsList(document.getElementById('eventsList'), panelData.events, { manageable: true });
-            updateManageSelect(panelData.events);
-            panel.classList.remove('hidden');
-            break;
+    try {
+        switch (action) {
+            case 'forceClose':
+                panel.classList.add('hidden');
+                joinMenu.classList.add('hidden');
+                passwordModal.classList.add('hidden');
+                inviteModal.classList.add('hidden');
+                if (announceModal) announceModal.classList.add('hidden');
+                menuOpen = false;
+                break;
 
-        case 'panelData':
-            if (event.data.data.events) {
-                renderEventsList(document.getElementById('eventsList'), event.data.data.events, { manageable: true });
-                updateManageSelect(event.data.data.events);
-            }
-            if (event.data.data.currentEvent) {
-                showManageDetail(event.data.data.currentEvent);
-            }
-            break;
+            case 'openPanel':
+                panelData = data.data || {};
+                populateEventTypes(panelData.eventTypes);
+                populatePresets(panelData.presets || []);
+                if (panelData.playerCoords) setCoords(panelData.playerCoords);
+                renderEventsList(document.getElementById('eventsList'), panelData.events, { manageable: true });
+                updateManageSelect(panelData.events);
+                panel.classList.remove('hidden');
+                menuOpen = true;
+                break;
 
-        case 'openJoin':
-            renderEventsList(document.getElementById('joinList'), event.data.events, { joinable: true });
-            joinMenu.classList.remove('hidden');
-            break;
+            case 'panelData':
+                if (data.data && data.data.events) {
+                    renderEventsList(document.getElementById('eventsList'), data.data.events, { manageable: true });
+                    updateManageSelect(data.data.events);
+                }
+                if (data.data && data.data.currentEvent) {
+                    showManageDetail(data.data.currentEvent);
+                }
+                break;
 
-        case 'syncEvents':
-            if (!panel.classList.contains('hidden')) {
-                renderEventsList(document.getElementById('eventsList'), event.data.events, { manageable: true });
-                updateManageSelect(event.data.events);
-            }
-            break;
+            case 'openJoin':
+                renderEventsList(document.getElementById('joinList'), data.events, { joinable: true });
+                joinMenu.classList.remove('hidden');
+                menuOpen = true;
+                break;
 
-        case 'showEventHud':
-            showEventHud(event.data.event, event.data.isHost);
-            break;
+            case 'syncEvents':
+                if (!panel.classList.contains('hidden')) {
+                    renderEventsList(document.getElementById('eventsList'), data.events, { manageable: true });
+                    updateManageSelect(data.events);
+                }
+                break;
 
-        case 'hideEventHud':
-            hideEventHud();
-            break;
+            case 'showEventHud':
+                showEventHud(data.event, data.isHost);
+                break;
 
-        case 'countdown':
-            document.getElementById('hudCountdown').textContent = event.data.seconds;
-            document.getElementById('hudCountdown').classList.remove('hidden');
-            break;
+            case 'hideEventHud':
+                hideEventHud();
+                break;
 
-        case 'eventStarted':
-            showEventHud(event.data.event, isHost);
-            document.getElementById('hudCountdown').classList.add('hidden');
-            break;
+            case 'countdown':
+                document.getElementById('hudCountdown').textContent = data.seconds;
+                document.getElementById('hudCountdown').classList.remove('hidden');
+                break;
 
-        case 'eventUpdate':
-            if (currentHudEvent && currentHudEvent.id === event.data.event.id) {
-                showEventHud(event.data.event, isHost);
-            }
-            if (managedEvent && managedEvent.id === event.data.event.id) {
-                showManageDetail(event.data.event);
-            }
-            break;
+            case 'eventStarted':
+                showEventHud(data.event, isHost);
+                document.getElementById('hudCountdown').classList.add('hidden');
+                break;
 
-        case 'becameHost':
-            isHost = true;
-            showEventHud(event.data.event, true);
-            break;
+            case 'eventUpdate':
+                if (currentHudEvent && data.event && currentHudEvent.id === data.event.id) {
+                    showEventHud(data.event, isHost);
+                }
+                if (managedEvent && data.event && managedEvent.id === data.event.id) {
+                    showManageDetail(data.event);
+                }
+                break;
 
-        case 'updatePlayerCount':
-            document.getElementById('hudPlayerCount').textContent =
-                `${event.data.count}/${currentHudEvent?.maxPlayers || '?'}`;
-            break;
+            case 'becameHost':
+                isHost = true;
+                showEventHud(data.event, true);
+                break;
 
-        case 'askPassword':
-            pendingPasswordEventId = event.data.eventId;
-            document.getElementById('passwordTitle').textContent = `Wachtwoord: ${event.data.eventName}`;
-            passwordModal.classList.remove('hidden');
-            break;
+            case 'updatePlayerCount':
+                document.getElementById('hudPlayerCount').textContent =
+                    `${data.count}/${currentHudEvent?.maxPlayers || '?'}`;
+                break;
 
-        case 'showInvite':
-            document.getElementById('inviteText').textContent =
-                `${event.data.data.fromName} nodigt je uit voor "${event.data.data.eventName}"`;
-            inviteModal.classList.remove('hidden');
-            break;
+            case 'askPassword':
+                pendingPasswordEventId = data.eventId;
+                document.getElementById('passwordTitle').textContent = `Wachtwoord: ${data.eventName}`;
+                passwordModal.classList.remove('hidden');
+                menuOpen = true;
+                break;
 
-        case 'onlinePlayers':
-            onlinePlayers = event.data.players || [];
-            const sel = document.getElementById('invitePlayerSelect');
-            sel.innerHTML = '';
-            onlinePlayers.filter(p => !p.inEvent).forEach(p => {
-                const opt = document.createElement('option');
-                opt.value = p.id;
-                opt.textContent = `${p.name} (${p.id})`;
-                sel.appendChild(opt);
-            });
-            sel.classList.remove('hidden');
-            document.getElementById('sendInviteBtn').classList.remove('hidden');
-            break;
+            case 'showInvite':
+                document.getElementById('inviteText').textContent =
+                    `${data.data.fromName} nodigt je uit voor "${data.data.eventName}"`;
+                inviteModal.classList.remove('hidden');
+                menuOpen = true;
+                break;
 
-        case 'eliminated':
-            if (event.data.event) showEventHud(event.data.event, isHost);
-            break;
+            case 'onlinePlayers':
+                onlinePlayers = data.players || [];
+                const sel = document.getElementById('invitePlayerSelect');
+                sel.innerHTML = '';
+                onlinePlayers.filter(p => !p.inEvent).forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p.id;
+                    opt.textContent = `${p.name} (${p.id})`;
+                    sel.appendChild(opt);
+                });
+                sel.classList.remove('hidden');
+                document.getElementById('sendInviteBtn').classList.remove('hidden');
+                break;
+
+            case 'eliminated':
+                if (data.event) showEventHud(data.event, isHost);
+                break;
+        }
+    } catch (err) {
+        console.log('[snelle-events] NUI error', err);
     }
 });
