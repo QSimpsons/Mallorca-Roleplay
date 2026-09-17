@@ -1,0 +1,53 @@
+{
+  "author": "Mallorca Roleplay",
+  "support_email": "support@mallorcaroleplay.nl",
+  "config": [
+    {
+      "header": "Algemeen",
+      "options": [
+        {
+          "id": "discord-url",
+          "name": "Discord invite URL",
+          "description": "Volledige invite-link, bijvoorbeeld https://discord.gg/jouwserver",
+          "type": "url",
+          "default": "https://discord.gg/"
+        },
+        {
+          "id": "discord-members",
+          "name": "Discord leden tekst",
+          "description": "Tekst in de bovenste balk, bijvoorbeeld 11.000 Discord Leden",
+          "type": "textarea",
+          "default": "11.000 Discord Leden"
+        },
+        {
+          "id": "banner-1",
+          "name": "Balk item 1",
+          "description": "Eerste item in de bovenste informatiebalk",
+          "type": "textarea",
+          "default": "Nieuwe Producten"
+        },
+        {
+          "id": "banner-2",
+          "name": "Balk item 2",
+          "description": "Tweede item in de bovenste informatiebalk",
+          "type": "textarea",
+          "default": "Direct Ontvangen"
+        },
+        {
+          "id": "banner-3",
+          "name": "Balk item 4",
+          "description": "Vierde item in de bovenste informatiebalk",
+          "type": "textarea",
+          "default": "Betalen via Tebex"
+        },
+        {
+          "id": "new-badge",
+          "name": "NEW badge categorie",
+          "description": "Categorie-naam die de NEW-badge krijgt, bijvoorbeeld Coins. Leeg = eerste categorie.",
+          "type": "textarea",
+          "default": "Coins"
+        }
+      ]
+    }
+  ]
+}

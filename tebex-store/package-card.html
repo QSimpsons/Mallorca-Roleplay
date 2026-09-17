@@ -1,0 +1,39 @@
+<a class="product-card" href="/package/{{ package.id }}">
+    <div class="product-image">
+        {% if package.media is defined and package.media|length > 0 %}
+            {% set media = package.media[0] %}
+            {% if media.type == 'image' %}
+                <img src="{{ media.url }}" alt="{{ package.name }}">
+            {% else %}
+                <div class="pack-art"><strong>{{ package.name }}</strong></div>
+            {% endif %}
+        {% elseif package.image is defined and package.image.uploaded %}
+            <img src="{{ package.image.url }}" alt="{{ package.name }}">
+        {% else %}
+            <div class="pack-art"><strong>{{ package.name }}</strong></div>
+        {% endif %}
+    </div>
+    <div class="product-body">
+        <div class="product-name">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.8 5.7 20.8 8 13.6 2 9.2h7.6z"/></svg>
+            {{ package.name }}
+            {% if package.countdownEnds %}
+                <span class="badge-new">{{ __("Ending Soon!") }}</span>
+            {% endif %}
+        </div>
+        <div class="product-desc">{{ package.description|raw }}</div>
+        <div class="product-foot">
+            <div class="price">
+                {% if package.customPrice == false %}
+                    {% if package.discount.applied %}
+                        <s>€{{ package.discount.original|money }}</s>
+                    {% endif %}
+                    €{{ package.price|money }}
+                {% else %}
+                    {{ __("Custom price") }}
+                {% endif %}
+            </div>
+            <span class="btn">Bekijken</span>
+        </div>
+    </div>
+</a>

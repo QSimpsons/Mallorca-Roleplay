@@ -1,0 +1,80 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="section-head">
+        <h1>Winkelwagen</h1>
+    </section>
+
+    <div class="checkout-grid">
+        <div class="page-card">
+            {% if basket.packages|length > 0 %}
+                <form method="post" action="/checkout/update" class="basket-list">
+                    {% for package in basket.packages %}
+                        <div class="basket-item">
+                            {% if package.image is defined and package.image.uploaded %}
+                                <img src="{{ package.image.url }}" alt="{{ package.name }}">
+                            {% else %}
+                                <div class="pack-art" style="height:72px;border-radius:10px;"><strong>{{ package.name|slice(0, 8) }}</strong></div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ package.name }}</strong>
+                                {% if package.ign %}
+                                    <div class="muted">Gift: {{ package.ign }}</div>
+                                {% endif %}
+                            </div>
+                            <div>
+                                {% if package.disableQuantity %}
+                                    <span>x{{ package.quantity }}</span>
+                                {% else %}
+                                    <input class="qty" type="number" min="1" name="quantity[{{ package.id }}]" value="{{ package.quantity }}">
+                                {% endif %}
+                            </div>
+                            <div class="price">€{{ package.price|money }}</div>
+                            <a class="btn btn-danger" href="/checkout/packages/remove/{{ package.id }}" aria-label="{{ __('Remove') }}">×</a>
+                        </div>
+                    {% endfor %}
+                    <button class="btn" type="submit">{{ __("Update") }}</button>
+                </form>
+            {% else %}
+                <p class="empty">Je winkelwagen is leeg.</p>
+                <a class="btn" href="/">Verder winkelen</a>
+            {% endif %}
+
+            <h2 style="margin-top:28px;font-size:16px;letter-spacing:.08em;text-transform:uppercase;">{{ __("Redeem coupons / gift cards") }}</h2>
+            <form method="post" action="/checkout/coupons/add" class="field" style="margin-top:12px;">
+                <input type="text" name="coupon" placeholder="{{ __('Have a coupon code? Enter it here and click redeem.') }}">
+                <button class="btn" type="submit">{{ __("Redeem") }}</button>
+            </form>
+
+            {% if basket.coupons|length > 0 %}
+                <div class="basket-list">
+                    {% for coupon in basket.coupons %}
+                        <div class="basket-item" style="grid-template-columns:minmax(0,1fr) 40px;">
+                            <div>
+                                <strong>{{ coupon.code }}</strong>
+                                <div class="muted">{{ coupon.description }}</div>
+                            </div>
+                            <a class="btn btn-danger" href="/checkout/coupons/remove/{{ coupon.id }}">×</a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <aside class="page-card">
+            <h2 style="margin-top:0;font-size:16px;letter-spacing:.08em;text-transform:uppercase;">Overzicht</h2>
+            <p class="price">€{{ basket.price|money }}</p>
+            <p class="muted">Betalen via Tebex. Je wordt doorgestuurd naar een beveiligde betaalomgeving.</p>
+            {% if basket.packages|length > 0 %}
+                <form method="post" action="/checkout/pay" class="gateway">
+                    <button class="btn btn-primary btn-wide" type="submit" id="purchase-button">
+                        {{ __("Proceed to checkout") }}
+                    </button>
+                </form>
+            {% endif %}
+            {% if not basket.username %}
+                <p class="muted" style="margin-top:14px;"><a href="/login">Log in</a> om je aankoop te ontvangen in-game.</p>
+            {% endif %}
+        </aside>
+    </div>
+{% endblock %}

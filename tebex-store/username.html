@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="section-head">
+        <h1>Inloggen</h1>
+    </section>
+
+    <div class="login-card" style="max-width:520px;">
+        {% if external %}
+            <p class="muted">Log in met je {{ provider }} account om verder te gaan.</p>
+            <a class="btn btn-primary" href="{{ url }}">Login via {{ provider }}</a>
+        {% else %}
+            <p class="muted">Vul je in-game naam in om verder te gaan.</p>
+            <form method="post">
+                <div class="field">
+                    <label for="ign">Gebruikersnaam</label>
+                    <input id="ign" type="text" name="ign" placeholder="{{ __('Enter your in-game username') }}" required>
+                </div>
+                <button class="btn btn-primary" type="submit">Inloggen</button>
+            </form>
+        {% endif %}
+    </div>
+{% endblock %}

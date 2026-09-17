@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mallorca Shop | Coins</title>
+    <link rel="stylesheet" href="theme.css">
+</head>
+<body>
+    <div class="topbar">
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/><path d="M4 9l2-5h12l2 5"/></svg>
+            Nieuwe Producten
+        </span>
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            Direct Ontvangen
+        </span>
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
+            11.000 Discord Leden
+        </span>
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+            Betalen via Tebex
+        </span>
+    </div>
+
+    <header class="site-header">
+        <a class="brand" href="#/" data-nav="shop">
+            <div class="brand-mark"><span>Mallorca<br>Shop</span></div>
+            <div class="brand-name">Mallorca Shop</div>
+        </a>
+        <button class="pill menu-toggle" type="button" data-toggle-nav>Menu</button>
+        <nav class="main-nav" id="main-nav">
+            <a href="#/over-ons" data-nav="over-ons">Over ons</a>
+            <a href="#/regels" data-nav="regels">Regels</a>
+            <a href="#/reviews" data-nav="reviews">Reviews</a>
+            <a href="#/levels" data-nav="levels">Levels</a>
+        </nav>
+        <div class="header-actions">
+            <a class="pill" href="#/winkelwagen" data-nav="winkelwagen">Winkelwagen <span class="cart-count" id="cart-count" hidden>0</span></a>
+            <div class="profile-wrap" id="profile-wrap">
+                <button class="pill" type="button" data-toggle-profile>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-3 4-4.5 7-4.5S17.5 16 19 19"/></svg>
+                    Profiel
+                </button>
+                <div class="profile-menu">
+                    <a href="#/login" data-nav="login">Inloggen</a>
+                    <a href="#/winkelwagen" data-nav="winkelwagen">Winkelwagen</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="shell">
+        <aside>
+            <div class="sidebar-card">
+                <div class="sidebar-title">Categorieën</div>
+                <div class="cat-list" id="cat-list"></div>
+                <div class="sidebar-foot"></div>
+            </div>
+        </aside>
+        <main id="app"></main>
+    </div>
+
+    <footer class="site-footer">
+        <div>&copy; Mallorca Roleplay — betalingen via Tebex</div>
+        <div>Preview van het custom Tebex thema</div>
+    </footer>
+
+    <script>
+        const diamond = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.8 5.7 20.8 8 13.6 2 9.2h7.6z"/></svg>';
+        const desc = "Met deze coins kan je packs kopen via /store in game...";
+        const categories = [
+            { id: "coins", name: "Coins", badge: "NEW" },
+            { id: "unbans", name: "Unbans" },
+            { id: "staff", name: "Staff Ranks" }
+        ];
+        const products = {
+            coins: [
+                { id: "c600", name: "600 Coins", price: "400.49", art: "gold", label: "Weekly Roleplay<br>600 Coins" },
+                { id: "c300", name: "300 Coins", price: "224.99", art: "gold", label: "Weekly Roleplay<br>300 Coins" },
+                { id: "c150", name: "150 Coins", price: "112.49", art: "forest", label: "Weekly Roleplay<br>150 Coins" },
+                { id: "c100", name: "100 Coins", price: "80.99", art: "gold", label: "Weekly Roleplay<br>100 Coins" },
+                { id: "c75", name: "75 Coins", price: "60.74", art: "forest", label: "Weekly Roleplay<br>75 Coins" },
+                { id: "c50", name: "50 Coins", price: "40.49", art: "gold", label: "Weekly Roleplay<br>50 Coins" },
+                { id: "c25", name: "25 Coins", price: "22.49", art: "sack", label: "Weekly Roleplay<br>25 Coins" },
+                { id: "c10", name: "10 Coins", price: "9.99", art: "pouch", label: "Weekly Roleplay<br>10 Coins" }
+            ],
+            unbans: [
+                { id: "u1", name: "Unban", price: "25.00", art: "pouch", label: "Unban<br>1x" }
+            ],
+            staff: [
+                { id: "s1", name: "Trial Staff", price: "0.00", art: "forest", label: "Staff<br>Trial" }
+            ]
+        };
+        const pages = {
+            "over-ons": { title: "Over ons", body: "<p>Welkom bij Mallorca Roleplay. Koop coins, unbans en ranks veilig via Tebex.</p>" },
+            regels: { title: "Regels", body: "<p>Geen refunds bij foutieve aankopen. Coins worden direct geleverd in-game.</p>" },
+            reviews: { title: "Reviews", body: "<p>Reviews van spelers verschijnen hier zodra je ze toevoegt als CMS-pagina in Tebex.</p>" },
+            levels: { title: "Levels", body: "<p>Overzicht van donatie levels en voordelen.</p>" }
+        };
+
+        const cart = [];
+        const app = document.getElementById("app");
+        const catList = document.getElementById("cat-list");
+        const cartCount = document.getElementById("cart-count");
+
+        function money(v) { return "€" + Number(v).toFixed(2); }
+        function productById(id) {
+            return Object.values(products).flat().find((p) => p.id === id);
+        }
+        function renderCard(p) {
+            return `<a class="product-card" href="#/package/${p.id}">
+                <div class="product-image"><div class="pack-art ${p.art}"><strong><em>Mallorca Roleplay</em>${p.label}</strong></div></div>
+                <div class="product-body">
+                    <div class="product-name">${diamond} ${p.name}</div>
+                    <div class="product-desc">${desc}</div>
+                    <div class="product-foot"><div class="price">${money(p.price)}</div><span class="btn">Bekijken</span></div>
+                </div>
+            </a>`;
+        }
+        function setActive(route) {
+            document.querySelectorAll("[data-nav]").forEach((el) => {
+                el.classList.toggle("is-active", el.getAttribute("data-nav") === route);
+            });
+        }
+        function renderSidebar(active) {
+            catList.innerHTML = categories.map((c) => `
+                <a class="cat-link ${c.id === active ? "is-active" : ""}" href="#/category/${c.id}">
+                    ${diamond} ${c.name}
+                    ${c.badge ? `<span class="badge-new">${c.badge}</span>` : ""}
+                </a>`).join("");
+        }
+        function renderShop(catId) {
+            const cat = categories.find((c) => c.id === catId) || categories[0];
+            renderSidebar(cat.id);
+            setActive("shop");
+            app.innerHTML = `
+                <section class="section-head"><h1>${cat.name}</h1></section>
+                <div class="product-grid">${(products[cat.id] || []).map(renderCard).join("")}</div>`;
+        }
+        function renderPackage(id) {
+            const p = productById(id);
+            if (!p) return renderShop("coins");
+            renderSidebar("coins");
+            app.innerHTML = `
+                <article class="detail">
+                    <div class="detail-media"><div class="pack-art ${p.art}"><strong><em>Mallorca Roleplay</em>${p.label}</strong></div></div>
+                    <div>
+                        <h1>${p.name}</h1>
+                        <div class="muted">${desc}</div>
+                        <div class="price">${money(p.price)}</div>
+                        <div class="actions">
+                            <button class="btn btn-primary" data-add="${p.id}">In winkelwagen</button>
+                            <a class="btn" href="#/category/coins">Terug</a>
+                        </div>
+                    </div>
+                </article>`;
+        }
+        function renderCart() {
+            renderSidebar("");
+            setActive("winkelwagen");
+            const items = cart.map((id) => productById(id)).filter(Boolean);
+            const total = items.reduce((s, p) => s + Number(p.price), 0);
+            app.innerHTML = `
+                <section class="section-head"><h1>Winkelwagen</h1></section>
+                <div class="checkout-grid">
+                    <div class="page-card">
+                        ${items.length ? items.map((p) => `<div class="basket-item" style="grid-template-columns:72px minmax(0,1fr) 90px 40px;">
+                            <div class="pack-art ${p.art}" style="height:72px;border-radius:10px;"></div>
+                            <strong>${p.name}</strong>
+                            <div class="price">${money(p.price)}</div>
+                            <button class="btn btn-danger" data-remove="${p.id}">×</button>
+                        </div>`).join("") : `<p class="empty">Je winkelwagen is leeg.</p>`}
+                    </div>
+                    <aside class="page-card">
+                        <h2 style="margin-top:0;font-size:16px;letter-spacing:.08em;text-transform:uppercase;">Overzicht</h2>
+                        <p class="price">${money(total)}</p>
+                        <p class="muted">In de echte Tebex store word je hier doorgestuurd naar de beveiligde checkout.</p>
+                        <button class="btn btn-primary btn-wide" ${items.length ? "" : "disabled"}>Afrekenen via Tebex</button>
+                    </aside>
+                </div>`;
+        }
+        function renderLogin() {
+            renderSidebar("");
+            setActive("login");
+            app.innerHTML = `
+                <section class="section-head"><h1>Inloggen</h1></section>
+                <div class="login-card" style="max-width:520px;">
+                    <p class="muted">Vul je in-game naam in om verder te gaan.</p>
+                    <form onsubmit="event.preventDefault(); location.hash='#/category/coins';">
+                        <div class="field"><label>Gebruikersnaam</label><input type="text" placeholder="Jouw IGN" required></div>
+                        <button class="btn btn-primary" type="submit">Inloggen</button>
+                    </form>
+                </div>`;
+        }
+        function renderCms(key) {
+            const page = pages[key];
+            renderSidebar("");
+            setActive(key);
+            app.innerHTML = `<section class="section-head"><h1>${page.title}</h1></section><article class="cms-card">${page.body}</article>`;
+        }
+        function updateCount() {
+            cartCount.hidden = cart.length === 0;
+            cartCount.textContent = String(cart.length);
+        }
+        function route() {
+            const hash = (location.hash || "#/category/coins").replace("#/", "");
+            const [part, id] = hash.split("/");
+            if (part === "package") return renderPackage(id);
+            if (part === "category") return renderShop(id);
+            if (part === "winkelwagen") return renderCart();
+            if (part === "login") return renderLogin();
+            if (pages[part]) return renderCms(part);
+            renderShop("coins");
+        }
+
+        document.body.addEventListener("click", (e) => {
+            const add = e.target.closest("[data-add]");
+            const remove = e.target.closest("[data-remove]");
+            if (add) { cart.push(add.getAttribute("data-add")); updateCount(); location.hash = "#/winkelwagen"; }
+            if (remove) {
+                const i = cart.indexOf(remove.getAttribute("data-remove"));
+                if (i >= 0) cart.splice(i, 1);
+                updateCount();
+                renderCart();
+            }
+        });
+        document.querySelector("[data-toggle-nav]").addEventListener("click", () => {
+            document.getElementById("main-nav").classList.toggle("open");
+        });
+        const wrap = document.getElementById("profile-wrap");
+        document.querySelector("[data-toggle-profile]").addEventListener("click", (e) => {
+            e.stopPropagation();
+            wrap.classList.toggle("open");
+        });
+        document.addEventListener("click", () => wrap.classList.remove("open"));
+        window.addEventListener("hashchange", route);
+        route();
+    </script>
+</body>
+</html>

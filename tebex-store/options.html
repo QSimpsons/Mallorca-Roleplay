@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="section-head">
+        <h1>{{ __("Enter package options") }}</h1>
+    </section>
+
+    <div class="options-card" style="max-width:640px;">
+        <h2 style="margin-top:0;">{{ options.package.name }}</h2>
+        <p class="price">€{{ options.package.price|money }}</p>
+
+        <form method="post">
+            {% if options.package.chooseServer %}
+                <div class="field">
+                    <label>{{ __("Please choose which server to receive this package upon") }}</label>
+                    <select name="server" required>
+                        <option value="">{{ __("Please choose which server to receive this package upon") }}</option>
+                        {% for server in options.servers %}
+                            <option value="{{ server.id }}">{{ server.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+
+            {% if options.package.customPrice %}
+                <div class="field">
+                    <label>{{ __("Please enter an amount greater than " ~ options.package.price ~ " " ~ store.currency ~ " that you'd like to pay.") }}</label>
+                    <input type="text" name="price" placeholder="{{ __('Please enter the amount you would like to pay.') }}">
+                </div>
+            {% endif %}
+
+            {% for variable in options.variables %}
+                <div class="field">
+                    <label>{{ variable.description }}</label>
+                    {% if variable.type == "dropdown" %}
+                        <select name="variables[{{ variable.id }}]">
+                            {% for option in variable.options %}
+                                <option value="{{ option.id }}" {% if option.default %}selected{% endif %}>
+                                    {{ option.name }}{% if option.price %} (+€{{ option.price|money }}){% endif %}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    {% elseif variable.type == "discord_id" %}
+                        {% if variable.value %}
+                            <p class="muted">Verbonden als {{ variable.discord_tag }}</p>
+                            <input type="hidden" name="variables[{{ variable.id }}]" value="{{ variable.value }}">
+                        {% else %}
+                            <p class="muted">Koppel je Discord account om verder te gaan.</p>
+                            {% if variable.url %}
+                                <a class="btn" href="{{ variable.url }}">Login met Discord</a>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <input type="text" name="variables[{{ variable.id }}]" value="{{ variable.value }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+
+            <button class="btn btn-primary" type="submit">{{ __("Continue") }}</button>
+        </form>
+    </div>
+{% endblock %}

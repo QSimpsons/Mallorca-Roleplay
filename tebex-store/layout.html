@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ store.name }} | {{ __(page.title) }}</title>
+    {% if store.favicon %}
+        <link rel="icon" href="{{ store.favicon }}">
+    {% endif %}
+    <link rel="stylesheet" href="{{ asset('theme.css') }}">
+    <style>{{ store.css|raw }}</style>
+    {% if store.googleAnalytics %}
+        <script async src="https://www.googletagmanager.com/gtag/js?id={{ store.googleAnalytics }}"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){ dataLayer.push(arguments); }
+            gtag('js', new Date());
+            gtag('config', '{{ store.googleAnalytics }}');
+        </script>
+    {% endif %}
+</head>
+<body>
+    {% set discord_url = config('discord-url') %}
+    {% set discord_members = config('discord-members') %}
+    {% set banner_1 = config('banner-1') %}
+    {% set banner_2 = config('banner-2') %}
+    {% set banner_3 = config('banner-3') %}
+    {% set new_badge = config('new-badge') %}
+
+    <div class="topbar">
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9z"/><path d="M4 9l2-5h12l2 5"/></svg>
+            {{ banner_1|default('Nieuwe Producten') }}
+        </span>
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            {{ banner_2|default('Direct Ontvangen') }}
+        </span>
+        {% if discord_url %}
+            <a href="{{ discord_url }}">
+                <span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
+                    {{ discord_members|default('Discord Leden') }}
+                </span>
+            </a>
+        {% else %}
+            <span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
+                {{ discord_members|default('Discord Leden') }}
+            </span>
+        {% endif %}
+        <span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/></svg>
+            {{ banner_3|default('Betalen via Tebex') }}
+        </span>
+    </div>
+
+    <header class="site-header">
+        <a class="brand" href="/">
+            <div class="brand-mark">
+                {% if store.logo %}
+                    <img src="{{ store.logo }}" alt="{{ store.name }}">
+                {% else %}
+                    <span>{{ store.name|slice(0, 8) }}</span>
+                {% endif %}
+            </div>
+            <div class="brand-name">{{ store.name }}</div>
+        </a>
+
+        <button class="pill menu-toggle" type="button" data-toggle-nav aria-label="Menu">Menu</button>
+
+        <nav class="main-nav" id="main-nav">
+            {% for cms_page in store.pages %}
+                <a href="/{{ cms_page.slug }}" class="{% if page.title == cms_page.title %}is-active{% endif %}">{{ cms_page.title }}</a>
+            {% endfor %}
+        </nav>
+
+        <div class="header-actions">
+            <a class="pill" href="/checkout/basket">
+                Winkelwagen
+                {% if basket.packages|length > 0 %}
+                    <span class="cart-count">{{ basket.packages|length }}</span>
+                {% endif %}
+            </a>
+            <div class="profile-wrap" id="profile-wrap">
+                {% if basket.username %}
+                    <button class="pill" type="button" data-toggle-profile>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-3 4-4.5 7-4.5S17.5 16 19 19"/></svg>
+                        {{ basket.username }}
+                    </button>
+                    <div class="profile-menu">
+                        <a href="/checkout/basket">Winkelwagen</a>
+                        <a href="/logout">Uitloggen</a>
+                    </div>
+                {% else %}
+                    <a class="pill" href="/login">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M5 19c1.5-3 4-4.5 7-4.5S17.5 16 19 19"/></svg>
+                        Profiel
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if page.message.display %}
+        <div class="toast {% if page.message.type %}{{ page.message.type }}{% endif %}">{{ page.message.text }}</div>
+    {% endif %}
+
+    <div class="shell">
+        <aside>
+            <div class="sidebar-card">
+                <div class="sidebar-title">Categorieën</div>
+                <div class="cat-list">
+                    {% for category in store.categories %}
+                        {% set is_new = (new_badge and category.name|lower == new_badge|lower) or (new_badge == '' and loop.first) %}
+                        <a class="cat-link {% if id is defined and category.id == id %}is-active{% endif %}" href="/category/{{ category.id }}">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.8 5.7 20.8 8 13.6 2 9.2h7.6z"/></svg>
+                            {{ category.name }}
+                            {% if is_new %}<span class="badge-new">NEW</span>{% endif %}
+                        </a>
+                        {% if category.subcategories is defined and category.subcategories|length > 0 %}
+                            <div class="subcats">
+                                {% for sub in category.subcategories %}
+                                    <a class="{% if id is defined and sub.id == id %}is-active{% endif %}" href="/category/{{ sub.id }}">{{ sub.name }}</a>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="sidebar-foot"></div>
+            </div>
+            {{ modules|raw }}
+        </aside>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <footer class="site-footer">
+        <div>&copy; {{ store.name }} — betalingen via Tebex</div>
+        {% if store.locales is defined and store.locales|length > 1 %}
+            <div>
+                {% for locale, name in store.locales %}
+                    <a href="?locale={{ locale }}">{{ name }}</a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </footer>
+
+    <script>
+        (function () {
+            var nav = document.getElementById('main-nav');
+            var toggle = document.querySelector('[data-toggle-nav]');
+            if (toggle && nav) {
+                toggle.addEventListener('click', function () { nav.classList.toggle('open'); });
+            }
+            var wrap = document.getElementById('profile-wrap');
+            var profileBtn = document.querySelector('[data-toggle-profile]');
+            if (wrap && profileBtn) {
+                profileBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    wrap.classList.toggle('open');
+                });
+                document.addEventListener('click', function () { wrap.classList.remove('open'); });
+            }
+        })();
+    </script>
+</body>
+</html>

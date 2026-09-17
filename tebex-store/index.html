@@ -1,0 +1,50 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="section-head">
+        <h1>{{ store.name }}</h1>
+        {% if description is defined and description %}
+            <div class="desc">{{ description|raw }}</div>
+        {% elseif index is defined and index.description %}
+            <div class="desc">{{ index.description|raw }}</div>
+        {% endif %}
+    </section>
+
+    {% for cat in store.categories %}
+        {% if cat.packages is defined and cat.packages|length > 0 %}
+            <section class="section-head">
+                <h2>{{ cat.name }}</h2>
+            </section>
+            <div class="product-grid">
+                {% for package in cat.packages %}
+                    {% include "package-card.html" %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endfor %}
+
+    <div class="product-grid">
+        {% for cat in store.categories %}
+            {% if cat.packages is not defined or cat.packages|length == 0 %}
+                <a class="product-card" href="/category/{{ cat.id }}">
+                    <div class="product-image">
+                        <div class="pack-art"><strong>{{ cat.name }}</strong></div>
+                    </div>
+                    <div class="product-body">
+                        <div class="product-name">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.2H22l-6 4.4 2.3 7.2L12 16.8 5.7 20.8 8 13.6 2 9.2h7.6z"/></svg>
+                            {{ cat.name }}
+                        </div>
+                        <div class="product-desc">Bekijk alle producten in deze categorie.</div>
+                        <div class="product-foot">
+                            <span class="price">&nbsp;</span>
+                            <span class="btn">Bekijken</span>
+                        </div>
+                    </div>
+                </a>
+            {% endif %}
+        {% else %}
+            <p class="empty">Er zijn nog geen categorieën. Voeg ze toe in het Tebex Control Panel onder Packages.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
