@@ -107,6 +107,11 @@ button { cursor: pointer; }
   font-size: 14px;
   text-transform: uppercase;
 }
+.icon-gem {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
 
 .main-nav {
   display: flex;
@@ -552,14 +557,15 @@ button { cursor: pointer; }
   .main-nav { display: none; }
   .header-actions .nav-desktop { display: none; }
   .menu-toggle { display: inline-flex; }
-  .site-header { padding: 0 16px; }
+  .brand-name { display: none; }
+  .site-header { padding: 0 16px; position: relative; }
   .main-nav.open {
     display: flex;
     flex-direction: column;
     position: absolute;
     left: 16px;
     right: 16px;
-    top: 86px;
+    top: 74px;
     background: #10131b;
     border: 1px solid var(--line);
     border-radius: 14px;
