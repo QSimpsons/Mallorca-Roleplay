@@ -1,4 +1,4 @@
-# Tebex store thema — Mallorca Shop
+# Tebex store thema — Zoetermeer Shop
 
 Custom Tebex webstore template in de stijl van de dark shop met neon gradient-randen, categorie-sidebar en productkaarten met **Bekijken**.
 
@@ -25,7 +25,7 @@ Dit is geen FiveM resource. Je plakt deze bestanden in het **Tebex Control Panel
 ## Installatie
 
 1. Ga in Tebex naar **Appearance → Change Template → Create Custom Template**.
-2. Kies Exo als basis, geef het thema een naam (bijvoorbeeld Mallorca Shop).
+2. Kies Exo als basis, geef het thema een naam (bijvoorbeeld Zoetermeer Shop).
 3. Plak per pagina de inhoud van de HTML-bestanden hierboven.
 4. Upload `theme.css` en `package-card.html` als **Assets**.
 5. Plak `schema.json` onder **Change Schema** en vul Discord-link + ledentekst in.

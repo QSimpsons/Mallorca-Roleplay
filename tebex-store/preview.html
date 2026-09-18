@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Mallorca Shop | Coins</title>
+    <title>Zoetermeer Shop | Coins</title>
     <link rel="stylesheet" href="theme.css">
 </head>
 <body>
@@ -28,8 +28,8 @@
 
     <header class="site-header">
         <a class="brand" href="#/" data-nav="shop">
-            <div class="brand-mark"><span>Mallorca<br>Shop</span></div>
-            <div class="brand-name">Mallorca Shop</div>
+            <div class="brand-mark"><span>Zoetermeer<br>Shop</span></div>
+            <div class="brand-name">Zoetermeer Shop</div>
         </a>
         <button class="pill menu-toggle" type="button" data-toggle-nav>Menu</button>
         <nav class="main-nav" id="main-nav">
@@ -65,7 +65,7 @@
     </div>
 
     <footer class="site-footer">
-        <div>&copy; Mallorca Roleplay — betalingen via Tebex</div>
+        <div>&copy; Zoetermeer Roleplay — betalingen via Tebex</div>
         <div>Preview van het custom Tebex thema</div>
     </footer>
 
@@ -79,14 +79,14 @@
         ];
         const products = {
             coins: [
-                { id: "c600", name: "600 Coins", price: "400.49", art: "gold", label: "Weekly Roleplay<br>600 Coins" },
-                { id: "c300", name: "300 Coins", price: "224.99", art: "gold", label: "Weekly Roleplay<br>300 Coins" },
-                { id: "c150", name: "150 Coins", price: "112.49", art: "forest", label: "Weekly Roleplay<br>150 Coins" },
-                { id: "c100", name: "100 Coins", price: "80.99", art: "gold", label: "Weekly Roleplay<br>100 Coins" },
-                { id: "c75", name: "75 Coins", price: "60.74", art: "forest", label: "Weekly Roleplay<br>75 Coins" },
-                { id: "c50", name: "50 Coins", price: "40.49", art: "gold", label: "Weekly Roleplay<br>50 Coins" },
-                { id: "c25", name: "25 Coins", price: "22.49", art: "sack", label: "Weekly Roleplay<br>25 Coins" },
-                { id: "c10", name: "10 Coins", price: "9.99", art: "pouch", label: "Weekly Roleplay<br>10 Coins" }
+                { id: "c600", name: "600 Coins", price: "400.49", art: "gold", label: "Zoetermeer Roleplay<br>600 Coins" },
+                { id: "c300", name: "300 Coins", price: "224.99", art: "gold", label: "Zoetermeer Roleplay<br>300 Coins" },
+                { id: "c150", name: "150 Coins", price: "112.49", art: "forest", label: "Zoetermeer Roleplay<br>150 Coins" },
+                { id: "c100", name: "100 Coins", price: "80.99", art: "gold", label: "Zoetermeer Roleplay<br>100 Coins" },
+                { id: "c75", name: "75 Coins", price: "60.74", art: "forest", label: "Zoetermeer Roleplay<br>75 Coins" },
+                { id: "c50", name: "50 Coins", price: "40.49", art: "gold", label: "Zoetermeer Roleplay<br>50 Coins" },
+                { id: "c25", name: "25 Coins", price: "22.49", art: "sack", label: "Zoetermeer Roleplay<br>25 Coins" },
+                { id: "c10", name: "10 Coins", price: "9.99", art: "pouch", label: "Zoetermeer Roleplay<br>10 Coins" }
             ],
             unbans: [
                 { id: "u1", name: "Unban", price: "25.00", art: "pouch", label: "Unban<br>1x" }
@@ -96,7 +96,7 @@
             ]
         };
         const pages = {
-            "over-ons": { title: "Over ons", body: "<p>Welkom bij Mallorca Roleplay. Koop coins, unbans en ranks veilig via Tebex.</p>" },
+            "over-ons": { title: "Over ons", body: "<p>Welkom bij Zoetermeer Roleplay. Koop coins, unbans en ranks veilig via Tebex.</p>" },
             regels: { title: "Regels", body: "<p>Geen refunds bij foutieve aankopen. Coins worden direct geleverd in-game.</p>" },
             reviews: { title: "Reviews", body: "<p>Reviews van spelers verschijnen hier zodra je ze toevoegt als CMS-pagina in Tebex.</p>" },
             levels: { title: "Levels", body: "<p>Overzicht van donatie levels en voordelen.</p>" }
@@ -113,7 +113,7 @@
         }
         function renderCard(p) {
             return `<a class="product-card" href="#/package/${p.id}">
-                <div class="product-image"><div class="pack-art ${p.art}"><strong><em>Mallorca Roleplay</em>${p.label}</strong></div></div>
+                <div class="product-image"><div class="pack-art ${p.art}"><strong>${p.label}</strong></div></div>
                 <div class="product-body">
                     <div class="product-name">${diamond} ${p.name}</div>
                     <div class="product-desc">${desc}</div>
@@ -147,7 +147,7 @@
             renderSidebar("coins");
             app.innerHTML = `
                 <article class="detail">
-                    <div class="detail-media"><div class="pack-art ${p.art}"><strong><em>Mallorca Roleplay</em>${p.label}</strong></div></div>
+                    <div class="detail-media"><div class="pack-art ${p.art}"><strong>${p.label}</strong></div></div>
                     <div>
                         <h1>${p.name}</h1>
                         <div class="muted">${desc}</div>
