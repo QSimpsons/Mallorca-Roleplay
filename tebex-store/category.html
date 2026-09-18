@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <section class="section-head">
+        <h1>{{ category.name }}</h1>
+        {% if category.description %}
+            <div class="desc">{{ category.description|raw }}</div>
+        {% endif %}
+    </section>
+
+    {% if category.packages|length > 0 %}
+        <div class="product-grid">
+            {% for package in category.packages %}
+                {% include "package-card.html" %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="empty">{{ __("No packages to display in this category.") }}</p>
+    {% endif %}
+{% endblock %}

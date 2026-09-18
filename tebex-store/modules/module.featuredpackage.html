@@ -1,0 +1,7 @@
+<div class="module page-card" style="margin-top:16px;padding:16px;">
+    {% if module.header %}<h3 style="margin:0 0 8px;font-size:13px;letter-spacing:.14em;text-transform:uppercase;">{{ module.header }}</h3>{% endif %}
+    {% if module.package %}
+        {% set package = module.package %}
+        {% include "package-card.html" %}
+    {% endif %}
+</div>

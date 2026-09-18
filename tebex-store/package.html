@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <article class="detail">
+        <div class="detail-media">
+            {% if package.media is defined and package.media|length > 0 %}
+                {% for media in package.media %}
+                    {% if media.type == 'image' %}
+                        <img src="{{ media.url }}" alt="{{ package.name }}">
+                    {% elseif media.type == 'video' %}
+                        <iframe src="https://www.youtube.com/embed/{{ media.url }}?color=white&rel=0" title="{{ package.name }}" allowfullscreen></iframe>
+                    {% endif %}
+                {% endfor %}
+            {% elseif package.image is defined and package.image.uploaded %}
+                <img src="{{ package.image.url }}" alt="{{ package.name }}">
+            {% else %}
+                <div class="pack-art"><strong>{{ package.name }}</strong></div>
+            {% endif %}
+        </div>
+        <div>
+            <h1>{{ package.name }}</h1>
+            <div class="muted">{{ package.description|raw }}</div>
+            <div class="price">
+                {% if package.discount.applied %}
+                    <s>€{{ package.discount.original|money }}</s>
+                {% endif %}
+                €{{ package.price|money }}
+            </div>
+            <div class="actions">
+                {% if package.basket %}
+                    <a class="btn btn-danger" href="/checkout/packages/remove/{{ package.id }}">{{ __("Remove") }}</a>
+                    <a class="btn" href="/checkout/basket">Winkelwagen</a>
+                {% elseif package.purchasable or package.purchasable is not defined %}
+                    <a class="btn btn-primary" href="/checkout/packages/add/{{ package.id }}">In winkelwagen</a>
+                {% else %}
+                    <p class="empty">{{ package.reason|default(__("This package cannot be purchased.")) }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+{% endblock %}
