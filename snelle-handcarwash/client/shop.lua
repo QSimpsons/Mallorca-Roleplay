@@ -110,6 +110,8 @@ function Handwash.TryFillBucket()
         return
     end
 
+    local inNaturalWater = Config.Water.allowNaturalWater and IsEntityInWater(PlayerPedId()) or false
+
     Handwash.busy = true
     Handwash.ServerCallback('snelle-handcarwash:canFillBucket', function(result)
         if not result or not result.ok then
@@ -171,8 +173,8 @@ function Handwash.TryFillBucket()
             else
                 Handwash.NotifyReason(fillResult and fillResult.reason or 'need_empty_bucket')
             end
-        end)
-    end)
+        end, inNaturalWater)
+    end, inNaturalWater)
 end
 
 local function spawnShopPed(shop)

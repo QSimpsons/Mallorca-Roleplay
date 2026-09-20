@@ -375,13 +375,14 @@ local function isNearShop(src)
     return false
 end
 
-local function isNearWater(src)
+-- IsEntityInWater is een client-native. Open water komt als boolean van de client.
+local function isNearWater(src, inNaturalWater)
     local ped = GetPlayerPed(src)
     if ped == 0 then
         return false
     end
 
-    if Config.Water.allowNaturalWater and IsEntityInWater(ped) then
+    if Config.Water.allowNaturalWater and inNaturalWater == true then
         return true
     end
 
@@ -404,8 +405,8 @@ local function isNearWater(src)
     return false
 end
 
-ESXCallback('snelle-handcarwash:canFillBucket', function(source, cb)
-    if not isNearWater(source) then
+ESXCallback('snelle-handcarwash:canFillBucket', function(source, cb, inNaturalWater)
+    if not isNearWater(source, inNaturalWater) then
         cb({ ok = false, reason = 'not_near_water' })
         return
     end
@@ -422,8 +423,8 @@ ESXCallback('snelle-handcarwash:canFillBucket', function(source, cb)
     cb({ ok = true })
 end)
 
-ESXCallback('snelle-handcarwash:fillBucket', function(source, cb)
-    if not isNearWater(source) then
+ESXCallback('snelle-handcarwash:fillBucket', function(source, cb, inNaturalWater)
+    if not isNearWater(source, inNaturalWater) then
         cb({ ok = false, reason = 'not_near_water' })
         return
     end
