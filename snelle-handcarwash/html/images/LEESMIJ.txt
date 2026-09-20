@@ -1,0 +1,12 @@
+Zet hier (of in ox_inventory/web/images/) PNG-iconen met deze namen:
+
+- empty_bucket.png
+- water_bucket.png
+- car_sponge.png
+- car_soap.png
+- microfiber_cloth.png
+- car_wax.png
+- tire_cleaner.png
+- hand_carwash_kit.png
+
+ox_inventory toont anders een placeholder. Het script zelf heeft de iconen niet nodig.
