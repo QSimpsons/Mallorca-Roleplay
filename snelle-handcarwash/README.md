@@ -15,6 +15,10 @@ ESX-script waarmee spelers een voertuig **met de hand wassen**. Alle benodigde i
 - Wax houdt het voertuig een instelbare tijd extra schoon
 - Nederlands (standaard) en Engels
 
+## Download
+
+Pak `snelle-handcarwash.zip` uit in je `resources` map. SQL en ox_inventory-items zitten in de zip.
+
 ## Installatie
 
 Zie [INSTALL.md](INSTALL.md).
