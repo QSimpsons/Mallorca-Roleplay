@@ -17,7 +17,11 @@ Oud (crash):
 exports['jg-progressbar']:Progress({ ... }, function(cancelled) end)
 ```
 
-Nieuw: `client/progress.lua` (`SafeProgress`) probeert `Config.Progress` en valt terug op `ox_lib` `lib.progressBar` als die export ontbreekt.
+Nieuw: `client/client.lua` v8 definieert `SafeProgress` bovenaan het bestand
+(drop-in: alleen dit bestand overschrijven is genoeg). Het probeert
+`Config.Progress` en valt terug op `ox_lib` `lib.progressBar`.
+
+Als F8 nog `client.lua v6 geladen` toont, laadt de server het oude bestand.
 
 Repareren, wassen en VIN-check gebruiken `SafeProgress`. Items (`repairkit` / `washand`) gaan pas van de speler af als de progress niet geannuleerd is.
 

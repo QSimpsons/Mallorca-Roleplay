@@ -1,19 +1,28 @@
-JE DRAAIT NOG EEN OUDE client.lua
-=================================
+F8 TOONT NOG v6 — DIT IS HET OUDE BESTAND
+=========================================
 
-De error op regel 872 (No such export Progress) bestaat NIET in de nieuwe client.lua.
-Repareren / wassen / VIN gebruiken nu SafeProgress, met ox_lib als fallback.
+Jouw paste begint met:
 
-Daarom: verwijder de hele map jg-anwb op de server en zet de map
-jg-anwb uit deze PR er terug voor in de plaats. Niet 1 bestand
-eroverheen kopieren (anders mist client/progress.lua).
+  print('^2[jg-anwb] client.lua v6 geladen^7')
 
-1. Stop de server of:  ensure jg-anwb stop
-2. Verwijder resources/.../jg-anwb  (de hele map)
-3. Kopieer de map jg-anwb naar resources
-4. ensure ox_lib
-   ensure jg-anwb
-5. In F8 moet staan:  [jg-anwb] client.lua v7 geladen (progress-fix)
+en crasht op regel 872:
 
-Als die print ontbreekt, start FiveM nog de oude map.
-Zoek dan op de hele server naar een tweede jg-anwb.
+  exports[''..Config.Progress..'']:Progress({...})
+
+De server laadt dus nog NIET de gefixte client.lua.
+
+SNELSTE FIX (1 bestand):
+
+  1. ensure jg-anwb stop
+  2. Kopieer OVERSCHRIJF-OP-SERVER/client.lua  ->  resources/.../jg-anwb/client/client.lua
+  3. refresh
+     ensure ox_lib
+     ensure jg-anwb
+  4. F8 moet tonen:  [jg-anwb] client.lua v8 geladen (PROGRESS-FIX)
+
+Zie je nog v6? Zoek een tweede jg-anwb map. Alleen restart van de
+resource zonder het bestand te overschrijven verandert niks.
+
+Optioneel (als andere scripts ook Progress van jg-progressbar willen):
+  ZET-IN-JG-PROGRESSBAR/Progress.lua in je jg-progressbar zetten.
+  Voor DEZE crash is dat niet nodig — v8 client.lua valt terug op ox_lib.

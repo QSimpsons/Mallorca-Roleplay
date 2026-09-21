@@ -222,6 +222,22 @@ do
     assert_true(tostring(err):find('No such export Progress', 1, true) ~= nil, 'raw error text matches production crash')
 end
 
+-- 8. Drop-in client.lua must be v8 and must not call Config.Progress:Progress.
+do
+    local path = ROOT .. '/../client/client.lua'
+    local fh = assert(io.open(path, 'r'))
+    local src = fh:read('*a')
+    fh:close()
+    assert_true(src:find("client.lua v8 geladen %(PROGRESS%-FIX%)", 1) ~= nil, 'client.lua must print v8 PROGRESS-FIX')
+    assert_eq(src:find("print('^2[jg-anwb] client.lua v6 geladen^7')", 1, true) ~= nil, false, 'client.lua must not still print v6 geladen')
+    assert_eq(src:find("exports[''..Config.Progress..'']:Progress", 1, true) ~= nil, false, 'raw Config.Progress Progress export must be gone')
+    local count = 0
+    for _ in src:gmatch('SafeProgress%({') do
+        count = count + 1
+    end
+    assert_eq(count, 3, 'repair/vin/wash must call SafeProgress')
+end
+
 if failures > 0 then
     io.stderr:write(('test_progress_fallback.lua: %d failure(s)\n'):format(failures))
     os.exit(1)

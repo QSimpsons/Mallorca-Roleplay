@@ -3,23 +3,23 @@ JG-ANWB PROGRESSBAR FIX
 
 Error:
   @jg-anwb/client/client.lua:872: No such export Progress in resource jg-progressbar
-  > callback (@ox_target/client/main.lua:443)
 
-jg-progressbar draait, maar exporteert geen functie genaamd Progress.
-Wassen / repareren / VIN via ox_target crasht daardoor.
+F8 bij jou:
+  [jg-anwb] client.lua v6 geladen
 
-VERPLICHT: vervang de map jg-anwb (niet alleen 1 bestand plakken).
+v6 IS HET OUDE BESTAND. Vervang client.lua, anders blijft de crash.
 
-1. Stop de resource:  ensure jg-anwb stop
-2. Vervang resources/.../jg-anwb door de map jg-anwb uit deze PR
-3. ox_lib moet al gestart zijn (jg-anwb dependency)
-4. ensure ox_lib
+1. ensure jg-anwb stop
+2. Kopieer OVERSCHRIJF-OP-SERVER/client.lua naar:
+     resources/.../jg-anwb/client/client.lua
+3. refresh
+   ensure ox_lib
    ensure jg-anwb
+4. F8 moet zijn:
+     [jg-anwb] client.lua v8 geladen (PROGRESS-FIX)
 
-Optioneel (als andere scripts ook exports['jg-progressbar']:Progress aanroepen):
-  zet ZET-IN-JG-PROGRESSBAR/Progress.lua in je bestaande jg-progressbar
-  (zie ZET-IN-JG-PROGRESSBAR/LEESMIJ.txt)
+v8 roept SafeProgress aan (ox_lib fallback). De ruwe
+exports['jg-progressbar']:Progress call is weg.
 
-F8:
-  [jg-anwb] progress.lua: SafeProgress (ox_lib fallback)
-  [jg-anwb] client.lua v7 geladen (progress-fix)
+Optioneel: ZET-IN-JG-PROGRESSBAR/Progress.lua in jg-progressbar
+als andere resources dezelfde export nodig hebben.
