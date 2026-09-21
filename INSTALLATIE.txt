@@ -1,0 +1,15 @@
+JG-ANWB — VOLLEDIG BESTAND
+==========================
+
+1. Pak jg-anwb.zip uit in je resources map
+   OF
+   overschrijf alleen:
+     resources/jg-anwb/client/client.lua
+   met VOLLEDIG-BESTAND/client.lua
+
+2. refresh
+   ensure ox_lib
+   ensure jg-anwb
+
+3. F8:
+   [jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)

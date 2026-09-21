@@ -1,0 +1,19 @@
+DIT IS HET VOLLEDIGE client.lua
+================================
+
+Zet dit bestand hier neer (overschrijven):
+
+  resources/jg-anwb/client/client.lua
+
+Daarna in de server console:
+
+  ensure jg-anwb stop
+  refresh
+  ensure ox_lib
+  ensure jg-anwb
+
+F8 moet tonen:
+
+  [jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)
+
+Zie je nog v6? Dan laadt FiveM een andere jg-anwb map.

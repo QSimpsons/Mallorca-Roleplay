@@ -1,0 +1,8 @@
+Dit is een kopie van het volledige client.lua.
+
+Zet het over:
+  resources/jg-anwb/client/client.lua
+
+F8 na restart: client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)
+
+Liever de map? Gebruik VOLLEDIG-BESTAND/client.lua of jg-anwb.zip.

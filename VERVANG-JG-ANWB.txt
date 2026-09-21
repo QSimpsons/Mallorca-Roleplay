@@ -1,0 +1,23 @@
+F8 TOONT NOG v6 — DIT IS HET OUDE BESTAND
+=========================================
+
+Gebruik het VOLLEDIGE bestand:
+
+  VOLLEDIG-BESTAND/client.lua
+
+Kopieer naar:
+
+  resources/jg-anwb/client/client.lua
+
+Of pak jg-anwb.zip uit in resources.
+
+Daarna:
+
+  ensure jg-anwb stop
+  refresh
+  ensure ox_lib
+  ensure jg-anwb
+
+F8 moet tonen:
+
+  [jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)
