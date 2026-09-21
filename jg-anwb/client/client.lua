@@ -1,4 +1,4 @@
-print('^2[jg-anwb] client.lua v8 geladen (PROGRESS-FIX)^7')
+print('^2[jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)^7')
 print('^3[jg-anwb] Zie je in F8 nog "v6 geladen"? Dan laadt FiveM nog het OUDE client.lua. Overschrijf resources/.../jg-anwb/client/client.lua en doe: ensure jg-anwb^7')
 
 -- Drop-in: deze file is genoeg. Geen Progress-export in jg-progressbar -> ox_lib.
@@ -192,6 +192,82 @@ SafeSetFuel = function(vehicle, amount)
 		SetVehicleFuelLevel(vehicle, amount + 0.0)
 	end)
 	return true
+end
+
+local function AnwbTrim(value)
+	if value == nil then return '' end
+	return (tostring(value):gsub('^%s*(.-)%s*$', '%1'))
+end
+
+if type(GiveJobVehicleKeys) ~= 'function' then
+	GiveJobVehicleKeys = function(vehicle, plate, props)
+		return SafeGiveCarKeys(vehicle, plate, props)
+	end
+end
+
+if type(RemoveJobVehicleKeys) ~= 'function' then
+	RemoveJobVehicleKeys = function(vehicle, plate, props)
+		plate = AnwbTrim(plate)
+		if plate == '' and vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then
+			plate = AnwbTrim(GetVehicleNumberPlateText(vehicle))
+		end
+		local resources = { 'jg-givekey', Config and Config.Carkeys, 'jg-carkeys' }
+		local methods = { 'removeCarKeys', 'RemoveCarKeys', 'RemoveKeys', 'RemoveKey' }
+		for i = 1, #resources do
+			local resource = resources[i]
+			if type(resource) == 'string' and GetResourceState(resource) == 'started' then
+				for m = 1, #methods do
+					local ok = pcall(function()
+						exports[resource][methods[m]](plate, props, vehicle)
+					end)
+					if ok then return true end
+				end
+			end
+		end
+		return false
+	end
+end
+
+if type(SetJobVehicleFuel) ~= 'function' then
+	SetJobVehicleFuel = SafeSetFuel
+end
+
+if type(BindAnwbLocationActions) ~= 'function' then
+	BindAnwbLocationActions = function()
+		if type(Config) ~= 'table' or type(Config.Locations) ~= 'table' then
+			return false
+		end
+		local map = {
+			OpenGarage = OpenGarage,
+			DeleteVehicle = DeleteVehicle,
+			CloakroomMenu = CloakroomMenu,
+			OnOffDuty = OnOffDuty,
+			GetGear = GetGear,
+			OpenManagement = OpenManagement,
+			ManagementMenu = OpenManagement,
+			['Garage'] = OpenGarage,
+			['Voertuig wegzetten'] = DeleteVehicle,
+			['Omkleden'] = CloakroomMenu,
+			['In-/uitklokken'] = OnOffDuty,
+			['Werkspullen pakken'] = GetGear,
+			['Baas acties'] = OpenManagement,
+		}
+		local bound = 0
+		for _, loc in pairs(Config.Locations) do
+			local fn = loc.functionDefine
+			if type(fn) == 'string' then
+				fn = map[fn] or rawget(_G, fn)
+			end
+			if type(fn) ~= 'function' then
+				fn = map[loc.drawText]
+			end
+			if type(fn) == 'function' then
+				loc.functionDefine = fn
+				bound = bound + 1
+			end
+		end
+		return bound > 0
+	end
 end
 
 -- Config werd eerder geladen dan deze functies, daardoor was functionDefine nil.
@@ -1143,5 +1219,17 @@ AddEventHandler('esx_phone:cancelMessage', function(dispatchNumber)
 		if Config.EnableESXService and not playerInService then
 			CancelEvent()
 		end
+	end
+end)
+
+CreateThread(function()
+	for _ = 1, 100 do
+		if type(OpenGarage) == 'function' and type(BindAnwbLocationActions) == 'function' then
+			if BindAnwbLocationActions() then
+				print('^2[jg-anwb] Garage/omkleden/duty acties gekoppeld^7')
+				return
+			end
+		end
+		Wait(100)
 	end
 end)

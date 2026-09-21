@@ -1,28 +1,23 @@
 F8 TOONT NOG v6 — DIT IS HET OUDE BESTAND
 =========================================
 
-Jouw paste begint met:
+Gebruik het VOLLEDIGE bestand:
 
-  print('^2[jg-anwb] client.lua v6 geladen^7')
+  VOLLEDIG-BESTAND/client.lua
 
-en crasht op regel 872:
+Kopieer naar:
 
-  exports[''..Config.Progress..'']:Progress({...})
+  resources/jg-anwb/client/client.lua
 
-De server laadt dus nog NIET de gefixte client.lua.
+Of pak jg-anwb.zip uit in resources.
 
-SNELSTE FIX (1 bestand):
+Daarna:
 
-  1. ensure jg-anwb stop
-  2. Kopieer OVERSCHRIJF-OP-SERVER/client.lua  ->  resources/.../jg-anwb/client/client.lua
-  3. refresh
-     ensure ox_lib
-     ensure jg-anwb
-  4. F8 moet tonen:  [jg-anwb] client.lua v8 geladen (PROGRESS-FIX)
+  ensure jg-anwb stop
+  refresh
+  ensure ox_lib
+  ensure jg-anwb
 
-Zie je nog v6? Zoek een tweede jg-anwb map. Alleen restart van de
-resource zonder het bestand te overschrijven verandert niks.
+F8 moet tonen:
 
-Optioneel (als andere scripts ook Progress van jg-progressbar willen):
-  ZET-IN-JG-PROGRESSBAR/Progress.lua in je jg-progressbar zetten.
-  Voor DEZE crash is dat niet nodig — v8 client.lua valt terug op ox_lib.
+  [jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)

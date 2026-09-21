@@ -228,7 +228,7 @@ do
     local fh = assert(io.open(path, 'r'))
     local src = fh:read('*a')
     fh:close()
-    assert_true(src:find("client.lua v8 geladen %(PROGRESS%-FIX%)", 1) ~= nil, 'client.lua must print v8 PROGRESS-FIX')
+    assert_true(src:find("VOLLEDIG BESTAND %(PROGRESS%-FIX%)", 1) ~= nil, 'client.lua must print VOLLEDIG BESTAND')
     assert_eq(src:find("print('^2[jg-anwb] client.lua v6 geladen^7')", 1, true) ~= nil, false, 'client.lua must not still print v6 geladen')
     assert_eq(src:find("exports[''..Config.Progress..'']:Progress", 1, true) ~= nil, false, 'raw Config.Progress Progress export must be gone')
     local count = 0

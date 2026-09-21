@@ -1,38 +1,8 @@
-F8 TOONT NOG v6 — JE HEBT HET BESTAND NIET VERVANGEN
-====================================================
+Dit is een kopie van het volledige client.lua.
 
-Jouw log:
+Zet het over:
+  resources/jg-anwb/client/client.lua
 
-  print('^2[jg-anwb] client.lua v6 geladen^7')
-  SCRIPT ERROR: @jg-anwb/client/client.lua:872: No such export Progress in resource jg-progressbar
+F8 na restart: client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)
 
-Dat is 100% het OUDE client.lua. De fix staat niet in jg-progressbar;
-die resource heeft gewoon geen Progress-export. jg-anwb moet stoppen
-met die export aan te roepen.
-
-DOE DIT (1 bestand is genoeg):
-
-1. In de server console:
-     ensure jg-anwb stop
-
-2. Overschrijf op de FiveM server dit bestand:
-     resources/.../jg-anwb/client/client.lua
-
-   door EXACT dit bestand uit de PR:
-     OVERSCHRIJF-OP-SERVER/client.lua
-   (hetzelfde als jg-anwb/client/client.lua)
-
-3. Daarna:
-     refresh
-     ensure ox_lib
-     ensure jg-anwb
-
-4. F8 MOET nu tonen:
-     [jg-anwb] client.lua v8 geladen (PROGRESS-FIX)
-
-   Zie je nog "v6 geladen"? Dan laadt FiveM een ANDERE map.
-   Zoek op de hele server naar jg-anwb (ook in [jobs], [jg], cache, etc.)
-   en vervang ELKE client.lua.
-
-Daarna pas weer wassen / repareren / VIN. De regel-872 crash bestaat
-niet in v8: die regel is nu qtarget, niet Progress.
+Liever de map? Gebruik VOLLEDIG-BESTAND/client.lua of jg-anwb.zip.

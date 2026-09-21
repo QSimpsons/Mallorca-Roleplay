@@ -1,25 +1,15 @@
-JG-ANWB PROGRESSBAR FIX
-=======================
+JG-ANWB — VOLLEDIG BESTAND
+==========================
 
-Error:
-  @jg-anwb/client/client.lua:872: No such export Progress in resource jg-progressbar
+1. Pak jg-anwb.zip uit in je resources map
+   OF
+   overschrijf alleen:
+     resources/jg-anwb/client/client.lua
+   met VOLLEDIG-BESTAND/client.lua
 
-F8 bij jou:
-  [jg-anwb] client.lua v6 geladen
-
-v6 IS HET OUDE BESTAND. Vervang client.lua, anders blijft de crash.
-
-1. ensure jg-anwb stop
-2. Kopieer OVERSCHRIJF-OP-SERVER/client.lua naar:
-     resources/.../jg-anwb/client/client.lua
-3. refresh
+2. refresh
    ensure ox_lib
    ensure jg-anwb
-4. F8 moet zijn:
-     [jg-anwb] client.lua v8 geladen (PROGRESS-FIX)
 
-v8 roept SafeProgress aan (ox_lib fallback). De ruwe
-exports['jg-progressbar']:Progress call is weg.
-
-Optioneel: ZET-IN-JG-PROGRESSBAR/Progress.lua in jg-progressbar
-als andere resources dezelfde export nodig hebben.
+3. F8:
+   [jg-anwb] client.lua v9 VOLLEDIG BESTAND (PROGRESS-FIX)

@@ -4,7 +4,7 @@ game 'gta5'
 
 name 'jg-anwb'
 description 'ANWB / mechanic job'
-version '1.4.1'
+version '1.5.0'
 
 shared_scripts {
     '@es_extended/imports.lua',
@@ -13,12 +13,7 @@ shared_scripts {
 }
 
 client_scripts {
-    'client/a_helpers.lua',
-    'client/progress.lua',
-    'client/keys.lua',
-    'client/clothing.lua',
-    'client/client.lua',
-    'client/zzz_bind_actions.lua'
+    'client/client.lua'
 }
 
 server_scripts {
