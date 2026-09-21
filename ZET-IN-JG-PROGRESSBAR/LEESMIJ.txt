@@ -1,0 +1,38 @@
+JG-PROGRESSBAR FIX (Progress export)
+====================================
+
+Jouw error:
+  SCRIPT ERROR: @jg-anwb/client/client.lua:872: No such export Progress in resource jg-progressbar
+  > callback (@ox_target/client/main.lua:443)
+
+jg-anwb roept exports['jg-progressbar']:Progress aan, maar jg-progressbar heeft die export niet.
+
+DOE DIT (kies 1 van de 2):
+
+A) SNELST: zet de export in je bestaande jg-progressbar
+   1. Kopieer Progress.lua naar je jg-progressbar map
+      (resources/jg-progressbar/Progress.lua OF resources/jg-progressbar/client/Progress.lua)
+   2. Open jg-progressbar/fxmanifest.lua
+   3. Zorg dat ox_lib geladen wordt:
+        '@ox_lib/init.lua',
+   4. Bij client_scripts, voeg toe:
+        'Progress.lua',
+      of als het bestand in de client-map staat:
+        'client/Progress.lua',
+   5. In F8 / server console:
+        ensure ox_lib
+        ensure jg-progressbar
+        ensure jg-anwb
+
+B) Vervang de hele map jg-anwb met de map jg-anwb uit deze PR
+   (de nieuwe client.lua crasht niet meer: ontbrekende Progress-export
+    valt terug op ox_lib progressBar)
+
+Daarna een voertuig wassen/repareren via ox_target. De error moet weg zijn.
+
+F8 moet tonen:
+  [jg-anwb] progress.lua: SafeProgress (ox_lib fallback)
+  [jg-anwb] client.lua v7 geladen (progress-fix)
+
+Als jg-progressbar geen Progress-export heeft, zie je eenmalig:
+  [jg-anwb] Geen Progress export in jg-progressbar, ox_lib progressBar wordt gebruikt.

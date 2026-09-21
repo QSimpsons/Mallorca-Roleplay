@@ -1,0 +1,19 @@
+JE DRAAIT NOG EEN OUDE client.lua
+=================================
+
+De error op regel 872 (No such export Progress) bestaat NIET in de nieuwe client.lua.
+Repareren / wassen / VIN gebruiken nu SafeProgress, met ox_lib als fallback.
+
+Daarom: verwijder de hele map jg-anwb op de server en zet de map
+jg-anwb uit deze PR er terug voor in de plaats. Niet 1 bestand
+eroverheen kopieren (anders mist client/progress.lua).
+
+1. Stop de server of:  ensure jg-anwb stop
+2. Verwijder resources/.../jg-anwb  (de hele map)
+3. Kopieer de map jg-anwb naar resources
+4. ensure ox_lib
+   ensure jg-anwb
+5. In F8 moet staan:  [jg-anwb] client.lua v7 geladen (progress-fix)
+
+Als die print ontbreekt, start FiveM nog de oude map.
+Zoek dan op de hele server naar een tweede jg-anwb.

@@ -1,0 +1,38 @@
+fx_version 'cerulean'
+lua54 'yes'
+game 'gta5'
+
+name 'jg-anwb'
+description 'ANWB / mechanic job'
+version '1.4.1'
+
+shared_scripts {
+    '@es_extended/imports.lua',
+    '@ox_lib/init.lua',
+    'config/*.lua'
+}
+
+client_scripts {
+    'client/a_helpers.lua',
+    'client/progress.lua',
+    'client/keys.lua',
+    'client/clothing.lua',
+    'client/client.lua',
+    'client/zzz_bind_actions.lua'
+}
+
+server_scripts {
+    '@oxmysql/lib/MySQL.lua',
+    'server/*.lua'
+}
+
+dependencies {
+    'es_extended',
+    'ox_lib'
+}
+
+escrow_ignore = {
+    'config/*.lua',
+    'client/*.lua',
+    'server/*.lua'
+}
