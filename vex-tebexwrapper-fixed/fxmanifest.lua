@@ -9,7 +9,7 @@ game 'gta5'
 lua54 'yes'
 
 author 'Vex Shop'
-description 'Vex shop | https://discord.gg/T3qfgUHKHr'
+description 'Mallorca Roleplay store'
 
 ui_page 'html/index.html'
 

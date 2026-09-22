@@ -12,8 +12,9 @@ eerst start, krijgen niks.
 
 Installatie
 -----------
-1. Zet in config.lua je Discord-webhook terug op Config.Webhook
-   (die regel is leeg gelaten zodat de webhook niet op GitHub staat).
+1. Store-logs gaan alleen weg als jij zelf een https-webhook in Config.Webhook zet.
+   Leeg = er wordt niks naar buiten gestuurd.
+   html/index.rar is verwijderd. Die werd niet geladen en was een oude UI-kopie.
 2. Vervang de resource-map vex-tebexwrapper-fixed door deze map.
 3. Herstart de resource, of de server:
 
