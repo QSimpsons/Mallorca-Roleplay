@@ -1,0 +1,143 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    background: transparent !important;
+    font-family: 'Exo 2', sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+@keyframes rainbowShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Container */
+#box {
+    position: absolute;
+    right: 3%;
+    top: 38%;
+
+    width: 320px;
+    padding: 18px;
+    border-radius: 16px;
+
+    background: rgba(15, 25, 45, 0.97);
+    color: white;
+
+    display: none;
+    animation: fadeSlideIn 0.25s ease forwards;
+
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Title */
+.title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ff8c1a;
+    margin-bottom: 10px;
+}
+
+/* Divider — ORANGE LINE */
+.divider {
+    height: 2px;
+    border-radius: 2px;
+    margin-bottom: 12px;
+    background: linear-gradient(90deg, #ff8c1a, #ffb347, #ff8c1a);
+    background-size: 300% 100%;
+    animation: rainbowShift 4s linear infinite;
+}
+
+/* Info Rows */
+.info-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.info-label {
+    color: rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.info-value {
+    color: white;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+}
+
+/* Progress */
+#progress-wrap {
+    margin-top: 14px;
+    display: none;
+}
+
+.progress-label {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+#progress {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+/* ORANGE PROGRESS BAR */
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg, #ff8c1a, #ffb347, #ff8c1a);
+    background-size: 300% 100%;
+    animation: rainbowShift 3s linear infinite;
+    transition: width 0.1s linear;
+}
+
+.progress-pct {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.45);
+    text-align: right;
+    margin-top: 3px;
+}
+
+/* Store Banner */
+.store-banner {
+    margin-top: 14px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+}
+
+.store-banner strong {
+    color: #ff8c1a;
+}
