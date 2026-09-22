@@ -1,0 +1,22 @@
+VIP startcoins
+===============
+
+Een speler die voor het eerst ingame komt krijgt automatisch 10.000 VIP coins
+(de coins van deze store, kolom users.coins).
+
+Dat gebeurt één keer per persoon. Een reconnect of een tweede character geeft
+niet nog een keer 10.000.
+
+Spelers die al in de database staan op het moment dat je deze versie voor het
+eerst start, krijgen niks.
+
+Installatie
+-----------
+Deze versie stuurt niks naar Discord of een andere site.
+Logs blijven in de serverconsole. html/index.rar zit er niet in.
+1. Vervang de resource-map door Mallorca-tebexwrapper-fixed.
+2. Zet in server.cfg, in plaats van de oude vex-map:
+
+   ensure Mallorca-tebexwrapper-fixed
+
+Het bedrag staat in config.lua: Config.StarterVipCoins = 10000
