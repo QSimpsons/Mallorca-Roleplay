@@ -24,31 +24,12 @@ local function HasCoinPermission(source)
 
 end
 
-function sendToDiscord(title, description, color)
-    local webhook = Config and Config.Webhook
-    if type(webhook) ~= 'string' or webhook:sub(1, 8) ~= 'https://' then
-        return
-    end
-    local embed = {{
-        ["title"] = title,
-        ["description"] = description,
-        ["color"] = color or 3447003,
-        ["footer"] = {["text"] = os.date("%Y-%m-%d %H:%M:%S")}
-    }}
-    PerformHttpRequest(webhook, function(err, text, headers) end, 'POST',
-        json.encode({username = "vex Tebex Logger", embeds = embed}),
-        { ['Content-Type'] = 'application/json' }
-    )
+function sendToDiscord(title, description)
+    print(('[vex-tebexwrapper] %s | %s'):format(title or 'log', description or ''))
 end
 
 lib.callback.register('vex-tebexwrapper:request:config', function(source)
-    local safe = {}
-    for key, value in pairs(Config) do
-        if key ~= 'Webhook' then
-            safe[key] = value
-        end
-    end
-    return safe
+    return Config
 end)
 
 lib.callback.register('vex-tebexwrapper:request:coins', function(source)

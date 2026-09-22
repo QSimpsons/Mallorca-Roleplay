@@ -1,7 +1,5 @@
 Config = {}
 
-Config.Webhook = "" -- plak hier je Discord-webhook; die is niet in git gezet
-
 -- Eenmalig bij de allereerste keer dat een speler ingame komt.
 -- Bestaande spelers (al een rij in `users` op het moment dat dit aan gaat) krijgen niks.
 Config.StarterVipCoins = 10000
