@@ -3,7 +3,19 @@ ESX = exports["es_extended"]:getSharedObject()
 local isWrapperOpen = false
 local coins = '0'
 
-local Config = lib.callback.await('Mallorca-tebexwrapper:request:config', false)
+local function awaitServer(name, ...)
+    local ok, result = pcall(lib.callback.await, name, false, ...)
+    if ok then
+        return result
+    end
+    local legacy = name:gsub('^Mallorca%-tebexwrapper:', 'vex-tebexwrapper:', 1)
+    if legacy ~= name then
+        return lib.callback.await(legacy, false, ...)
+    end
+    error(result)
+end
+
+local Config = awaitServer('Mallorca-tebexwrapper:request:config')
 
 function getPlayerMugshot()
     local playerPed = PlayerPedId()
@@ -19,16 +31,22 @@ function getPlayerMugshot()
     return mugshotURL
 end
 
-lib.callback.register('Mallorca-tebexwrapper:client:update:coins', function(amount)
+local function applyCoinUpdate(amount)
     coins = amount
-end)
+end
 
-RegisterNetEvent('Mallorca-tebexwrapper:starter:coins', function(amount)
+lib.callback.register('Mallorca-tebexwrapper:client:update:coins', applyCoinUpdate)
+lib.callback.register('vex-tebexwrapper:client:update:coins', applyCoinUpdate)
+
+local function applyStarterCoins(amount)
     local value = tonumber(amount)
     if value then
         coins = value
     end
-end)
+end
+
+RegisterNetEvent('Mallorca-tebexwrapper:starter:coins', applyStarterCoins)
+RegisterNetEvent('vex-tebexwrapper:starter:coins', applyStarterCoins)
 
 RegisterCommand('store', function()
     local avatarURL = getPlayerMugshot() 
@@ -43,7 +61,7 @@ RegisterCommand('store', function()
         avatar = avatarURL,
         storeData = Config.StoreData,
         discountCodes = Config.DiscountCodes,
-        name = lib.callback.await('Mallorca-tebexwrapper:request:name', false)
+        name = awaitServer('Mallorca-tebexwrapper:request:name')
     }) 
     
     isWrapperOpen = true
@@ -78,7 +96,7 @@ RegisterNUICallback("checkoutCart", function(data, cb)
     SendNUIMessage({ action = "close" })
     isWrapperOpen = false
 
-    lib.callback.await('Mallorca-tebexwrapper:process:cart', false, data)
+    awaitServer('Mallorca-tebexwrapper:process:cart', data)
 
     if coins == 0 then 
         coins = '0'
@@ -109,7 +127,7 @@ RegisterNUICallback("openCrate", function(data, cb)
         return
     end
 
-    local result = lib.callback.await('Mallorca-tebexwrapper:open:crate', false, data)
+    local result = awaitServer('Mallorca-tebexwrapper:open:crate', data)
     
     if result.success then
         coins = coins - data.price
@@ -134,7 +152,7 @@ RegisterNUICallback("spinWheel", function(data, cb)
         return
     end
 
-    local result = lib.callback.await('Mallorca-tebexwrapper:spin:wheel', false, data)
+    local result = awaitServer('Mallorca-tebexwrapper:spin:wheel', data)
     
     if result.success then
         coins = coins - data.price
@@ -148,7 +166,7 @@ end)
 
 Citizen.CreateThread(function()
     while coins == '0' do
-        coins = tonumber(lib.callback.await('Mallorca-tebexwrapper:request:coins', false)) or '0'
+        coins = tonumber(awaitServer('Mallorca-tebexwrapper:request:coins')) or '0'
         Wait(100)  
     end
 end)

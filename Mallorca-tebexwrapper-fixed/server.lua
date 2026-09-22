@@ -28,15 +28,40 @@ function sendToDiscord(title, description)
     print(('[Mallorca-tebexwrapper] %s | %s'):format(title or 'log', description or ''))
 end
 
-lib.callback.register('Mallorca-tebexwrapper:request:config', function(source)
+local function legacyName(name)
+    return (name:gsub('^Mallorca%-tebexwrapper:', 'vex-tebexwrapper:', 1))
+end
+
+local function registerCallback(name, fn)
+    lib.callback.register(name, fn)
+    local old = legacyName(name)
+    if old ~= name then
+        lib.callback.register(old, fn)
+    end
+end
+
+local function pushClientCoins(player, newCoins)
+    local names = {
+        'Mallorca-tebexwrapper:client:update:coins',
+        'vex-tebexwrapper:client:update:coins'
+    }
+    for i = 1, #names do
+        local ok = pcall(lib.callback.await, names[i], player, newCoins)
+        if ok then
+            return
+        end
+    end
+end
+
+registerCallback('Mallorca-tebexwrapper:request:config', function(source)
     return Config
 end)
 
-lib.callback.register('Mallorca-tebexwrapper:request:coins', function(source)
+registerCallback('Mallorca-tebexwrapper:request:coins', function(source)
     return getPlayerCoins(source)
 end)
 
-lib.callback.register('Mallorca-tebexwrapper:request:name', function(source)
+registerCallback('Mallorca-tebexwrapper:request:name', function(source)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then
         return 'Gebruiker'
@@ -46,7 +71,7 @@ end)
 
 local usedDiscountCodes = {}
 
-lib.callback.register('Mallorca-tebexwrapper:process:cart', function(source, data)
+registerCallback('Mallorca-tebexwrapper:process:cart', function(source, data)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return end
 
@@ -115,7 +140,7 @@ local function getRandomReward(rewards)
     return rewards[1]
 end
 
-lib.callback.register('Mallorca-tebexwrapper:open:crate', function(source, data)
+registerCallback('Mallorca-tebexwrapper:open:crate', function(source, data)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then
         return {success = false, message = "Speler niet gevonden"}
@@ -225,7 +250,7 @@ updatePlayerCoins = function(player, amount, action)
     local change = sign * tonumber(amount)
     MySQL.Async.execute('UPDATE users SET coins = coins + ? WHERE identifier = ?', {change, xPlayer.getIdentifier()})
     local newCoins = getPlayerCoins(xPlayer.source)
-    lib.callback.await('Mallorca-tebexwrapper:client:update:coins', player, newCoins)
+    pushClientCoins(player, newCoins)
     sendToDiscord("💰 Coins Bijgewerkt",
         ("**Speler:** %s (%s)\n**Actie:** %s\n**Aantal:** %s\n**Nieuw Saldo:** %s")
         :format(xPlayer.getName(), xPlayer.identifier, action, amount, newCoins),
@@ -252,6 +277,15 @@ RegisterCommand('Mallorcawrapper:sendProduct', function(source, args, rawCommand
         price  = tonumber(args[3]) or 0.00,
     }
     MallorcaWrapperSendPayment(data)
+end, false)
+
+RegisterCommand('vexwrapper:sendProduct', function(source, args)
+    if source > 0 then return end
+    MallorcaWrapperSendPayment({
+        cfxID = tostring(args[1]) or '0',
+        amount = tonumber(args[2]) or 0,
+        price = tonumber(args[3]) or 0.00,
+    })
 end, false)
 
 MallorcaWrapperSendPayment = function(data)
@@ -423,11 +457,7 @@ updatePlayerCoins = function(player, amount, action)
 
     local newCoins = math.max(0, currentCoins + change)
 
-    lib.callback.await(
-        'Mallorca-tebexwrapper:client:update:coins',
-        player,
-        newCoins
-    )
+    pushClientCoins(player, newCoins)
 
     sendToDiscord(
         "💰 Coins Bijgewerkt",

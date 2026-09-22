@@ -179,6 +179,7 @@ local function tryGrant(src, xPlayer)
             balance = tonumber(current)
         end
         TriggerClientEvent('Mallorca-tebexwrapper:starter:coins', src, balance)
+        TriggerClientEvent('vex-tebexwrapper:starter:coins', src, balance)
         Notify(src, 'VIP Coins', ('Welkom! Je hebt %s VIP coins ontvangen.'):format(pretty), 'fa-solid fa-coins')
         if sendToDiscord then
             sendToDiscord(
