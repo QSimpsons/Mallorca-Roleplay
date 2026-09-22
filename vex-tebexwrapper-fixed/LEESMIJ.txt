@@ -1,0 +1,22 @@
+VIP startcoins
+===============
+
+Een speler die voor het eerst ingame komt krijgt automatisch 10.000 VIP coins
+(de coins van deze store, kolom users.coins).
+
+Dat gebeurt één keer per persoon. Een reconnect of een tweede character geeft
+niet nog een keer 10.000.
+
+Spelers die al in de database staan op het moment dat je deze versie voor het
+eerst start, krijgen niks.
+
+Installatie
+-----------
+1. Zet in config.lua je Discord-webhook terug op Config.Webhook
+   (die regel is leeg gelaten zodat de webhook niet op GitHub staat).
+2. Vervang de resource-map vex-tebexwrapper-fixed door deze map.
+3. Herstart de resource, of de server:
+
+   ensure vex-tebexwrapper-fixed
+
+Het bedrag staat in config.lua: Config.StarterVipCoins = 10000
