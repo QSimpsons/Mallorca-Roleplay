@@ -14,9 +14,9 @@ Installatie
 -----------
 Deze versie stuurt niks naar Discord of een andere site.
 Logs blijven in de serverconsole. html/index.rar zit er niet in.
-2. Vervang de resource-map vex-tebexwrapper-fixed door deze map.
-3. Herstart de resource, of de server:
+1. Vervang de resource-map door Mallorca-tebexwrapper-fixed.
+2. Zet in server.cfg, in plaats van de oude vex-map:
 
-   ensure vex-tebexwrapper-fixed
+   ensure Mallorca-tebexwrapper-fixed
 
 Het bedrag staat in config.lua: Config.StarterVipCoins = 10000

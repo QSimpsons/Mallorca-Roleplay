@@ -2454,7 +2454,7 @@ function GiveProduct(player, type, productname, amount)
             exports['mallorca_vipmsg']:addVipPlayer(player, productname)
         end)
         if not ok then
-            print(('[vex-tebexwrapper] FOUT: kon VIP niet toekennen aan speler %s (product: %s). Is mallorca_vipmsg gestart? Error: %s'):format(tostring(player), tostring(productname), tostring(err)))
+            print(('[Mallorca-tebexwrapper] FOUT: kon VIP niet toekennen aan speler %s (product: %s). Is mallorca_vipmsg gestart? Error: %s'):format(tostring(player), tostring(productname), tostring(err)))
             return false
         end
         return true
@@ -2464,7 +2464,7 @@ function GiveProduct(player, type, productname, amount)
             exports['fx-taakstraf']:RemoveTaakstraf(player, "Tebex - Taken wegkopen")
         end)
         if not ok then
-            print(('[vex-tebexwrapper] FOUT: kon taakstraf niet verwijderen bij speler %s. Is fx-taakstraf gestart? Error: %s'):format(tostring(player), tostring(err)))
+            print(('[Mallorca-tebexwrapper] FOUT: kon taakstraf niet verwijderen bij speler %s. Is fx-taakstraf gestart? Error: %s'):format(tostring(player), tostring(err)))
             return false
         end
         return true

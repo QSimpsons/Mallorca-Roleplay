@@ -22,7 +22,7 @@ function StarterVip.formatAmount(amount)
     return formatted
 end
 
--- claimed = deze persoon staat al in vex_starter_vipcoins (uitkering of bestaande speler)
+-- claimed = deze persoon staat al in Mallorca_starter_vipcoins (uitkering of bestaande speler)
 function StarterVip.shouldGrant(claimed)
     if claimed then
         return false, 'already'
@@ -38,7 +38,7 @@ local ready = false
 local busy = {}
 
 local function log(msg)
-    print(('[vex-tebexwrapper] %s'):format(msg))
+    print(('[Mallorca-tebexwrapper] %s'):format(msg))
 end
 
 local function playerIdentifier(xPlayer)
@@ -64,7 +64,7 @@ end
 
 local function ensureClaimTable()
     MySQL.query.await([[
-        CREATE TABLE IF NOT EXISTS `vex_starter_vipcoins` (
+        CREATE TABLE IF NOT EXISTS `Mallorca_starter_vipcoins` (
             `identifier` VARCHAR(128) NOT NULL,
             `amount` INT NOT NULL,
             `granted_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -75,7 +75,7 @@ end
 
 local function backfillDone()
     local row = MySQL.scalar.await(
-        'SELECT `identifier` FROM `vex_starter_vipcoins` WHERE `identifier` = ? LIMIT 1',
+        'SELECT `identifier` FROM `Mallorca_starter_vipcoins` WHERE `identifier` = ? LIMIT 1',
         { BACKFILL_KEY }
     )
     return row ~= nil
@@ -98,7 +98,7 @@ local function backfillExistingPlayers()
             params[#params + 1] = batch[i]
         end
         MySQL.update.await(
-            'INSERT IGNORE INTO `vex_starter_vipcoins` (`identifier`, `amount`) VALUES ' .. table.concat(placeholders, ','),
+            'INSERT IGNORE INTO `Mallorca_starter_vipcoins` (`identifier`, `amount`) VALUES ' .. table.concat(placeholders, ','),
             params
         )
         marked = marked + #batch
@@ -118,7 +118,7 @@ local function backfillExistingPlayers()
     flush()
 
     MySQL.update.await(
-        'INSERT IGNORE INTO `vex_starter_vipcoins` (`identifier`, `amount`) VALUES (?, 0)',
+        'INSERT IGNORE INTO `Mallorca_starter_vipcoins` (`identifier`, `amount`) VALUES (?, 0)',
         { BACKFILL_KEY }
     )
     log(('Bestaande spelers krijgen geen startcoins (%s personen overgeslagen).'):format(marked))
@@ -146,7 +146,7 @@ local function tryGrant(src, xPlayer)
         end
 
         local existing = MySQL.scalar.await(
-            'SELECT `identifier` FROM `vex_starter_vipcoins` WHERE `identifier` = ? LIMIT 1',
+            'SELECT `identifier` FROM `Mallorca_starter_vipcoins` WHERE `identifier` = ? LIMIT 1',
             { key }
         )
         local allow, why = StarterVip.shouldGrant(existing ~= nil)
@@ -155,7 +155,7 @@ local function tryGrant(src, xPlayer)
         end
 
         local claimed = MySQL.update.await(
-            'INSERT IGNORE INTO `vex_starter_vipcoins` (`identifier`, `amount`) VALUES (?, ?)',
+            'INSERT IGNORE INTO `Mallorca_starter_vipcoins` (`identifier`, `amount`) VALUES (?, ?)',
             { key, amount }
         )
         if not claimed or claimed < 1 then
@@ -167,7 +167,7 @@ local function tryGrant(src, xPlayer)
             { amount, raw }
         )
         if not updated or updated < 1 then
-            MySQL.update.await('DELETE FROM `vex_starter_vipcoins` WHERE `identifier` = ?', { key })
+            MySQL.update.await('DELETE FROM `Mallorca_starter_vipcoins` WHERE `identifier` = ?', { key })
             log(('Geen users-rij voor %s, startcoins niet gezet.'):format(raw))
             return false, 'no_user'
         end
@@ -178,7 +178,7 @@ local function tryGrant(src, xPlayer)
         if okBalance and tonumber(current) then
             balance = tonumber(current)
         end
-        TriggerClientEvent('vex-tebexwrapper:starter:coins', src, balance)
+        TriggerClientEvent('Mallorca-tebexwrapper:starter:coins', src, balance)
         Notify(src, 'VIP Coins', ('Welkom! Je hebt %s VIP coins ontvangen.'):format(pretty), 'fa-solid fa-coins')
         if sendToDiscord then
             sendToDiscord(

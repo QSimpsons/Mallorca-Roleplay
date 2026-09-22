@@ -3,7 +3,7 @@ ESX = exports["es_extended"]:getSharedObject()
 local isWrapperOpen = false
 local coins = '0'
 
-local Config = lib.callback.await('vex-tebexwrapper:request:config', false)
+local Config = lib.callback.await('Mallorca-tebexwrapper:request:config', false)
 
 function getPlayerMugshot()
     local playerPed = PlayerPedId()
@@ -19,11 +19,11 @@ function getPlayerMugshot()
     return mugshotURL
 end
 
-lib.callback.register('vex-tebexwrapper:client:update:coins', function(amount)
+lib.callback.register('Mallorca-tebexwrapper:client:update:coins', function(amount)
     coins = amount
 end)
 
-RegisterNetEvent('vex-tebexwrapper:starter:coins', function(amount)
+RegisterNetEvent('Mallorca-tebexwrapper:starter:coins', function(amount)
     local value = tonumber(amount)
     if value then
         coins = value
@@ -43,7 +43,7 @@ RegisterCommand('store', function()
         avatar = avatarURL,
         storeData = Config.StoreData,
         discountCodes = Config.DiscountCodes,
-        name = lib.callback.await('vex-tebexwrapper:request:name', false)
+        name = lib.callback.await('Mallorca-tebexwrapper:request:name', false)
     }) 
     
     isWrapperOpen = true
@@ -78,7 +78,7 @@ RegisterNUICallback("checkoutCart", function(data, cb)
     SendNUIMessage({ action = "close" })
     isWrapperOpen = false
 
-    lib.callback.await('vex-tebexwrapper:process:cart', false, data)
+    lib.callback.await('Mallorca-tebexwrapper:process:cart', false, data)
 
     if coins == 0 then 
         coins = '0'
@@ -109,7 +109,7 @@ RegisterNUICallback("openCrate", function(data, cb)
         return
     end
 
-    local result = lib.callback.await('vex-tebexwrapper:open:crate', false, data)
+    local result = lib.callback.await('Mallorca-tebexwrapper:open:crate', false, data)
     
     if result.success then
         coins = coins - data.price
@@ -134,7 +134,7 @@ RegisterNUICallback("spinWheel", function(data, cb)
         return
     end
 
-    local result = lib.callback.await('vex-tebexwrapper:spin:wheel', false, data)
+    local result = lib.callback.await('Mallorca-tebexwrapper:spin:wheel', false, data)
     
     if result.success then
         coins = coins - data.price
@@ -148,7 +148,7 @@ end)
 
 Citizen.CreateThread(function()
     while coins == '0' do
-        coins = tonumber(lib.callback.await('vex-tebexwrapper:request:coins', false)) or '0'
+        coins = tonumber(lib.callback.await('Mallorca-tebexwrapper:request:coins', false)) or '0'
         Wait(100)  
     end
 end)
