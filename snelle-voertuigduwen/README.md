@@ -31,7 +31,7 @@ In `config.lua` kun je dit beperken tot banen (`police`, `anwb`, `mechanic`), al
 
 ## Installatie
 
-Pak `snelle-voertuigduwen.zip` uit in je `resources`-map, of kopieer de map `snelle-voertuigduwen`. Zie [INSTALL.md](INSTALL.md).
+Pak `snelle-voertuigduwen.zip` uit in je `resources`-map. Importeer daarna `sql/install.sql`. Zie [INSTALL.md](INSTALL.md).
 
 ## Exports
 
@@ -51,6 +51,8 @@ snelle-voertuigduwen/
 ├── config.lua
 ├── client/main.lua
 ├── server/main.lua
+├── server/database.lua
+├── sql/install.sql
 ├── shared/
 └── locales/
     ├── nl.lua

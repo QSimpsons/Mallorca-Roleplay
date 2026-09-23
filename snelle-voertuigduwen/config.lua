@@ -7,6 +7,11 @@ Config = {}
 -- ═══════════════════════════════════════════════════════════════
 
 Config.Locale = 'nl'
+
+-- Logt elke duw in sql/install.sql. Zet op false als je geen database wilt.
+Config.Database = {
+    enabled = true
+}
 Config.Debug = false
 Config.Notify = 'auto'   -- 'auto' | 'ox_lib' | 'esx'
 Config.Target = 'auto'   -- 'auto' | 'ox_target' | 'qtarget' | 'none'

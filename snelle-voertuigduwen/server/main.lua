@@ -218,19 +218,71 @@ CreateThread(function()
     end)
 end)
 
-RegisterNetEvent('snelle-voertuigduwen:server:finish', function(netId)
+local function playerIdentity(src)
+    local xPlayer = ESX and ESX.GetPlayerFromId(src) or nil
+    local identifier = xPlayer and xPlayer.identifier or nil
+
+    if not identifier then
+        for _, id in ipairs(GetPlayerIdentifiers(src)) do
+            if id:find('license:', 1, true) then
+                identifier = id
+                break
+            end
+        end
+    end
+
+    if not identifier then
+        identifier = GetPlayerIdentifier(src, 0)
+    end
+
+    local name = GetPlayerName(src)
+    if xPlayer and xPlayer.getName then
+        local ok, jobName = pcall(function()
+            return xPlayer.getName()
+        end)
+        if ok and jobName then
+            name = jobName
+        end
+    end
+
+    return identifier, name
+end
+
+RegisterNetEvent('snelle-voertuigduwen:server:finish', function(payload)
     local src = source
     local session = active[src]
     if not session then
         return
     end
 
-    netId = tonumber(netId) or 0
+    local netId = 0
+    local info = {}
+    if type(payload) == 'table' then
+        netId = tonumber(payload.netId) or 0
+        info = payload
+    else
+        netId = tonumber(payload) or 0
+    end
+
     if session.netId ~= netId then
         return
     end
 
+    local mode = session.mode
     clearSession(src, false)
+
+    local identifier, name = playerIdentity(src)
+    if Database and Database.LogPush then
+        Database.LogPush(identifier, name, {
+            mode = mode,
+            result = info.result,
+            plate = info.plate,
+            model = info.model,
+            x = info.x,
+            y = info.y,
+            z = info.z
+        })
+    end
 end)
 
 AddEventHandler('playerDropped', function()

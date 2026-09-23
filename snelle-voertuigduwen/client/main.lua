@@ -376,11 +376,40 @@ local function cleanup(leaveHazards)
     Push.sessionVehicle = nil
 end
 
-local function finish(message, nType, leaveHazards)
-    local netId = session.netId
+local function pushSnapshot(result)
+    local vehicle = session.vehicle
+    if (not vehicle or vehicle == 0 or not DoesEntityExist(vehicle)) and session.reportVehicle and DoesEntityExist(session.reportVehicle) then
+        vehicle = session.reportVehicle
+    end
+
+    local snap = {
+        netId = session.netId or 0,
+        result = result or 'done',
+        plate = nil,
+        model = nil,
+        x = nil,
+        y = nil,
+        z = nil
+    }
+
+    if vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then
+        local coords = GetEntityCoords(vehicle)
+        snap.plate = GetVehicleNumberPlateText(vehicle)
+        snap.model = GetEntityModel(vehicle)
+        snap.x = coords.x
+        snap.y = coords.y
+        snap.z = coords.z
+    end
+
+    return snap
+end
+
+local function finish(message, nType, leaveHazards, result)
+    local hadSession = session.netId ~= nil
+    local snap = pushSnapshot(result)
     cleanup(leaveHazards)
-    if netId then
-        TriggerServerEvent('snelle-voertuigduwen:server:finish', netId)
+    if hadSession then
+        TriggerServerEvent('snelle-voertuigduwen:server:finish', snap)
     end
     if message then
         Push.Notify(message, nType or 'inform')
@@ -689,10 +718,11 @@ end
 
 local function runAside(vehicle, netId)
     session.netId = netId
+    session.reportVehicle = vehicle
 
     local plan, reason = shoulderDestination(vehicle)
     if not plan then
-        finish(reasonText(reason or 'blocked_path'), 'error', false)
+        finish(reasonText(reason or 'blocked_path'), 'error', false, reason or 'failed')
         return
     end
 
@@ -775,11 +805,11 @@ local function runAside(vehicle, netId)
     end
 
     if cancelled then
-        finish(L('cancelled'), 'inform', false)
+        finish(L('cancelled'), 'inform', false, 'cancelled')
         return
     end
 
-    finish(L('done_aside'), 'success', true)
+    finish(L('done_aside'), 'success', true, 'done')
 end
 
 local function attachToRear(ped, vehicle)
@@ -823,7 +853,7 @@ local function runManual(vehicle, netId)
             NetworkRequestControlOfEntity(vehicle)
             lostSince = lostSince or GetGameTimer()
             if GetGameTimer() - lostSince > 800 then
-                finish(reasonText('no_control'), 'error', false)
+                finish(reasonText('no_control'), 'error', false, 'failed')
                 return
             end
         else
@@ -888,7 +918,11 @@ local function runManual(vehicle, netId)
         SetEntityHeading(ped, GetEntityHeading(vehicle))
     end
 
-    finish(L('cancelled'), 'inform', false)
+    local manualResult = 'done'
+    if Push.forceStop or IsEntityDead(ped) then
+        manualResult = 'cancelled'
+    end
+    finish(L('cancelled'), 'inform', false, manualResult)
 end
 
 function Push.Begin(mode, vehicle)
@@ -942,7 +976,7 @@ function Push.Begin(mode, vehicle)
     if not okRun then
         print(('[snelle-voertuigduwen] %s'):format(err))
         if Push.busy then
-            finish(reasonText('unknown'), 'error', false)
+            finish(reasonText('unknown'), 'error', false, 'failed')
         end
         return false
     end

@@ -1,3 +1,4 @@
+ensure oxmysql
 ensure es_extended
 ensure ox_lib
 ensure ox_target
