@@ -9,7 +9,9 @@ Locales.nl = {
     prompt_both = '[G] Duwen    [H] Aan de kant',
     prompt_push = '[G] Duwen',
     prompt_aside = '[H] Aan de kant',
-    help_manual = '[W/S] Duwen    [A/D] Sturen    [X] Loslaten',
+    help_manual = '[Z/S of W/S] Duwen    [Q/D of A/D] Sturen    [X] Loslaten',
+    help_manual_azerty = '[Z/S] Duwen    [Q/D] Sturen    [X] Loslaten',
+    help_manual_qwerty = '[W/S] Duwen    [A/D] Sturen    [X] Loslaten',
     help_aside = '[X] Stoppen',
 
     progress_aside = 'Aan de kant duwen...',

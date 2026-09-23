@@ -410,6 +410,58 @@ local function cancelPressed()
         or IsControlJustPressed(0, 73)
 end
 
+-- Windows VK-codes. Die volgen het teken op de toets, dus Z/Q op AZERTY
+-- en W/A op QWERTY, los van de GTA-looptoetsen.
+local VK_Z, VK_Q, VK_S, VK_D = 0x5A, 0x51, 0x53, 0x44
+local VK_W, VK_A = 0x57, 0x41
+
+local function rawKeyDown(vk)
+    if type(IsRawKeyDown) ~= 'function' then
+        return false
+    end
+
+    local ok, down = pcall(IsRawKeyDown, vk)
+    return ok and down == true
+end
+
+local function controlDown(control)
+    return IsDisabledControlPressed(0, control) or IsControlPressed(0, control)
+end
+
+local function readPushInput()
+    local layout = Config.Keyboard or 'both'
+    local forward = controlDown(32)
+    local back = controlDown(33)
+    local left = controlDown(34)
+    local right = controlDown(35)
+
+    if layout ~= 'qwerty' then
+        forward = forward or rawKeyDown(VK_Z)
+        left = left or rawKeyDown(VK_Q)
+    end
+
+    if layout ~= 'azerty' then
+        forward = forward or rawKeyDown(VK_W)
+        left = left or rawKeyDown(VK_A)
+    end
+
+    back = back or rawKeyDown(VK_S)
+    right = right or rawKeyDown(VK_D)
+
+    return forward, back, left, right
+end
+
+local function manualHelpText()
+    local layout = Config.Keyboard or 'both'
+    if layout == 'azerty' then
+        return L('help_manual_azerty')
+    end
+    if layout == 'qwerty' then
+        return L('help_manual_qwerty')
+    end
+    return L('help_manual')
+end
+
 local function drawProgress(label, pct)
     if pct < 0 then pct = 0 end
     if pct > 1 then pct = 1 end
@@ -755,7 +807,7 @@ local function runManual(vehicle, netId)
     ClearPedTasksImmediately(ped)
     attachToRear(ped, vehicle)
     playPushAnim(ped)
-    Push.ShowTextUI(L('help_manual'))
+    Push.ShowTextUI(manualHelpText())
     Push.Notify(L('started_manual'), 'inform')
 
     local lostSince = nil
@@ -787,33 +839,31 @@ local function runManual(vehicle, netId)
         local frame = GetFrameTime()
         local turn = (Config.Manual.turnRate or 70.0) * frame
         local heading = GetEntityHeading(vehicle)
-        local steering = false
+        local forward, back, left, right = readPushInput()
 
-        if IsDisabledControlPressed(0, 34) then
+        if left then
             heading = heading + turn
-            steering = true
-        elseif IsDisabledControlPressed(0, 35) then
+        elseif right then
             heading = heading - turn
-            steering = true
         end
 
-        if steering then
+        if left or right then
             SetEntityHeading(vehicle, heading % 360.0)
         end
 
-        if IsDisabledControlPressed(0, 34) then
+        if left then
             SetVehicleSteeringAngle(vehicle, 28.0)
-        elseif IsDisabledControlPressed(0, 35) then
+        elseif right then
             SetVehicleSteeringAngle(vehicle, -28.0)
         else
             SetVehicleSteeringAngle(vehicle, 0.0)
         end
 
-        if IsDisabledControlPressed(0, 32) then
+        if forward then
             SetVehicleHandbrake(vehicle, false)
             SetVehicleForwardSpeed(vehicle, Config.Manual.speed or 1.05)
             SetVehicleBrakeLights(vehicle, false)
-        elseif IsDisabledControlPressed(0, 33) then
+        elseif back then
             SetVehicleHandbrake(vehicle, false)
             SetVehicleForwardSpeed(vehicle, -math.abs(Config.Manual.reverseSpeed or 0.55))
             SetVehicleBrakeLights(vehicle, false)

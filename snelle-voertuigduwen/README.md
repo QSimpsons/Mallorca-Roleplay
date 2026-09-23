@@ -9,7 +9,7 @@ Sta naast een stilstaand voertuig (niet erin):
 | Invoer | Actie |
 |---|---|
 | `[H]` of `/aandekant` | Schuift het voertuig zijwaarts de berm in |
-| `[G]` of `/duw` | Duw zelf: `W`/`S` vooruit en achteruit, `A`/`D` sturen |
+| `[G]` of `/duw` | Duw zelf. AZERTY: `Z`/`S` vooruit en achteruit, `Q`/`D` links en rechts. QWERTY `W`/`A`/`S`/`D` werkt ook |
 | `[X]` | Stoppen |
 | ox_target / qtarget | **Aan de kant duwen** en **Duwen** op het voertuig |
 

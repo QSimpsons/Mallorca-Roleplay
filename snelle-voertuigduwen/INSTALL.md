@@ -38,6 +38,16 @@ Config.RequireBroken = true
 Config.BrokenEngineHealth = 350.0
 ```
 
+## Toetsenbord
+
+Standaard werken AZERTY en QWERTY allebei tijdens het duwen: `Z`/`S` of `W`/`S` vooruit en achteruit, `Q`/`D` of `A`/`D` links en rechts.
+
+Alleen AZERTY:
+
+```lua
+Config.Keyboard = 'azerty'
+```
+
 ## Taal
 
 `Config.Locale = 'nl'` of `'en'`.

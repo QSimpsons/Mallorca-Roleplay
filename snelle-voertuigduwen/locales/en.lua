@@ -9,7 +9,9 @@ Locales.en = {
     prompt_both = '[G] Push    [H] Push aside',
     prompt_push = '[G] Push',
     prompt_aside = '[H] Push aside',
-    help_manual = '[W/S] Push    [A/D] Steer    [X] Let go',
+    help_manual = '[Z/S or W/S] Push    [Q/D or A/D] Steer    [X] Let go',
+    help_manual_azerty = '[Z/S] Push    [Q/D] Steer    [X] Let go',
+    help_manual_qwerty = '[W/S] Push    [A/D] Steer    [X] Let go',
     help_aside = '[X] Stop',
 
     progress_aside = 'Pushing the vehicle aside...',

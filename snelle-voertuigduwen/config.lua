@@ -45,6 +45,12 @@ Config.Keys = {
     aside = 'H'    -- aan de kant schuiven
 }
 
+-- Sturen tijdens het duwen.
+-- 'both'   = ZQSD (AZERTY) én WASD (QWERTY)
+-- 'azerty' = Z vooruit, S achteruit, Q links, D rechts
+-- 'qwerty' = W vooruit, S achteruit, A links, D rechts
+Config.Keyboard = 'both'
+
 Config.Commands = {
     push = 'duw',
     aside = 'aandekant'
@@ -63,7 +69,7 @@ Config.Anim = {
     flag = 1
 }
 
--- Handmatig duwen: W/S vooruit en achteruit, A/D sturen.
+-- Handmatig duwen: Z/S of W/S vooruit en achteruit, Q/D of A/D sturen.
 Config.Manual = {
     enabled = true,
     speed = 1.05,
