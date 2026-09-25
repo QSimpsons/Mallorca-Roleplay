@@ -2,12 +2,6 @@ local pending = false
 local lockedUntil = 0
 local awaitingRepair = false
 
-local function notify(message)
-    BeginTextCommandThefeedPost('STRING')
-    AddTextComponentSubstringPlayerName(message)
-    EndTextCommandThefeedPostTicker(false, true)
-end
-
 local function isBlocked(vehicle)
     if Config.BlockedClasses[GetVehicleClass(vehicle)] then
         return true
@@ -61,7 +55,19 @@ local function airbagPoints(vehicle)
     return { wheel, dash }
 end
 
-local function launchBag(vehicle, origin, nudge, model)
+local function launchVelocity(vehicle)
+    local forward = GetEntityForwardVector(vehicle)
+    local velocity = GetEntityVelocity(vehicle)
+    local spread = Config.Spread
+
+    return vector3(
+        velocity.x + forward.x * Config.LaunchForward + (math.random() - 0.5) * spread,
+        velocity.y + forward.y * Config.LaunchForward + (math.random() - 0.5) * spread,
+        velocity.z + Config.LaunchUp + math.random() * 1.2
+    )
+end
+
+local function spawnBag(vehicle, origin, nudge, model)
     local pos = GetOffsetFromEntityInWorldCoords(
         vehicle,
         origin.x + nudge.x,
@@ -74,25 +80,53 @@ local function launchBag(vehicle, origin, nudge, model)
     end
 
     SetEntityAsMissionEntity(bag, true, true)
+    SetEntityVisible(bag, true, false)
+    SetEntityLodDist(bag, 250)
     SetEntityCollision(bag, true, true)
     SetEntityDynamic(bag, true)
-    SetEntityNoCollisionEntity(bag, vehicle, false)
-
-    local forward = GetEntityForwardVector(vehicle)
-    local velocity = GetEntityVelocity(vehicle)
-    local spread = Config.Spread
-
-    SetEntityVelocity(
-        bag,
-        velocity.x + forward.x * Config.LaunchForward + (math.random() - 0.5) * spread,
-        velocity.y + forward.y * Config.LaunchForward + (math.random() - 0.5) * spread,
-        velocity.z + Config.LaunchUp + math.random() * 0.6
-    )
+    FreezeEntityPosition(bag, true)
+    SetEntityNoCollisionEntity(bag, vehicle, true)
 
     return bag
 end
 
+local function releaseBags(vehicle, bags)
+    local speeds = {}
+    for i = 1, #bags do
+        local bag = bags[i]
+        speeds[i] = launchVelocity(vehicle)
+        if DoesEntityExist(bag) then
+            FreezeEntityPosition(bag, false)
+            SetEntityNoCollisionEntity(bag, vehicle, true)
+            SetEntityVelocity(bag, speeds[i].x, speeds[i].y, speeds[i].z)
+        end
+    end
+
+    CreateThread(function()
+        local untilAt = GetGameTimer() + 900
+        while GetGameTimer() < untilAt do
+            if not DoesEntityExist(vehicle) then
+                break
+            end
+
+            for i = 1, #bags do
+                local bag = bags[i]
+                if DoesEntityExist(bag) then
+                    SetEntityNoCollisionEntity(bag, vehicle, true)
+                end
+            end
+
+            Wait(0)
+        end
+    end)
+end
+
 local function deployLocal(vehicle)
+    local model = joaat(Config.Prop)
+    if not loadModel(model) then
+        return
+    end
+
     if Config.PopWindscreen then
         PopOutVehicleWindscreen(vehicle)
         SmashVehicleWindow(vehicle, 6)
@@ -103,7 +137,6 @@ local function deployLocal(vehicle)
     local ped = PlayerPedId()
     if GetVehiclePedIsIn(ped, false) == vehicle then
         ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', Config.CameraShake)
-        notify(Config.Notify)
 
         if Config.StallEngine and GetPedInVehicleSeat(vehicle, -1) == ped then
             awaitingRepair = true
@@ -118,27 +151,25 @@ local function deployLocal(vehicle)
         end
     end
 
-    local model = joaat(Config.Prop)
-    if not loadModel(model) then
-        return
-    end
-
     local bags = {}
     local points = airbagPoints(vehicle)
     for p = 1, #points do
         local origin = points[p]
         for i = 1, #Config.Burst do
-            local bag = launchBag(vehicle, origin, Config.Burst[i], model)
+            local bag = spawnBag(vehicle, origin, Config.Burst[i], model)
             if bag then
                 bags[#bags + 1] = bag
             end
         end
     end
 
-    SetModelAsNoLongerNeeded(model)
-
     if #bags == 0 then
         return
+    end
+
+    Wait(Config.PopDelayMs)
+    if DoesEntityExist(vehicle) then
+        releaseBags(vehicle, bags)
     end
 
     SetTimeout(Config.DespawnMs, function()
@@ -287,4 +318,8 @@ CreateThread(function()
             end
         end
     end
+end)
+
+CreateThread(function()
+    loadModel(joaat(Config.Prop))
 end)

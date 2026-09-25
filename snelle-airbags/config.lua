@@ -27,18 +27,22 @@ Config.Prop = 'prop_beach_volball01'
 -- x negatief = bestuurderskant, y = naar de motorkap, z = omhoog.
 Config.FallbackWheel = { x = -0.34, y = 0.34, z = 0.48 }
 
--- Extra kussens per airbag, vlak voor het stuur of het dashboard,
--- zodat het uit die plek openbarst en daarna de auto uit vliegt.
+-- Kussens per airbag, net uit het stuur of dashboard de cabine in,
+-- zodat je ze ziet vertrekken voordat ze door de voorruit gaan.
 Config.Burst = {
-    { x = 0.00, y = 0.06, z = 0.02 },
-    { x = 0.07, y = 0.10, z = 0.06 },
-    { x = -0.06, y = 0.12, z = 0.00 }
+    { x = 0.00, y = 0.16, z = 0.16 },
+    { x = 0.10, y = 0.22, z = 0.26 },
+    { x = -0.10, y = 0.20, z = 0.20 }
 }
 
--- Hoe hard de airbags vanuit het stuur en dashboard naar voren schieten.
-Config.LaunchForward = 18.0
-Config.LaunchUp = 3.2
-Config.Spread = 0.85
+-- Hoe hard de airbags vanuit het stuur en dashboard naar voren en omhoog schieten.
+-- Omhoog zodat ze door de voorruit gaan en niet in het dashboard verdwijnen.
+Config.LaunchForward = 9.0
+Config.LaunchUp = 8.0
+Config.Spread = 1.15
+
+-- Heel even zichtbaar op het stuur en dashboard, daarna vliegen ze eruit.
+Config.PopDelayMs = 180
 
 -- Na hoeveel milliseconden de props weer worden opgeruimd.
 Config.DespawnMs = 12000
@@ -67,5 +71,3 @@ Config.BlockedClasses = {
 Config.BlacklistedModels = {
     -- 'rhino',
 }
-
-Config.Notify = 'De airbags zijn uit het stuur en het dashboard gevlogen.'
