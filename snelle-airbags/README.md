@@ -1,8 +1,8 @@
 # snelle-airbags
 
-FiveM-script: rijd je met een auto ergens tegenaan, dan schieten de airbags door de voorruit de auto uit.
+FiveM-script: rijd je met een auto ergens tegenaan, dan komen de airbags uit het stuur en het dashboard en vliegen ze de auto uit.
 
-Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De voorruit springt eruit, er komt een stoomwolk, de motor slaat kort af en vier witte kussens vliegen naar voren de auto uit. Andere spelers in de buurt zien hetzelfde.
+Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder barst uit het stuur, die van de bijrijder uit het dashboard. Daarna schieten ze naar voren door de voorruit. De motor slaat kort af. Andere spelers in de buurt zien hetzelfde.
 
 Motoren, fietsen, boten, helikopters, vliegtuigen en treinen doen niet mee. Na een reparatie kunnen de airbags opnieuw.
 

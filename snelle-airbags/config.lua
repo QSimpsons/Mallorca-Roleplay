@@ -19,24 +19,26 @@ Config.MinRedeploySeconds = 25
 -- voordat de airbags opnieuw mogen.
 Config.RepairHealth = 850.0
 
--- Prop die als airbag wordt gebruikt. Wit en rond, zodat het
--- als een kussen uit de voorruit leest. Vervang dit als je
--- een eigen airbag-model in de server hebt.
+-- Prop die als airbag wordt gebruikt. Wit en rond.
+-- Vervang dit als je een eigen airbag-model in de server hebt.
 Config.Prop = 'prop_beach_volball01'
 
--- Posities in de auto: links bestuurder, rechts passagier.
--- Twee kussens per kant, op de voorruit, zodat ze naar voren de auto uit vliegen.
-Config.Airbags = {
-    { x = -0.36, y = 1.05, z = 0.52 },
-    { x = -0.22, y = 1.28, z = 0.70 },
-    { x = 0.36, y = 1.05, z = 0.52 },
-    { x = 0.22, y = 1.28, z = 0.70 }
+-- Als een auto geen stuur-bone heeft, gebruiken we deze plek in de cabine.
+-- x negatief = bestuurderskant, y = naar de motorkap, z = omhoog.
+Config.FallbackWheel = { x = -0.34, y = 0.34, z = 0.48 }
+
+-- Extra kussens per airbag, vlak voor het stuur of het dashboard,
+-- zodat het uit die plek openbarst en daarna de auto uit vliegt.
+Config.Burst = {
+    { x = 0.00, y = 0.06, z = 0.02 },
+    { x = 0.07, y = 0.10, z = 0.06 },
+    { x = -0.06, y = 0.12, z = 0.00 }
 }
 
--- Hoe hard de airbags naar voren en omhoog de auto uit schieten.
-Config.LaunchForward = 24.0
-Config.LaunchUp = 8.0
-Config.Spread = 2.4
+-- Hoe hard de airbags vanuit het stuur en dashboard naar voren schieten.
+Config.LaunchForward = 18.0
+Config.LaunchUp = 3.2
+Config.Spread = 0.85
 
 -- Na hoeveel milliseconden de props weer worden opgeruimd.
 Config.DespawnMs = 12000
@@ -66,4 +68,4 @@ Config.BlacklistedModels = {
     -- 'rhino',
 }
 
-Config.Notify = 'De airbags zijn uit de auto gevlogen.'
+Config.Notify = 'De airbags zijn uit het stuur en het dashboard gevlogen.'

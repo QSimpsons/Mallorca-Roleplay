@@ -40,8 +40,34 @@ local function loadModel(model)
     return true
 end
 
-local function launchBag(vehicle, offset, model)
-    local pos = GetOffsetFromEntityInWorldCoords(vehicle, offset.x, offset.y, offset.z)
+local function wheelOffset(vehicle)
+    local bone = GetEntityBoneIndexByName(vehicle, 'steeringwheel')
+    if bone ~= -1 then
+        local world = GetWorldPositionOfEntityBone(vehicle, bone)
+        local found = math.abs(world.x) + math.abs(world.y) + math.abs(world.z) > 0.05
+        if found then
+            return GetOffsetFromEntityGivenWorldCoords(vehicle, world.x, world.y, world.z)
+        end
+    end
+
+    local fallback = Config.FallbackWheel
+    return vector3(fallback.x, fallback.y, fallback.z)
+end
+
+-- Bestuurder: uit het stuur. Bijrijder: uit het dashboard aan de andere kant.
+local function airbagPoints(vehicle)
+    local wheel = wheelOffset(vehicle)
+    local dash = vector3(-wheel.x, wheel.y + 0.20, wheel.z - 0.03)
+    return { wheel, dash }
+end
+
+local function launchBag(vehicle, origin, nudge, model)
+    local pos = GetOffsetFromEntityInWorldCoords(
+        vehicle,
+        origin.x + nudge.x,
+        origin.y + nudge.y,
+        origin.z + nudge.z
+    )
     local bag = CreateObject(model, pos.x, pos.y, pos.z, false, false, false)
     if bag == 0 or not DoesEntityExist(bag) then
         return nil
@@ -60,44 +86,10 @@ local function launchBag(vehicle, offset, model)
         bag,
         velocity.x + forward.x * Config.LaunchForward + (math.random() - 0.5) * spread,
         velocity.y + forward.y * Config.LaunchForward + (math.random() - 0.5) * spread,
-        velocity.z + Config.LaunchUp + math.random() * 2.0
-    )
-    ApplyForceToEntity(
-        bag, 1,
-        (math.random() - 0.5) * 4.0,
-        (math.random() - 0.5) * 4.0,
-        math.random() * 2.0,
-        (math.random() - 0.5) * 2.0,
-        (math.random() - 0.5) * 2.0,
-        (math.random() - 0.5) * 2.0,
-        0, false, true, true, false, true
+        velocity.z + Config.LaunchUp + math.random() * 0.6
     )
 
     return bag
-end
-
-local function playBurst(vehicle)
-    if not HasNamedPtfxAssetLoaded('core') then
-        RequestNamedPtfxAsset('core')
-        local timeout = GetGameTimer() + 1500
-        while not HasNamedPtfxAssetLoaded('core') and GetGameTimer() < timeout do
-            Wait(0)
-        end
-    end
-
-    if not HasNamedPtfxAssetLoaded('core') then
-        return
-    end
-
-    UseParticleFxAssetNextCall('core')
-    StartParticleFxNonLoopedOnEntity(
-        'ent_sht_steam',
-        vehicle,
-        0.0, 0.85, 0.55,
-        0.0, 0.0, 0.0,
-        1.35,
-        false, false, false
-    )
 end
 
 local function deployLocal(vehicle)
@@ -106,7 +98,6 @@ local function deployLocal(vehicle)
         SmashVehicleWindow(vehicle, 6)
     end
 
-    playBurst(vehicle)
     PlaySoundFromEntity(-1, 'Whoosh_1s_L_to_R', vehicle, 'MP_LOBBY_SOUNDS', false, 0)
 
     local ped = PlayerPedId()
@@ -133,10 +124,14 @@ local function deployLocal(vehicle)
     end
 
     local bags = {}
-    for i = 1, #Config.Airbags do
-        local bag = launchBag(vehicle, Config.Airbags[i], model)
-        if bag then
-            bags[#bags + 1] = bag
+    local points = airbagPoints(vehicle)
+    for p = 1, #points do
+        local origin = points[p]
+        for i = 1, #Config.Burst do
+            local bag = launchBag(vehicle, origin, Config.Burst[i], model)
+            if bag then
+                bags[#bags + 1] = bag
+            end
         end
     end
 
