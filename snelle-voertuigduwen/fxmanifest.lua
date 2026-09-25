@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Snelle / Mallorca Roleplay'
 description 'Duw een voertuig met de hand of schuif het aan de kant van de weg'
-version '1.1.0'
+version '1.1.1'
 
 dependencies {
     'es_extended'

@@ -509,6 +509,10 @@ local function cleanup(leaveHazards)
         releaseHandbrakeFully(vehicle)
         SetVehicleEngineOn(vehicle, false, true, true)
 
+        if session.lowSpeedTraction ~= nil then
+            pcall(SetVehicleHandlingFloat, vehicle, 'CHandlingData', 'fLowSpeedTractionLossMult', session.lowSpeedTraction)
+        end
+
         if session.hazards and leaveHazards then
             SetVehicleIndicatorLights(vehicle, 0, true)
             SetVehicleIndicatorLights(vehicle, 1, true)
@@ -973,6 +977,37 @@ local function runAside(vehicle, netId)
     finish(L('done_aside'), 'success', true, 'done')
 end
 
+local function applyWheelRoll(vehicle, rollSpeed)
+    pcall(SetVehicleEngineTorqueMultiplier, vehicle, 0.0)
+    pcall(SetVehicleCheatPowerIncrease, vehicle, 0.0)
+    pcall(ActivatePhysics, vehicle)
+
+    local wheelCount = 4
+    local okWheels, count = pcall(GetVehicleNumberOfWheels, vehicle)
+    if okWheels and type(count) == 'number' and count > 0 then
+        wheelCount = count
+    end
+
+    for wheel = 0, wheelCount - 1 do
+        -- Vrij rollen, niet aandrijven. Anders slippen ze en komt er rook.
+        pcall(SetVehicleWheelIsPowered, vehicle, wheel, false)
+        pcall(SetVehicleWheelPower, vehicle, wheel, 0.0)
+        pcall(SetVehicleWheelBrakePressure, vehicle, wheel, 0.0)
+
+        local radius = 0.36
+        local okRadius, size = pcall(GetVehicleWheelTireColliderSize, vehicle, wheel)
+        if okRadius and type(size) == 'number' and size > 0.15 and size < 1.25 then
+            radius = size
+        end
+
+        local spin = 0.0
+        if math.abs(rollSpeed) > 0.04 then
+            spin = -(rollSpeed / radius)
+        end
+        pcall(SetVehicleWheelRotationSpeed, vehicle, wheel, spin)
+    end
+end
+
 local function attachToRear(ped, vehicle)
     local minDim = GetModelDimensions(GetEntityModel(vehicle))
     AttachEntityToEntity(
@@ -995,6 +1030,11 @@ local function runManual(vehicle, netId)
 
     lockMigration(vehicle, netId)
     prepareVehicle(vehicle)
+    local okTraction, traction = pcall(GetVehicleHandlingFloat, vehicle, 'CHandlingData', 'fLowSpeedTractionLossMult')
+    if okTraction and type(traction) == 'number' then
+        session.lowSpeedTraction = traction
+        pcall(SetVehicleHandlingFloat, vehicle, 'CHandlingData', 'fLowSpeedTractionLossMult', 0.0)
+    end
     SetPedCanRagdoll(ped, false)
     SetCurrentPedWeapon(ped, joaat('WEAPON_UNARMED'), true)
     ClearPedTasksImmediately(ped)
@@ -1068,8 +1108,16 @@ local function runManual(vehicle, netId)
             signedSpeed = -math.abs(Config.Manual.reverseSpeed or 0.55)
         end
 
-        -- Niet via de aandrijving duwen: dat laat de banden doorslippen en roken,
-        -- zeker als de voorwielen gedraaid staan.
+        -- Eerst op de grond zetten. Daarna pas snelheid, anders valt de rol weer weg.
+        local height = GetEntityHeightAboveGround(vehicle)
+        if height > 1.15 or height < 0.02 then
+            SetVehicleOnGroundProperly(vehicle)
+            SetVehicleSteeringAngle(vehicle, session.steer or 0.0)
+        end
+
+        -- De neus volgt de voorwielen. Daarna krijgt de auto pas snelheid,
+        -- zodat die snelheid langs de nieuwe richting ligt en de banden rollen
+        -- in plaats van dwars te slippen.
         local steer = session.steer or 0.0
         if math.abs(signedSpeed) > 0.05 and math.abs(steer) > 0.8 then
             local wheelbase = 2.7
@@ -1084,25 +1132,34 @@ local function runManual(vehicle, netId)
             SetEntityRotation(vehicle, 0.0, 0.0, heading, 2, true)
         end
 
+        local rollSpeed = signedSpeed
         if math.abs(signedSpeed) > 0.05 then
-            local headingRad = math.rad(GetEntityHeading(vehicle))
-            local step = signedSpeed * frame
-            local pos = GetEntityCoords(vehicle)
-            SetEntityCoordsNoOffset(vehicle, pos.x + (-math.sin(headingRad) * step), pos.y + (math.cos(headingRad) * step), pos.z, false, false, false)
+            SetVehicleForwardSpeed(vehicle, signedSpeed)
+        else
+            local coast = GetEntitySpeedVector(vehicle, true).y
+            if math.abs(coast) > 0.15 then
+                rollSpeed = coast * 0.75
+                SetVehicleForwardSpeed(vehicle, rollSpeed)
+            else
+                rollSpeed = 0.0
+                SetVehicleForwardSpeed(vehicle, 0.0)
+            end
         end
 
-        SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
-
-        local height = GetEntityHeightAboveGround(vehicle)
-        if height > 1.15 or height < 0.02 then
-            SetVehicleOnGroundProperly(vehicle)
+        local velocity = GetEntityVelocity(vehicle)
+        if velocity.z > 0.08 or velocity.z < -0.35 then
+            SetEntityVelocity(vehicle, velocity.x, velocity.y, 0.0)
         end
+
+        applyWheelRoll(vehicle, rollSpeed)
 
         Wait(0)
     end
 
     if DoesEntityExist(vehicle) then
         SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
+        SetVehicleForwardSpeed(vehicle, 0.0)
+        applyWheelRoll(vehicle, 0.0)
         SetVehicleBrakeLights(vehicle, false)
         SetVehicleHandbrake(vehicle, false)
         pcall(SetVehicleBurnout, vehicle, false)
