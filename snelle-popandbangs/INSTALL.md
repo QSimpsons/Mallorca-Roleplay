@@ -16,7 +16,7 @@ De map moet `snelle-popandbangs` heten. De item-export verwijst naar die naam.
 
 ## 1. Resource
 
-Kopieer de map `snelle-popandbangs` naar je `resources` folder.
+Pak `snelle-popandbangs.zip` uit in je `resources` map. Je krijgt dan de map `snelle-popandbangs`. Die naam moet zo blijven.
 
 ## 2. Items (geen SQL)
 
