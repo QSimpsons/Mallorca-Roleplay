@@ -1,0 +1,12 @@
+Kopieer deze PNG's naar ox_inventory/web/images/
+
+- popbang_stage1.png
+- popbang_stage2.png
+- popbang_stage3.png
+- popbang_stage4.png
+- popbang_stage5.png
+- popbang_stage6.png
+- popbang_remover.png
+
+De bestandsnaam moet gelijk blijven aan de itemnaam.
+Geen SQL nodig. De itemtekst staat in install/ox_inventory_items.lua.
