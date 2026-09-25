@@ -446,7 +446,8 @@ local function cleanup(leaveHazards)
         FreezeEntityPosition(vehicle, false)
         SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
         SetVehicleForwardSpeed(vehicle, 0.0)
-        SetVehicleHandbrake(vehicle, true)
+        SetVehicleBrakeLights(vehicle, false)
+        SetVehicleHandbrake(vehicle, false)
         SetVehicleEngineOn(vehicle, false, true, true)
 
         if session.hazards and leaveHazards then
@@ -463,6 +464,20 @@ local function cleanup(leaveHazards)
 
     releasePusher(ped, vehicle)
     Push.HideTextUI()
+
+    if vehicle and DoesEntityExist(vehicle) then
+        local released = vehicle
+        CreateThread(function()
+            for _ = 1, 20 do
+                if not DoesEntityExist(released) then
+                    return
+                end
+                SetVehicleHandbrake(released, false)
+                SetVehicleBrakeLights(released, false)
+                Wait(0)
+            end
+        end)
+    end
 
     session = {}
     Push.busy = false
@@ -996,8 +1011,8 @@ local function runManual(vehicle, netId)
             SetVehicleBrakeLights(vehicle, false)
         else
             SetVehicleForwardSpeed(vehicle, 0.0)
-            SetVehicleBrakeLights(vehicle, true)
-            SetVehicleHandbrake(vehicle, true)
+            SetVehicleBrakeLights(vehicle, false)
+            SetVehicleHandbrake(vehicle, false)
         end
 
         Wait(0)
@@ -1005,7 +1020,8 @@ local function runManual(vehicle, netId)
 
     if DoesEntityExist(vehicle) then
         SetVehicleForwardSpeed(vehicle, 0.0)
-        SetVehicleHandbrake(vehicle, true)
+        SetVehicleBrakeLights(vehicle, false)
+        SetVehicleHandbrake(vehicle, false)
         SetVehicleSteeringAngle(vehicle, 0.0)
         local minDim = GetModelDimensions(GetEntityModel(vehicle))
         local rear = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, minDim.y - 0.85, 0.0)
