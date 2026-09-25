@@ -337,6 +337,107 @@ local function clearHazards(vehicle)
     SetVehicleIndicatorLights(vehicle, 1, false)
 end
 
+local placeOnGround
+
+local function stopPushAnim(ped)
+    local dict = Config.Anim.dict
+    if not dict then
+        return
+    end
+
+    StopAnimTask(ped, dict, Config.Anim.name, 1.0)
+    if Config.Anim.nameFemale then
+        StopAnimTask(ped, dict, Config.Anim.nameFemale, 1.0)
+    end
+    ClearPedSecondaryTask(ped)
+    ClearPedTasksImmediately(ped)
+end
+
+local function pedOverlapsVehicle(ped, vehicle)
+    local minDim, maxDim = GetModelDimensions(GetEntityModel(vehicle))
+    local pos = GetEntityCoords(ped)
+    local offset = GetOffsetFromEntityGivenWorldCoords(vehicle, pos.x, pos.y, pos.z)
+    local pad = 0.55
+    return offset.x > (minDim.x - pad) and offset.x < (maxDim.x + pad)
+        and offset.y > (minDim.y - pad) and offset.y < (maxDim.y + pad)
+end
+
+local function stepAwayFromVehicle(ped, vehicle)
+    if not vehicle or not DoesEntityExist(vehicle) or not pedOverlapsVehicle(ped, vehicle) then
+        return
+    end
+
+    local minDim, maxDim = GetModelDimensions(GetEntityModel(vehicle))
+    local pos = GetEntityCoords(ped)
+    local origin = GetEntityCoords(vehicle)
+    local offset = GetOffsetFromEntityGivenWorldCoords(vehicle, pos.x, pos.y, pos.z)
+    local side = offset.x >= 0 and 1 or -1
+    local x = side > 0 and (maxDim.x + 0.9) or (minDim.x - 0.9)
+    local y = math.max(minDim.y + 0.3, math.min(maxDim.y - 0.3, offset.y))
+    local spot = GetOffsetFromEntityInWorldCoords(vehicle, x, y, 0.0)
+    local placed = placeOnGround(spot, 1.0, origin.z)
+    SetEntityCoordsNoOffset(ped, placed.x, placed.y, placed.z, false, false, false)
+    SetEntityHeading(ped, GetHeadingFromVector_2d(placed.x - origin.x, placed.y - origin.y))
+end
+
+local function releasePusher(ped, vehicle)
+    FreezeEntityPosition(ped, false)
+
+    if IsEntityAttached(ped) then
+        DetachEntity(ped, true, true)
+    end
+
+    stopPushAnim(ped)
+    SetPedCanRagdoll(ped, true)
+    SetEntityCollision(ped, true, true)
+    SetBlockingOfNonTemporaryEvents(ped, false)
+    SetPlayerControl(PlayerId(), true, 0)
+    EnableAllControlActions(0)
+    ResetPedMovementClipset(ped, 0.0)
+    ResetPedStrafeClipset(ped)
+    ResetPedWeaponMovementClipset(ped)
+    SetPedStealthMovement(ped, false, 0)
+
+    if vehicle and DoesEntityExist(vehicle) then
+        SetEntityNoCollisionEntity(ped, vehicle, false)
+        stepAwayFromVehicle(ped, vehicle)
+        stopPushAnim(ped)
+    end
+end
+
+local function keepControlForAMoment(ped)
+    CreateThread(function()
+        for _ = 1, 25 do
+            if Push.busy then
+                return
+            end
+
+            if IsEntityAttached(ped) then
+                DetachEntity(ped, true, true)
+            end
+
+            FreezeEntityPosition(ped, false)
+            SetPlayerControl(PlayerId(), true, 0)
+            EnableAllControlActions(0)
+
+            local dict = Config.Anim.dict
+            local stillPushing = dict and (
+                IsEntityPlayingAnim(ped, dict, Config.Anim.name, 3)
+                or (Config.Anim.nameFemale and IsEntityPlayingAnim(ped, dict, Config.Anim.nameFemale, 3))
+            )
+            if stillPushing then
+                stopPushAnim(ped)
+            end
+
+            Wait(0)
+        end
+
+        if not Push.busy and Config.Anim.dict then
+            RemoveAnimDict(Config.Anim.dict)
+        end
+    end)
+end
+
 local function cleanup(leaveHazards)
     local ped = PlayerPedId()
     local vehicle = session.vehicle
@@ -360,12 +461,7 @@ local function cleanup(leaveHazards)
         end
     end
 
-    if IsEntityAttached(ped) then
-        DetachEntity(ped, true, false)
-    end
-
-    ClearPedTasks(ped)
-    SetPedCanRagdoll(ped, true)
+    releasePusher(ped, vehicle)
     Push.HideTextUI()
 
     session = {}
@@ -374,6 +470,7 @@ local function cleanup(leaveHazards)
     Push.forceStop = false
     Push.requestStop = false
     Push.sessionVehicle = nil
+    keepControlForAMoment(ped)
 end
 
 local function pushSnapshot(result)
@@ -560,7 +657,7 @@ local function groundLift(pos)
     return 0.6
 end
 
-local function placeOnGround(pos, lift, fallbackZ)
+placeOnGround = function(pos, lift, fallbackZ)
     RequestCollisionAtCoord(pos.x, pos.y, pos.z)
     local found, ground = GetGroundZFor_3dCoord(pos.x, pos.y, (fallbackZ or pos.z) + 3.0, false)
     if found then
