@@ -450,6 +450,7 @@ local function releaseHandbrakeFully(vehicle)
     SetVehicleHandbrake(vehicle, false)
     SetVehicleBrakeLights(vehicle, false)
     pcall(SetVehicleBrake, vehicle, false)
+    pcall(SetVehicleBurnout, vehicle, false)
 
     if SetVehicleWheelBrakePressure and GetVehicleNumberOfWheels then
         local ok, wheels = pcall(GetVehicleNumberOfWheels, vehicle)
@@ -986,6 +987,7 @@ local function runManual(vehicle, netId)
     session.netId = netId
     session.mode = 'manual'
     session.steer = 0.0
+    session.wasPushing = false
     Push.mode = 'manual'
     Push.sessionVehicle = vehicle
 
@@ -1023,10 +1025,21 @@ local function runManual(vehicle, netId)
             attachToRear(ped, vehicle)
         end
 
-        playPushAnim(ped)
+        DisableControlAction(0, 72, true)
+        DisableControlAction(0, 76, true)
+        releaseHandbrakeFully(vehicle)
 
         local frame = GetFrameTime()
         local forward, back, left, right = readPushInput()
+        local pushing = forward or back
+
+        if pushing then
+            session.wasPushing = true
+            playPushAnim(ped)
+        elseif session.wasPushing then
+            session.wasPushing = false
+            stopPushAnim(ped)
+        end
         local steerSpeed = (Config.Manual.steerSpeed or 90.0) * frame
         local maxSteer = Config.Manual.maxSteer or 34.0
 
@@ -1054,9 +1067,7 @@ local function runManual(vehicle, netId)
         end
 
         if math.abs(signedSpeed) > 0.05 then
-            SetVehicleHandbrake(vehicle, false)
             SetVehicleForwardSpeed(vehicle, signedSpeed)
-            SetVehicleBrakeLights(vehicle, false)
 
             -- De neus volgt de voorwielen alleen terwijl de auto echt rolt.
             local steer = session.steer or 0.0
@@ -1073,9 +1084,11 @@ local function runManual(vehicle, netId)
                 SetEntityRotation(vehicle, 0.0, 0.0, heading, 2, true)
             end
         else
-            SetVehicleForwardSpeed(vehicle, 0.0)
-            SetVehicleBrakeLights(vehicle, false)
-            SetVehicleHandbrake(vehicle, false)
+            -- Uitrollen zonder de remmen vast te zetten, anders roken de banden.
+            local current = GetEntitySpeedVector(vehicle, true).y
+            if math.abs(current) > 0.25 then
+                SetVehicleForwardSpeed(vehicle, current * 0.86)
+            end
         end
 
         local velocity = GetEntityVelocity(vehicle)
