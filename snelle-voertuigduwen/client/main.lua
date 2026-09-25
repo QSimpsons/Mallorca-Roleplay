@@ -438,6 +438,63 @@ local function keepControlForAMoment(ped)
     end)
 end
 
+local function releaseHandbrakeFully(vehicle)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    if NetworkGetEntityIsNetworked(vehicle) and not NetworkHasControlOfEntity(vehicle) then
+        NetworkRequestControlOfEntity(vehicle)
+    end
+
+    SetVehicleHandbrake(vehicle, false)
+    SetVehicleBrakeLights(vehicle, false)
+    pcall(SetVehicleBrake, vehicle, false)
+
+    if SetVehicleWheelBrakePressure and GetVehicleNumberOfWheels then
+        local ok, wheels = pcall(GetVehicleNumberOfWheels, vehicle)
+        wheels = (ok and wheels) or 4
+        for i = 0, wheels - 1 do
+            SetVehicleWheelBrakePressure(vehicle, i, 0.0)
+        end
+    end
+end
+
+-- De meter leest de handrem pas als je rijdt. GTA zet hem vaak opnieuw
+-- aan zodra je in een stilstaande auto stapt, dus dan nog een keer lossen.
+local function watchHandbrakeRelease(vehicle)
+    CreateThread(function()
+        local deadline = GetGameTimer() + 25000
+
+        while GetGameTimer() < deadline do
+            if not DoesEntityExist(vehicle) then
+                return
+            end
+
+            local driving = GetPedInVehicleSeat(vehicle, -1) == PlayerPedId()
+
+            -- Zelf de handrem indrukken mag hem weer aanzetten.
+            if driving and (IsControlPressed(0, 76) or IsDisabledControlPressed(0, 76)) then
+                return
+            end
+
+            releaseHandbrakeFully(vehicle)
+
+            -- Eenmaal echt aan het rijden houdt het spel de handrem zelf los.
+            if driving and GetEntitySpeed(vehicle) > 1.5 then
+                releaseHandbrakeFully(vehicle)
+                return
+            end
+
+            Wait(driving and 0 or 150)
+        end
+
+        if DoesEntityExist(vehicle) then
+            releaseHandbrakeFully(vehicle)
+        end
+    end)
+end
+
 local function cleanup(leaveHazards)
     local ped = PlayerPedId()
     local vehicle = session.vehicle
@@ -446,8 +503,7 @@ local function cleanup(leaveHazards)
         FreezeEntityPosition(vehicle, false)
         SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
         SetVehicleForwardSpeed(vehicle, 0.0)
-        SetVehicleBrakeLights(vehicle, false)
-        SetVehicleHandbrake(vehicle, false)
+        releaseHandbrakeFully(vehicle)
         SetVehicleEngineOn(vehicle, false, true, true)
 
         if session.hazards and leaveHazards then
@@ -466,17 +522,7 @@ local function cleanup(leaveHazards)
     Push.HideTextUI()
 
     if vehicle and DoesEntityExist(vehicle) then
-        local released = vehicle
-        CreateThread(function()
-            for _ = 1, 20 do
-                if not DoesEntityExist(released) then
-                    return
-                end
-                SetVehicleHandbrake(released, false)
-                SetVehicleBrakeLights(released, false)
-                Wait(0)
-            end
-        end)
+        watchHandbrakeRelease(vehicle)
     end
 
     session = {}
