@@ -75,11 +75,14 @@ Config.Anim = {
 }
 
 -- Handmatig duwen: Z/S of W/S vooruit en achteruit, Q/D of A/D sturen.
+-- Sturen draait alleen de voorwielen. De auto zelf volgt pas terwijl hij rolt.
 Config.Manual = {
     enabled = true,
     speed = 1.05,
     reverseSpeed = 0.55,
-    turnRate = 70.0        -- graden per seconde
+    maxSteer = 34.0,       -- maximale hoek van de voorwielen
+    steerSpeed = 90.0,     -- hoe snel die wielen naar die hoek draaien
+    turnRate = 32.0        -- carrosserie, graden per seconde, alleen tijdens rijden
 }
 
 -- Aan de kant: schuif het voertuig zijwaarts de berm in.

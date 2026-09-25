@@ -985,6 +985,7 @@ local function runManual(vehicle, netId)
     session.vehicle = vehicle
     session.netId = netId
     session.mode = 'manual'
+    session.steer = 0.0
     Push.mode = 'manual'
     Push.sessionVehicle = vehicle
 
@@ -1025,40 +1026,66 @@ local function runManual(vehicle, netId)
         playPushAnim(ped)
 
         local frame = GetFrameTime()
-        local turn = (Config.Manual.turnRate or 70.0) * frame
-        local heading = GetEntityHeading(vehicle)
         local forward, back, left, right = readPushInput()
+        local steerSpeed = (Config.Manual.steerSpeed or 90.0) * frame
+        local maxSteer = Config.Manual.maxSteer or 34.0
 
         if left then
-            heading = heading + turn
+            session.steer = math.min(maxSteer, (session.steer or 0.0) + steerSpeed)
         elseif right then
-            heading = heading - turn
-        end
-
-        if left or right then
-            SetEntityHeading(vehicle, heading % 360.0)
-        end
-
-        if left then
-            SetVehicleSteeringAngle(vehicle, 28.0)
-        elseif right then
-            SetVehicleSteeringAngle(vehicle, -28.0)
+            session.steer = math.max(-maxSteer, (session.steer or 0.0) - steerSpeed)
         else
-            SetVehicleSteeringAngle(vehicle, 0.0)
+            local steer = session.steer or 0.0
+            if steer > 0 then
+                session.steer = math.max(0.0, steer - steerSpeed)
+            else
+                session.steer = math.min(0.0, steer + steerSpeed)
+            end
         end
 
+        -- Alleen de voorwielen. De carrosserie draait hier niet om zijn as.
+        SetVehicleSteeringAngle(vehicle, session.steer or 0.0)
+
+        local signedSpeed = 0.0
         if forward then
-            SetVehicleHandbrake(vehicle, false)
-            SetVehicleForwardSpeed(vehicle, Config.Manual.speed or 1.05)
-            SetVehicleBrakeLights(vehicle, false)
+            signedSpeed = Config.Manual.speed or 1.05
         elseif back then
+            signedSpeed = -math.abs(Config.Manual.reverseSpeed or 0.55)
+        end
+
+        if math.abs(signedSpeed) > 0.05 then
             SetVehicleHandbrake(vehicle, false)
-            SetVehicleForwardSpeed(vehicle, -math.abs(Config.Manual.reverseSpeed or 0.55))
+            SetVehicleForwardSpeed(vehicle, signedSpeed)
             SetVehicleBrakeLights(vehicle, false)
+
+            -- De neus volgt de voorwielen alleen terwijl de auto echt rolt.
+            local steer = session.steer or 0.0
+            if math.abs(steer) > 0.8 then
+                local wheelbase = 2.7
+                local yaw = math.deg((signedSpeed / wheelbase) * math.tan(math.rad(steer))) * frame
+                local cap = (Config.Manual.turnRate or 32.0) * frame
+                if yaw > cap then
+                    yaw = cap
+                elseif yaw < -cap then
+                    yaw = -cap
+                end
+                local heading = (GetEntityHeading(vehicle) + yaw) % 360.0
+                SetEntityRotation(vehicle, 0.0, 0.0, heading, 2, true)
+            end
         else
             SetVehicleForwardSpeed(vehicle, 0.0)
             SetVehicleBrakeLights(vehicle, false)
             SetVehicleHandbrake(vehicle, false)
+        end
+
+        local velocity = GetEntityVelocity(vehicle)
+        if velocity.z > 0.02 then
+            SetEntityVelocity(vehicle, velocity.x, velocity.y, 0.0)
+        end
+
+        local height = GetEntityHeightAboveGround(vehicle)
+        if height > 1.15 or height < 0.02 then
+            SetVehicleOnGroundProperly(vehicle)
         end
 
         Wait(0)
