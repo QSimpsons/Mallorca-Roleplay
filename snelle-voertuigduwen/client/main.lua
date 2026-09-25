@@ -451,6 +451,8 @@ local function releaseHandbrakeFully(vehicle)
     SetVehicleBrakeLights(vehicle, false)
     pcall(SetVehicleBrake, vehicle, false)
     pcall(SetVehicleBurnout, vehicle, false)
+    pcall(SetVehicleReduceGrip, vehicle, false)
+    pcall(SetDriftTyres, vehicle, false)
 
     if SetVehicleWheelBrakePressure and GetVehicleNumberOfWheels then
         local ok, wheels = pcall(GetVehicleNumberOfWheels, vehicle)
@@ -1066,35 +1068,30 @@ local function runManual(vehicle, netId)
             signedSpeed = -math.abs(Config.Manual.reverseSpeed or 0.55)
         end
 
+        -- Niet via de aandrijving duwen: dat laat de banden doorslippen en roken,
+        -- zeker als de voorwielen gedraaid staan.
+        local steer = session.steer or 0.0
+        if math.abs(signedSpeed) > 0.05 and math.abs(steer) > 0.8 then
+            local wheelbase = 2.7
+            local yaw = math.deg((signedSpeed / wheelbase) * math.tan(math.rad(steer))) * frame
+            local cap = (Config.Manual.turnRate or 32.0) * frame
+            if yaw > cap then
+                yaw = cap
+            elseif yaw < -cap then
+                yaw = -cap
+            end
+            local heading = (GetEntityHeading(vehicle) + yaw) % 360.0
+            SetEntityRotation(vehicle, 0.0, 0.0, heading, 2, true)
+        end
+
         if math.abs(signedSpeed) > 0.05 then
-            SetVehicleForwardSpeed(vehicle, signedSpeed)
-
-            -- De neus volgt de voorwielen alleen terwijl de auto echt rolt.
-            local steer = session.steer or 0.0
-            if math.abs(steer) > 0.8 then
-                local wheelbase = 2.7
-                local yaw = math.deg((signedSpeed / wheelbase) * math.tan(math.rad(steer))) * frame
-                local cap = (Config.Manual.turnRate or 32.0) * frame
-                if yaw > cap then
-                    yaw = cap
-                elseif yaw < -cap then
-                    yaw = -cap
-                end
-                local heading = (GetEntityHeading(vehicle) + yaw) % 360.0
-                SetEntityRotation(vehicle, 0.0, 0.0, heading, 2, true)
-            end
-        else
-            -- Uitrollen zonder de remmen vast te zetten, anders roken de banden.
-            local current = GetEntitySpeedVector(vehicle, true).y
-            if math.abs(current) > 0.25 then
-                SetVehicleForwardSpeed(vehicle, current * 0.86)
-            end
+            local headingRad = math.rad(GetEntityHeading(vehicle))
+            local step = signedSpeed * frame
+            local pos = GetEntityCoords(vehicle)
+            SetEntityCoordsNoOffset(vehicle, pos.x + (-math.sin(headingRad) * step), pos.y + (math.cos(headingRad) * step), pos.z, false, false, false)
         end
 
-        local velocity = GetEntityVelocity(vehicle)
-        if velocity.z > 0.02 then
-            SetEntityVelocity(vehicle, velocity.x, velocity.y, 0.0)
-        end
+        SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
 
         local height = GetEntityHeightAboveGround(vehicle)
         if height > 1.15 or height < 0.02 then
@@ -1105,9 +1102,10 @@ local function runManual(vehicle, netId)
     end
 
     if DoesEntityExist(vehicle) then
-        SetVehicleForwardSpeed(vehicle, 0.0)
+        SetEntityVelocity(vehicle, 0.0, 0.0, 0.0)
         SetVehicleBrakeLights(vehicle, false)
         SetVehicleHandbrake(vehicle, false)
+        pcall(SetVehicleBurnout, vehicle, false)
         SetVehicleSteeringAngle(vehicle, 0.0)
         local minDim = GetModelDimensions(GetEntityModel(vehicle))
         local rear = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, minDim.y - 0.85, 0.0)
