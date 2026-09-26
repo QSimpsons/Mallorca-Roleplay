@@ -465,6 +465,21 @@ CreateThread(function()
     end
 end)
 
+local function playBackfireAt(pos, scale)
+    if type(StartParticleFxNonLoopedAtCoord) ~= 'function' or not pos then
+        return
+    end
+
+    UseParticleFxAssetNextCall('core')
+    StartParticleFxNonLoopedAtCoord(
+        'veh_backfire',
+        pos.x, pos.y, pos.z,
+        0.0, 0.0, 0.0,
+        scale or 0.6,
+        false, false, false
+    )
+end
+
 local function exhaustBurst(vehicle, cfg)
     if not HasNamedPtfxAssetLoaded('core') then
         RequestNamedPtfxAsset('core')
@@ -475,6 +490,7 @@ local function exhaustBurst(vehicle, cfg)
     local soundPos
     local limit = cfg.exhausts or 1
     local showFlame = math.random(100) <= (cfg.flameChance or 100)
+    local scale = cfg.flameScale or 0.6
 
     for i = 1, #Config.ExhaustBones do
         local bone = GetEntityBoneIndexByName(vehicle, Config.ExhaustBones[i])
@@ -485,16 +501,7 @@ local function exhaustBurst(vehicle, cfg)
             end
 
             if showFlame then
-                UseParticleFxAssetNextCall('core')
-                StartParticleFxNonLoopedOnEntityBone(
-                    'veh_backfire',
-                    vehicle,
-                    0.0, 0.0, 0.0,
-                    0.0, 0.0, 0.0,
-                    bone,
-                    cfg.flameScale or 0.6,
-                    false, false, false
-                )
+                playBackfireAt(pos, scale)
             end
 
             played = played + 1
@@ -507,14 +514,7 @@ local function exhaustBurst(vehicle, cfg)
     if not soundPos then
         soundPos = GetOffsetFromEntityInWorldCoords(vehicle, 0.0, -2.1, 0.25)
         if showFlame then
-            UseParticleFxAssetNextCall('core')
-            StartParticleFxNonLoopedAtCoord(
-                'veh_backfire',
-                soundPos.x, soundPos.y, soundPos.z,
-                0.0, 0.0, 0.0,
-                cfg.flameScale or 0.6,
-                false, false, false
-            )
+            playBackfireAt(soundPos, scale)
         end
     end
 
