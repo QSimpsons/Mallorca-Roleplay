@@ -54,6 +54,14 @@ RegisterNetEvent('snelle-airbags:request', function(netId)
     end
 
     deployed[netId] = now
+
+    local deployedVehicle = NetworkGetEntityFromNetworkId(netId)
+    if deployedVehicle ~= 0 and DoesEntityExist(deployedVehicle) then
+        pcall(function()
+            Entity(deployedVehicle).state:set('snelleAirbags', true, true)
+        end)
+    end
+
     TriggerClientEvent('snelle-airbags:accepted', src)
     TriggerClientEvent('snelle-airbags:deploy', -1, netId)
 end)
@@ -64,15 +72,23 @@ RegisterNetEvent('snelle-airbags:checkRepair', function(netId)
         return
     end
 
-    if os.time() - deployed[netId] < Config.MinRedeploySeconds then
+    local ped = GetPlayerPed(src)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if ped == 0 or vehicle == 0 or not DoesEntityExist(vehicle) then
         return
     end
 
-    if vehicleOf(src, netId) == 0 then
+    local okDistance, distance = pcall(function()
+        return #(GetEntityCoords(ped) - GetEntityCoords(vehicle))
+    end)
+    if not okDistance or not distance or distance > 40.0 then
         return
     end
 
     deployed[netId] = nil
+    pcall(function()
+        Entity(vehicle).state:set('snelleAirbags', false, true)
+    end)
     TriggerClientEvent('snelle-airbags:repaired', -1, netId)
 end)
 

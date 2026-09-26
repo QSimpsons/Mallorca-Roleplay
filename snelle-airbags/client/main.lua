@@ -2,6 +2,8 @@ local pending = false
 local lockedUntil = 0
 local awaitingRepair = false
 local deployedBags = {}
+local healthFloor = {}
+local repairSent = {}
 
 local function isBlocked(vehicle)
     if Config.BlockedClasses[GetVehicleClass(vehicle)] then
@@ -77,19 +79,96 @@ local function attachBag(bag, vehicle, bone, spec, t)
     )
 end
 
-local function deleteBags(netId)
-    local bags = deployedBags[netId]
-    if not bags then
+local function deleteObject(obj)
+    if not DoesEntityExist(obj) then
         return
     end
 
-    for i = 1, #bags do
-        if DoesEntityExist(bags[i]) then
-            DeleteEntity(bags[i])
+    SetEntityAsMissionEntity(obj, true, true)
+    local timeout = GetGameTimer() + 600
+    while not NetworkHasControlOfEntity(obj) and GetGameTimer() < timeout do
+        NetworkRequestControlOfEntity(obj)
+        Wait(0)
+    end
+
+    if DoesEntityExist(obj) then
+        DeleteEntity(obj)
+    end
+end
+
+local function removeAirbagsFromVehicle(vehicle)
+    if vehicle == 0 or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    local model = joaat(Config.AirbagModel)
+    local objects = GetGamePool('CObject')
+
+    for i = 1, #objects do
+        local obj = objects[i]
+        if DoesEntityExist(obj) and GetEntityModel(obj) == model then
+            local attached = GetEntityAttachedTo(obj) == vehicle or IsEntityAttachedToEntity(obj, vehicle)
+            if attached then
+                deleteObject(obj)
+            end
+        end
+    end
+end
+
+local function deleteBags(netId)
+    local vehicle = NetworkGetEntityFromNetworkId(netId)
+    if vehicle ~= 0 then
+        removeAirbagsFromVehicle(vehicle)
+    end
+
+    local bags = deployedBags[netId]
+    if bags then
+        for i = 1, #bags do
+            deleteObject(bags[i])
         end
     end
 
     deployedBags[netId] = nil
+    healthFloor[netId] = nil
+    repairSent[netId] = nil
+end
+
+local function rememberFloor(netId, body, engine)
+    local floor = healthFloor[netId]
+    if not floor then
+        healthFloor[netId] = {
+            body = body,
+            engine = engine,
+            readyAt = GetGameTimer() + Config.RepairGraceMs
+        }
+        return
+    end
+
+    if body < floor.body then
+        floor.body = body
+    end
+    if engine < floor.engine then
+        floor.engine = engine
+    end
+end
+
+local function looksRepaired(netId, body, engine)
+    local floor = healthFloor[netId]
+    if not floor or GetGameTimer() < floor.readyAt then
+        return false
+    end
+
+    local bodyRose = body >= floor.body + Config.RepairRise
+    local engineRose = engine >= floor.engine + Config.RepairRise
+    if bodyRose or engineRose then
+        return true
+    end
+
+    if body >= Config.RepairHealth and engine >= Config.RepairHealth then
+        return floor.body < Config.RepairHealth or floor.engine < Config.RepairHealth
+    end
+
+    return false
 end
 
 local function inflate(vehicle, entries)
@@ -179,6 +258,22 @@ local function deployLocal(vehicle)
     for i = 1, #entries do
         deployedBags[netId][i] = entries[i].bag
     end
+
+    local body = GetVehicleBodyHealth(vehicle)
+    local engine = GetVehicleEngineHealth(vehicle)
+    if body > Config.CrashBodyHealth then
+        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
+        body = Config.CrashBodyHealth
+    end
+    if engine > Config.CrashEngineHealth then
+        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+        engine = Config.CrashEngineHealth
+    end
+    rememberFloor(netId, body, engine)
+
+    pcall(function()
+        Entity(vehicle).state:set('snelleAirbags', true, true)
+    end)
 
     inflate(vehicle, entries)
     SetModelAsNoLongerNeeded(model)
@@ -335,20 +430,31 @@ end)
 
 CreateThread(function()
     while true do
-        Wait(2000)
+        Wait(750)
 
-        if awaitingRepair then
-            local ped = PlayerPedId()
-            if IsPedInAnyVehicle(ped, false) then
-                local vehicle = GetVehiclePedIsIn(ped, false)
-                if GetPedInVehicleSeat(vehicle, -1) == ped and NetworkGetEntityIsNetworked(vehicle) then
+        local coords = GetEntityCoords(PlayerPedId())
+        local vehicles = GetGamePool('CVehicle')
+
+        for i = 1, #vehicles do
+            local vehicle = vehicles[i]
+            if DoesEntityExist(vehicle) and #(GetEntityCoords(vehicle) - coords) < 40.0 and NetworkGetEntityIsNetworked(vehicle) then
+                local netId = NetworkGetNetworkIdFromEntity(vehicle)
+                local marked = deployedBags[netId] ~= nil
+                if not marked then
+                    local ok, state = pcall(function()
+                        return Entity(vehicle).state.snelleAirbags
+                    end)
+                    marked = ok and state == true
+                end
+
+                local sentAt = repairSent[netId]
+                if marked and netId and netId ~= 0 and (not sentAt or GetGameTimer() - sentAt > 3000) then
                     local body = GetVehicleBodyHealth(vehicle)
                     local engine = GetVehicleEngineHealth(vehicle)
-                    if body >= Config.RepairHealth and engine >= Config.RepairHealth then
-                        local netId = NetworkGetNetworkIdFromEntity(vehicle)
-                        if netId and netId ~= 0 then
-                            TriggerServerEvent('snelle-airbags:checkRepair', netId)
-                        end
+                    rememberFloor(netId, body, engine)
+                    if looksRepaired(netId, body, engine) then
+                        repairSent[netId] = GetGameTimer()
+                        TriggerServerEvent('snelle-airbags:checkRepair', netId)
                     end
                 end
             end

@@ -17,7 +17,18 @@ Config.MinRedeploySeconds = 25
 
 -- Carrosserie en motor moeten minstens zo hoog zijn (0-1000)
 -- voordat de airbags opnieuw mogen.
-Config.RepairHealth = 850.0
+Config.RepairHealth = 950.0
+
+-- Hoeveel de carrosserie of motor moet stijgen om als reparatie te tellen.
+Config.RepairRise = 40.0
+
+-- Bij de klap zakt de schade tot hier (0-1000) als die nog hoger was.
+-- Een reparatie zet de waarden weer omhoog, en dan verdwijnen de airbags.
+Config.CrashBodyHealth = 880.0
+Config.CrashEngineHealth = 720.0
+
+-- Na de klap even wachten, zodat de schade zelf niet als reparatie telt.
+Config.RepairGraceMs = 2000
 
 -- Echt airbag-model (geen bal). Zie third_party/NOTICE.txt.
 Config.AirbagModel = 'prop_carairbag'
