@@ -73,7 +73,7 @@ RegisterNetEvent('snelle-airbags:checkRepair', function(netId)
     end
 
     deployed[netId] = nil
-    TriggerClientEvent('snelle-airbags:repaired', src)
+    TriggerClientEvent('snelle-airbags:repaired', -1, netId)
 end)
 
 AddEventHandler('playerDropped', function()

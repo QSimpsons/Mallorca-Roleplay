@@ -19,33 +19,29 @@ Config.MinRedeploySeconds = 25
 -- voordat de airbags opnieuw mogen.
 Config.RepairHealth = 850.0
 
--- Prop die als airbag wordt gebruikt. Wit en rond.
--- Vervang dit als je een eigen airbag-model in de server hebt.
-Config.Prop = 'prop_beach_volball01'
+-- Echt airbag-model (geen bal). Zie third_party/NOTICE.txt.
+Config.AirbagModel = 'prop_carairbag'
 
--- Als een auto geen stuur-bone heeft, gebruiken we deze plek in de cabine.
--- x negatief = bestuurderskant, y = naar de motorkap, z = omhoog.
-Config.FallbackWheel = { x = -0.34, y = 0.34, z = 0.48 }
+-- Hoe klein de airbag start en hoe lang het opblazen duurt.
+Config.StartScale = 0.18
+Config.InflateMs = 320
 
--- Kussens per airbag, net uit het stuur of dashboard de cabine in,
--- zodat je ze ziet vertrekken voordat ze door de voorruit gaan.
-Config.Burst = {
-    { x = 0.00, y = 0.16, z = 0.16 },
-    { x = 0.10, y = 0.22, z = 0.26 },
-    { x = -0.10, y = 0.20, z = 0.20 }
+-- Bestuurder: groeit uit het stuur naar de bestuurder toe.
+-- Bijrijder: groeit uit het dashboard.
+-- Offsets staan op de stoel-bone, y = naar de motorkap, z = omhoog.
+Config.Driver = {
+    bone = 'seat_dside_f',
+    from = { x = 0.0, y = 0.50, z = 0.55 },
+    to = { x = 0.0, y = 0.30, z = 0.40 },
+    rot = { x = 0.0, y = 0.0, z = 90.0 }
 }
 
--- Hoe hard de airbags vanuit het stuur en dashboard naar voren en omhoog schieten.
--- Omhoog zodat ze door de voorruit gaan en niet in het dashboard verdwijnen.
-Config.LaunchForward = 9.0
-Config.LaunchUp = 8.0
-Config.Spread = 1.15
-
--- Heel even zichtbaar op het stuur en dashboard, daarna vliegen ze eruit.
-Config.PopDelayMs = 180
-
--- Na hoeveel milliseconden de props weer worden opgeruimd.
-Config.DespawnMs = 12000
+Config.Passenger = {
+    bone = 'seat_pside_f',
+    from = { x = 0.0, y = 0.68, z = 0.50 },
+    to = { x = 0.0, y = 0.40, z = 0.40 },
+    rot = { x = 0.0, y = 0.0, z = 90.0 }
+}
 
 -- Voorruit eruit, motor slaat af, camera schudt.
 Config.PopWindscreen = true

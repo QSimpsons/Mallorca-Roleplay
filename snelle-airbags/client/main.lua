@@ -1,6 +1,7 @@
 local pending = false
 local lockedUntil = 0
 local awaitingRepair = false
+local deployedBags = {}
 
 local function isBlocked(vehicle)
     if Config.BlockedClasses[GetVehicleClass(vehicle)] then
@@ -18,12 +19,12 @@ local function isBlocked(vehicle)
 end
 
 local function loadModel(model)
-    if not IsModelInCdimage(model) then
-        return false
+    if HasModelLoaded(model) then
+        return true
     end
 
     RequestModel(model)
-    local timeout = GetGameTimer() + 3000
+    local timeout = GetGameTimer() + 5000
     while not HasModelLoaded(model) do
         if GetGameTimer() > timeout then
             return false
@@ -34,151 +35,153 @@ local function loadModel(model)
     return true
 end
 
-local function wheelOffset(vehicle)
-    local bone = GetEntityBoneIndexByName(vehicle, 'steeringwheel')
-    if bone ~= -1 then
-        local world = GetWorldPositionOfEntityBone(vehicle, bone)
-        local found = math.abs(world.x) + math.abs(world.y) + math.abs(world.z) > 0.05
-        if found then
-            return GetOffsetFromEntityGivenWorldCoords(vehicle, world.x, world.y, world.z)
+local function unit(v)
+    local length = math.sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z))
+    if length < 0.0001 then
+        return v
+    end
+
+    return vector3(v.x / length, v.y / length, v.z / length)
+end
+
+local function setScale(entity, scale)
+    local forward, right, up, pos = GetEntityMatrix(entity)
+    forward = unit(forward)
+    right = unit(right)
+    up = unit(up)
+
+    SetEntityMatrix(
+        entity,
+        forward.x * scale, forward.y * scale, forward.z * scale,
+        right.x * scale, right.y * scale, right.z * scale,
+        up.x * scale, up.y * scale, up.z * scale,
+        pos.x, pos.y, pos.z
+    )
+end
+
+local function easeOut(t)
+    local left = 1.0 - t
+    return 1.0 - (left * left * left)
+end
+
+local function attachBag(bag, vehicle, bone, spec, t)
+    local x = spec.from.x + ((spec.to.x - spec.from.x) * t)
+    local y = spec.from.y + ((spec.to.y - spec.from.y) * t)
+    local z = spec.from.z + ((spec.to.z - spec.from.z) * t)
+
+    AttachEntityToEntity(
+        bag, vehicle, bone,
+        x, y, z,
+        spec.rot.x, spec.rot.y, spec.rot.z,
+        true, true, false, false, 2, true
+    )
+end
+
+local function deleteBags(netId)
+    local bags = deployedBags[netId]
+    if not bags then
+        return
+    end
+
+    for i = 1, #bags do
+        if DoesEntityExist(bags[i]) then
+            DeleteEntity(bags[i])
         end
     end
 
-    local fallback = Config.FallbackWheel
-    return vector3(fallback.x, fallback.y, fallback.z)
+    deployedBags[netId] = nil
 end
 
--- Bestuurder: uit het stuur. Bijrijder: uit het dashboard aan de andere kant.
-local function airbagPoints(vehicle)
-    local wheel = wheelOffset(vehicle)
-    local dash = vector3(-wheel.x, wheel.y + 0.20, wheel.z - 0.03)
-    return { wheel, dash }
+local function inflate(vehicle, entries)
+    local started = GetGameTimer()
+
+    while DoesEntityExist(vehicle) do
+        local t = (GetGameTimer() - started) / Config.InflateMs
+        if t > 1.0 then
+            t = 1.0
+        end
+
+        local eased = easeOut(t)
+        local scale = Config.StartScale + ((1.0 - Config.StartScale) * eased)
+
+        for i = 1, #entries do
+            local entry = entries[i]
+            if DoesEntityExist(entry.bag) then
+                attachBag(entry.bag, vehicle, entry.bone, entry.spec, eased)
+                setScale(entry.bag, scale)
+            end
+        end
+
+        if t >= 1.0 then
+            break
+        end
+
+        Wait(0)
+    end
 end
 
-local function launchVelocity(vehicle)
-    local forward = GetEntityForwardVector(vehicle)
-    local velocity = GetEntityVelocity(vehicle)
-    local spread = Config.Spread
+local function spawnAirbag(vehicle, spec, model)
+    local bone = GetEntityBoneIndexByName(vehicle, spec.bone)
+    if bone == -1 then
+        return nil
+    end
 
-    return vector3(
-        velocity.x + forward.x * Config.LaunchForward + (math.random() - 0.5) * spread,
-        velocity.y + forward.y * Config.LaunchForward + (math.random() - 0.5) * spread,
-        velocity.z + Config.LaunchUp + math.random() * 1.2
-    )
-end
-
-local function spawnBag(vehicle, origin, nudge, model)
-    local pos = GetOffsetFromEntityInWorldCoords(
-        vehicle,
-        origin.x + nudge.x,
-        origin.y + nudge.y,
-        origin.z + nudge.z
-    )
-    local bag = CreateObject(model, pos.x, pos.y, pos.z, false, false, false)
+    local pos = GetEntityCoords(vehicle)
+    local bag = CreateObject(model, pos.x, pos.y, pos.z, true, true, false)
     if bag == 0 or not DoesEntityExist(bag) then
         return nil
     end
 
     SetEntityAsMissionEntity(bag, true, true)
-    SetEntityVisible(bag, true, false)
-    SetEntityLodDist(bag, 250)
-    SetEntityCollision(bag, true, true)
-    SetEntityDynamic(bag, true)
+    SetEntityCollision(bag, false, false)
     FreezeEntityPosition(bag, true)
-    SetEntityNoCollisionEntity(bag, vehicle, true)
+    attachBag(bag, vehicle, bone, spec, 0.0)
+    setScale(bag, Config.StartScale)
 
-    return bag
-end
-
-local function releaseBags(vehicle, bags)
-    local speeds = {}
-    for i = 1, #bags do
-        local bag = bags[i]
-        speeds[i] = launchVelocity(vehicle)
-        if DoesEntityExist(bag) then
-            FreezeEntityPosition(bag, false)
-            SetEntityNoCollisionEntity(bag, vehicle, true)
-            SetEntityVelocity(bag, speeds[i].x, speeds[i].y, speeds[i].z)
-        end
-    end
-
-    CreateThread(function()
-        local untilAt = GetGameTimer() + 900
-        while GetGameTimer() < untilAt do
-            if not DoesEntityExist(vehicle) then
-                break
-            end
-
-            for i = 1, #bags do
-                local bag = bags[i]
-                if DoesEntityExist(bag) then
-                    SetEntityNoCollisionEntity(bag, vehicle, true)
-                end
-            end
-
-            Wait(0)
-        end
-    end)
+    return { bag = bag, bone = bone, spec = spec }
 end
 
 local function deployLocal(vehicle)
-    local model = joaat(Config.Prop)
+    local model = joaat(Config.AirbagModel)
     if not loadModel(model) then
         return
     end
 
-    if Config.PopWindscreen then
-        PopOutVehicleWindscreen(vehicle)
-        SmashVehicleWindow(vehicle, 6)
-    end
-
-    PlaySoundFromEntity(-1, 'Whoosh_1s_L_to_R', vehicle, 'MP_LOBBY_SOUNDS', false, 0)
-
     local ped = PlayerPedId()
-    if GetVehiclePedIsIn(ped, false) == vehicle then
-        ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', Config.CameraShake)
-
-        if Config.StallEngine and GetPedInVehicleSeat(vehicle, -1) == ped then
-            awaitingRepair = true
-            SetVehicleEngineOn(vehicle, false, true, true)
-            SetVehicleUndriveable(vehicle, true)
-            local stalled = vehicle
-            SetTimeout(Config.StallMs, function()
-                if DoesEntityExist(stalled) then
-                    SetVehicleUndriveable(stalled, false)
-                end
-            end)
-        end
-    end
-
-    local bags = {}
-    local points = airbagPoints(vehicle)
-    for p = 1, #points do
-        local origin = points[p]
-        for i = 1, #Config.Burst do
-            local bag = spawnBag(vehicle, origin, Config.Burst[i], model)
-            if bag then
-                bags[#bags + 1] = bag
+    if Config.StallEngine and GetPedInVehicleSeat(vehicle, -1) == ped then
+        awaitingRepair = true
+        SetVehicleEngineOn(vehicle, false, true, true)
+        SetVehicleUndriveable(vehicle, true)
+        local stalled = vehicle
+        SetTimeout(Config.StallMs, function()
+            if DoesEntityExist(stalled) then
+                SetVehicleUndriveable(stalled, false)
             end
+        end)
+    end
+
+    local specs = { Config.Driver, Config.Passenger }
+    local entries = {}
+    for i = 1, #specs do
+        local entry = spawnAirbag(vehicle, specs[i], model)
+        if entry then
+            entries[#entries + 1] = entry
         end
     end
 
-    if #bags == 0 then
+    if #entries == 0 then
+        SetModelAsNoLongerNeeded(model)
         return
     end
 
-    Wait(Config.PopDelayMs)
-    if DoesEntityExist(vehicle) then
-        releaseBags(vehicle, bags)
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    deployedBags[netId] = {}
+    for i = 1, #entries do
+        deployedBags[netId][i] = entries[i].bag
     end
 
-    SetTimeout(Config.DespawnMs, function()
-        for i = 1, #bags do
-            if DoesEntityExist(bags[i]) then
-                DeleteEntity(bags[i])
-            end
-        end
-    end)
+    inflate(vehicle, entries)
+    SetModelAsNoLongerNeeded(model)
 end
 
 RegisterNetEvent('snelle-airbags:deploy', function(netId)
@@ -194,6 +197,21 @@ RegisterNetEvent('snelle-airbags:deploy', function(netId)
     local ped = PlayerPedId()
     local coords = GetEntityCoords(vehicle)
     if #(GetEntityCoords(ped) - coords) > Config.SyncDistance then
+        return
+    end
+
+    if Config.PopWindscreen then
+        PopOutVehicleWindscreen(vehicle)
+        SmashVehicleWindow(vehicle, 6)
+    end
+
+    PlaySoundFromEntity(-1, 'Whoosh_1s_L_to_R', vehicle, 'MP_LOBBY_SOUNDS', false, 0)
+
+    if GetVehiclePedIsIn(ped, false) == vehicle then
+        ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', Config.CameraShake)
+    end
+
+    if NetworkGetEntityOwner(vehicle) ~= PlayerId() then
         return
     end
 
@@ -293,8 +311,26 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent('snelle-airbags:repaired', function()
+RegisterNetEvent('snelle-airbags:repaired', function(netId)
     awaitingRepair = false
+    if type(netId) == 'number' then
+        deleteBags(netId)
+        return
+    end
+
+    for id in pairs(deployedBags) do
+        deleteBags(id)
+    end
+end)
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if resourceName ~= GetCurrentResourceName() then
+        return
+    end
+
+    for netId in pairs(deployedBags) do
+        deleteBags(netId)
+    end
 end)
 
 CreateThread(function()
@@ -321,5 +357,5 @@ CreateThread(function()
 end)
 
 CreateThread(function()
-    loadModel(joaat(Config.Prop))
+    loadModel(joaat(Config.AirbagModel))
 end)
