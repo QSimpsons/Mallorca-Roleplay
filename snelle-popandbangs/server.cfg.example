@@ -1,0 +1,8 @@
+ensure ox_lib
+ensure es_extended
+ensure ox_inventory
+ensure ox_target
+ensure snelle-popandbangs
+
+add_ace group.admin command.popbangset allow
+add_ace group.admin command.popbangclear allow
