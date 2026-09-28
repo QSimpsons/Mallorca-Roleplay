@@ -377,15 +377,11 @@ def invite_background(width=1920, height=1080) -> Image.Image:
 
 
 def loading_background(width=1920, height=1080) -> Image.Image:
-    # Prefer generated hero if present
+    # Prefer local hero art from preview/ if present
     hero_candidates = [
-        Path("/opt/cursor/artifacts/mallorca-hero-bg.png"),
-        REPO / "mallorca-hero-bg.png",
         ROOT / "preview" / "mallorca-hero-bg.png",
+        REPO / "mallorca-hero-bg.png",
     ]
-    # also search agent outputs
-    for p in Path("/home/ubuntu/.cursor").rglob("mallorca-hero-bg.png"):
-        hero_candidates.append(p)
 
     hero = None
     for p in hero_candidates:
