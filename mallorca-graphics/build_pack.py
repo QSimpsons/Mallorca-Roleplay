@@ -103,7 +103,7 @@ def draw_centered_text(draw, xy, text, fnt, fill, stroke_width=0, stroke_fill=No
 
 
 def palm_icon(size: int, color=WHITE) -> Image.Image:
-    """Bold palm + island mark — thick shapes so 96px stays readable."""
+    """Bold palm + island icon — thick shapes so 96px stays readable."""
     img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     s = float(size)
@@ -224,7 +224,7 @@ def circular_badge(size: int, with_text: bool = False) -> Image.Image:
     return img
 
 
-def wordmark(width: int = 1400, height: int = 420) -> Image.Image:
+def logo_text(width: int = 1400, height: int = 420) -> Image.Image:
     img = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
     title = font(int(height * 0.38))
@@ -254,13 +254,13 @@ def logo_lockup(size: int = 1024) -> Image.Image:
     badge = circular_badge(int(size * 0.58), with_text=False)
     bx = (size - badge.width) // 2
     img.alpha_composite(badge, (bx, int(size * 0.06)))
-    wm = wordmark(int(size * 0.92), int(size * 0.28))
-    img.alpha_composite(wm, ((size - wm.width) // 2, int(size * 0.68)))
+    text_layer = logo_text(int(size * 0.92), int(size * 0.28))
+    img.alpha_composite(text_layer, ((size - text_layer.width) // 2, int(size * 0.68)))
     return img
 
 
 def make_server_icon_96() -> Image.Image:
-    """Exactly 96×96 PNG for load_server_icon — solid fill, thick mark."""
+    """Exactly 96×96 PNG for load_server_icon — solid fill, thick icon."""
     size = 96
     img = Image.new("RGBA", (size, size), NAVY)
     # rounded square feel via circle crop for list (but keep full square filled)
@@ -455,10 +455,10 @@ def build():
     load_assets = REPO / "mallorca_loadscreen" / "assets"
 
     # Logos
-    save(circular_badge(1024, with_text=False), logo_dir / "logo-mark-1024.png")
+    save(circular_badge(1024, with_text=False), logo_dir / "logo-icon-1024.png")
     save(circular_badge(512, with_text=True), logo_dir / "logo-badge-512.png")
     save(logo_lockup(1024), logo_dir / "logo-lockup-1024.png")
-    save(wordmark(1600, 480), logo_dir / "logo-wordmark.png")
+    save(logo_text(1600, 480), logo_dir / "logo-text.png")
     # transparent + dark variants for overlays
     dark_bg = Image.new("RGBA", (1024, 1024), NAVY)
     dark_bg.alpha_composite(circular_badge(820, with_text=False), (102, 60))

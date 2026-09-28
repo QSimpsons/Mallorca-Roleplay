@@ -6,7 +6,7 @@ Volledige grafische pack voor **Mallorca Roleplay** (NL Semi RP). Alle assets zi
 
 | Map | Gebruik |
 | --- | --- |
-| `logo/` | Master logo’s (mark, badge, lockup, wordmark) |
+| `logo/` | Master logo’s (icon, badge, lockup, tekst) |
 | `server/` | FiveM server icon + connect/detail banners |
 | `discord/` | Discord icon, banner, invite background, role/emoji |
 | `social/` | Shop header + social covers |
