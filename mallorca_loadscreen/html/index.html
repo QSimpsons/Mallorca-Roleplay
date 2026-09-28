@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mallorca Roleplay — Loading</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <main class="stage">
+    <img class="logo" src="../assets/logo.png" alt="Mallorca Roleplay" width="180" height="180" />
+
+    <h1 class="brand">MALLORCA</h1>
+    <p class="tagline">ROLEPLAY · NL SEMI RP</p>
+    <div class="bar-accent" aria-hidden="true"></div>
+
+    <p class="status" id="status">Server aan het laden…</p>
+
+    <div class="progress-wrap" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="progressbar">
+      <div class="progress-track">
+        <div class="progress-fill" id="progress"></div>
+      </div>
+      <span class="progress-pct" id="percent">0%</span>
+    </div>
+
+    <ul class="tips" id="tips" aria-live="polite">
+      <li>Respecteer staff en andere spelers.</li>
+      <li>€15.000.000 startgeld · 250+ custom voertuigen.</li>
+      <li>Join Discord voor whitelists, events en support.</li>
+    </ul>
+  </main>
+
+  <footer class="footer">
+    <span>24/7 ONLINE</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>POLITIE &amp; AMBULANCE</span>
+    <span class="dot" aria-hidden="true"></span>
+    <span>DAGELIJKSE EVENTS</span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
