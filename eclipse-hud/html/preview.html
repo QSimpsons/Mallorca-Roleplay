@@ -201,16 +201,20 @@
     setArc('stamina-arc', 70);
     setArc('voice-arc', 66);
 
+    function push(data) {
+      window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data } }));
+    }
+
     document.getElementById('btn-low').onclick = () => {
-      window.postMessage({ action: 'update', data: { hunger: 12, thirst: 8, health: 22 } }, '*');
+      push({ hunger: 12, thirst: 8, health: 22 });
     };
     document.getElementById('btn-full').onclick = () => {
-      window.postMessage({ action: 'update', data: { hunger: 100, thirst: 100, health: 100, armor: 100, stamina: 100 } }, '*');
+      push({ hunger: 100, thirst: 100, health: 100, armor: 100, stamina: 100 });
     };
     let talking = false;
     document.getElementById('btn-talk').onclick = () => {
       talking = !talking;
-      window.postMessage({ action: 'update', data: { talking } }, '*');
+      push({ talking });
     };
   </script>
 </body>
