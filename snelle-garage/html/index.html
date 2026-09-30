@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snelle Garage</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="app" class="app" aria-hidden="true">
+    <section class="panel" role="dialog" aria-labelledby="title">
+      <div class="accent"></div>
+      <header class="top">
+        <div class="brand">
+          <div class="mark" aria-hidden="true">SG</div>
+          <div>
+            <strong>Snelle Garage</strong>
+            <span id="location">Garage</span>
+          </div>
+        </div>
+        <div class="top-actions">
+          <button type="button" id="refresh" class="ghost">Vernieuwen</button>
+          <button type="button" id="close" class="ghost">Sluiten</button>
+        </div>
+      </header>
+
+      <div class="intro">
+        <div>
+          <h1 id="title">Garage</h1>
+          <p id="subtitle">Kies een voertuig om op te roepen</p>
+        </div>
+        <div class="wallet" id="wallet"></div>
+      </div>
+
+      <div class="toolbar">
+        <label class="search">
+          <span class="sr">Zoeken</span>
+          <input id="search" type="search" placeholder="Zoek op naam of kenteken" autocomplete="off" />
+        </label>
+        <div class="chips" id="chips" role="tablist"></div>
+      </div>
+
+      <div class="stats" id="stats"></div>
+      <div id="list" class="list"></div>
+
+      <footer>
+        <span id="hint">ESC om te sluiten</span>
+        <span id="mode-label"></span>
+      </footer>
+    </section>
+  </div>
+
+  <div id="demo" class="demo hidden">
+    <button type="button" id="demo-garage">Garage</button>
+    <button type="button" id="demo-impound">Impound</button>
+    <button type="button" id="demo-call">Oproepen</button>
+    <button type="button" id="demo-close">Sluiten</button>
+  </div>
+
+  <div id="toasts" class="toasts"></div>
+  <script src="app.js"></script>
+</body>
+</html>
