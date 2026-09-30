@@ -103,7 +103,7 @@
 		display: grid;
 		grid-template-columns: 7vh 1.5fr 1.5fr 1fr 1fr 1fr;
 		padding: 0.8vh 1.3vh;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		font-weight: 500;
 	}
@@ -118,7 +118,7 @@
 		outline: none;
 		padding: 0;
 		margin: 0;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		font-weight: 500;
 		color: #f2f2f2;
@@ -131,6 +131,6 @@
 	}
 
 	.table-header button:hover {
-		color: #fb9b04;
+		color: #6EE7F2;
 	}
 </style>

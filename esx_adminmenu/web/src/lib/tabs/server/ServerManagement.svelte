@@ -396,7 +396,7 @@
 		gap: 1.4vh;
 		align-items: start;
 		padding-bottom: 1.1vh;
-		border-bottom: 0.1vh solid #2E2E2C;
+		border-bottom: 0.1vh solid #2A3B58;
 	}
 
 	.management-header {
@@ -435,14 +435,14 @@
 	.status-pills span {
 		margin: 0;
 		padding: 0.45vh 0.8vh;
-		border: 0.1vh solid #2E2E2C;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.4vh;
 		color: rgba(242, 242, 242, 0.7);
 	}
 
 	.status-pills span.enabled {
-		border-color: rgba(251, 155, 4, 0.7);
-		color: #FB9B04;
+		border-color: rgba(110, 231, 242, 0.7);
+		color: #6EE7F2;
 	}
 
 	.control-row,
@@ -527,14 +527,14 @@
 		align-items: center;
 		min-height: 3vh;
 		padding: 0 0.8vh;
-		border: 0.1vh solid #2E2E2C;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.4vh;
 		background: rgba(37, 37, 37, 0.45);
 		font-size: 1.05vh;
 	}
 
 	.radio-player strong {
-		color: #FB9B04;
+		color: #6EE7F2;
 		font-weight: 600;
 	}
 
@@ -582,11 +582,11 @@
 		width: 100%;
 		min-width: 0;
 		height: 3.4vh;
-		border: 0.1vh solid #2E2E2C;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.4vh;
 		background: rgba(37, 37, 37, 0.6);
 		color: #F2F2F2;
-		font-family: "Poppins", sans-serif;
+		font-family: "Outfit", sans-serif;
 		font-size: 1.12vh;
 	}
 
@@ -598,7 +598,7 @@
 	input[type="checkbox"] {
 		width: 1.45vh;
 		height: 1.45vh;
-		accent-color: #FB9B04;
+		accent-color: #6EE7F2;
 	}
 
 	button {
@@ -606,18 +606,18 @@
 	}
 
 	button:hover {
-		border-color: rgba(251, 155, 4, 0.65);
-		background: rgba(251, 155, 4, 0.08);
+		border-color: rgba(110, 231, 242, 0.65);
+		background: rgba(110, 231, 242, 0.08);
 	}
 
 	button:active {
-		border-color: #FB9B04;
-		background: rgba(251, 155, 4, 0.16);
+		border-color: #6EE7F2;
+		background: rgba(110, 231, 242, 0.16);
 	}
 
 	button.active {
-		border-color: #FB9B04;
-		background: rgba(251, 155, 4, 0.16);
+		border-color: #6EE7F2;
+		background: rgba(110, 231, 242, 0.16);
 	}
 
 	button.danger:hover {

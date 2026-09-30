@@ -255,7 +255,7 @@
 	}
 
 	.summary {
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.15vh;
 		color: #7d7d7d;
 	}
@@ -270,8 +270,8 @@
 		display: flex;
 		align-items: center;
 		gap: 0.7vh;
-		background: #171717;
-		border: 0.1vh solid #2b2b2b;
+		background: #121a2e;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.6vh;
 		padding: 0.65vh 0.9vh;
 		color: #7d7d7d;
@@ -279,8 +279,8 @@
 	}
 
 	.search-box:focus-within {
-		border-color: #fb9b04;
-		color: #fb9b04;
+		border-color: #6EE7F2;
+		color: #6EE7F2;
 	}
 
 	.search-icon {
@@ -292,7 +292,7 @@
 	.search-input {
 		all: unset;
 		width: 18vh;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		color: #f2f2f2;
 	}
@@ -311,23 +311,23 @@
 	}
 
 	.search-clear:hover {
-		color: #fb9b04;
+		color: #6EE7F2;
 	}
 
 	.logs-select {
-		background: #171717;
+		background: #121a2e;
 		color: #f2f2f2;
-		border: 0.1vh solid #2b2b2b;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.6vh;
 		padding: 0.7vh 0.9vh;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		outline: none;
 		cursor: pointer;
 	}
 
 	.logs-select:hover {
-		border-color: #fb9b04;
+		border-color: #6EE7F2;
 	}
 
 	.scroller {
@@ -336,7 +336,7 @@
 		overflow-x: hidden;
 		padding-right: 0.6vh;
 		scrollbar-width: thin;
-		scrollbar-color: #333 transparent;
+		scrollbar-color: #31445f transparent;
 	}
 
 	.scroller::-webkit-scrollbar {
@@ -348,12 +348,12 @@
 	}
 
 	.scroller::-webkit-scrollbar-thumb {
-		background: #333;
+		background: #31445f;
 		border-radius: 1vh;
 	}
 
 	.scroller::-webkit-scrollbar-thumb:hover {
-		background: #fb9b04;
+		background: #6EE7F2;
 	}
 
 	.feed {
@@ -368,13 +368,13 @@
 		align-items: flex-start;
 		gap: 1.1vh;
 		padding: 1.1vh 1.4vh;
-		background: #141414;
+		background: #121a2e;
 		border-radius: 0.7vh;
 		border-left: 0.3vh solid transparent;
 	}
 
 	.entry:hover {
-		background: #191919;
+		background: #152038;
 	}
 
 	.entry.denied {
@@ -396,7 +396,7 @@
 		background: #3fbf5f;
 	}
 	.marker.player {
-		background: #fb9b04;
+		background: #6EE7F2;
 	}
 	.marker.server {
 		background: #4f9be0;
@@ -415,7 +415,7 @@
 
 	.sentence {
 		margin: 0;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.4vh;
 		font-weight: 400;
 		color: #dcdcdc;
@@ -436,12 +436,12 @@
 	}
 
 	.chip {
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.05vh;
 		font-weight: 500;
 		padding: 0.25vh 0.7vh;
 		border-radius: 1vh;
-		background: #232323;
+		background: #1c2a44;
 		color: #b8b8b8;
 	}
 
@@ -464,14 +464,14 @@
 	}
 
 	.when {
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.15vh;
 		color: #7d7d7d;
 	}
 
 	.details-btn {
 		all: unset;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.1vh;
 		font-weight: 500;
 		color: #7d7d7d;
@@ -481,7 +481,7 @@
 	}
 
 	.details-btn:hover {
-		color: #fb9b04;
+		color: #6EE7F2;
 	}
 
 	.details {
@@ -490,7 +490,7 @@
 		gap: 0.5vh 1.4vh;
 		margin-top: 0.7vh;
 		padding: 0.9vh 1.1vh;
-		background: #101010;
+		background: #0d1526;
 		border-radius: 0.6vh;
 	}
 
@@ -502,13 +502,13 @@
 	}
 
 	.detail-label {
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.05vh;
 		color: #6f6f6f;
 	}
 
 	.detail-value {
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.2vh;
 		color: #d0d0d0;
 		word-break: break-word;
@@ -526,16 +526,16 @@
 		margin: 1.4vh auto;
 		padding: 0.8vh 2.2vh;
 		border-radius: 0.6vh;
-		background: #1c1c1c;
+		background: #152038;
 		color: #e2e2e2;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		cursor: pointer;
 		text-align: center;
 	}
 
 	.load-more:hover {
-		background: #fb9b04;
+		background: #6EE7F2;
 		color: #101010;
 	}
 
@@ -550,7 +550,7 @@
 
 	.empty-title {
 		margin: 0;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.6vh;
 		font-weight: 500;
 		color: #d0d0d0;
@@ -558,7 +558,7 @@
 
 	.empty-hint {
 		margin: 0;
-		font-family: "Poppins";
+		font-family: "Outfit";
 		font-size: 1.3vh;
 		color: #7d7d7d;
 	}

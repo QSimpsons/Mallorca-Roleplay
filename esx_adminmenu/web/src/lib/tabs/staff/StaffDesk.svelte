@@ -183,9 +183,9 @@
 
 	.duty-button {
 		border: 1px solid rgba(242, 242, 242, 0.14);
-		background: #202020;
+		background: #18243c;
 		color: #f2f2f2;
-		border-radius: 0.8vh;
+		border-radius: 1.4vh;
 		padding: 1vh 1.4vh;
 		min-width: 16vh;
 		display: flex;
@@ -200,8 +200,8 @@
 	}
 
 	.duty-button.on {
-		border-color: rgba(251, 155, 4, 0.8);
-		background: rgba(251, 155, 4, 0.16);
+		border-color: rgba(110, 231, 242, 0.8);
+		background: rgba(110, 231, 242, 0.16);
 	}
 
 	.staff-layout {
@@ -214,9 +214,10 @@
 
 	.map-card,
 	.roster {
-		background: #1c1c1c;
-		border: 1px solid rgba(242, 242, 242, 0.06);
-		border-radius: 0.9vh;
+		background: rgba(14, 22, 40, 0.72);
+		border: 1px solid rgba(176, 204, 245, 0.14);
+		border-radius: 1.5vh;
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 		padding: 1.2vh;
 		min-height: 0;
 	}
@@ -224,12 +225,12 @@
 	.map-board {
 		position: relative;
 		height: 28vh;
-		border-radius: 0.7vh;
+		border-radius: 1.2vh;
 		background:
-			linear-gradient(rgba(242, 242, 242, 0.05) 1px, transparent 1px),
-			linear-gradient(90deg, rgba(242, 242, 242, 0.05) 1px, transparent 1px),
-			radial-gradient(circle at 50% 55%, rgba(251, 155, 4, 0.16), transparent 42%),
-			#121212;
+			linear-gradient(rgba(176, 204, 245, 0.08) 1px, transparent 1px),
+			linear-gradient(90deg, rgba(176, 204, 245, 0.08) 1px, transparent 1px),
+			radial-gradient(circle at 50% 55%, rgba(110, 231, 242, 0.2), transparent 42%),
+			#0c1428;
 		background-size: 8% 8%, 8% 8%, auto, auto;
 		overflow: hidden;
 	}
@@ -256,7 +257,7 @@
 	}
 
 	.map-marker.self {
-		background: #fb9b04;
+		background: #6EE7F2;
 	}
 
 	.tool-grid {
@@ -269,9 +270,9 @@
 	.tool,
 	.row-actions button {
 		border: 1px solid rgba(242, 242, 242, 0.1);
-		background: #262626;
+		background: #1c2a44;
 		color: #f2f2f2;
-		border-radius: 0.55vh;
+		border-radius: 1vh;
 		padding: 0.8vh 0.7vh;
 		font-size: 1.15vh;
 		cursor: pointer;
@@ -280,7 +281,7 @@
 	.tool:hover,
 	.row-actions button:hover,
 	.duty-button:hover {
-		border-color: rgba(251, 155, 4, 0.7);
+		border-color: rgba(110, 231, 242, 0.7);
 	}
 
 	.roster {
@@ -319,8 +320,9 @@
 	}
 
 	.roster li {
-		background: #141414;
-		border-radius: 0.7vh;
+		background: #121a2e;
+		border-radius: 1.1vh;
+		border: 1px solid rgba(176, 204, 245, 0.1);
 		padding: 0.9vh;
 		display: flex;
 		flex-direction: column;

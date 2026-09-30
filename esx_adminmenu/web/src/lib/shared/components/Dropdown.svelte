@@ -81,18 +81,18 @@
 		height: 3.4vh;
 		box-sizing: border-box;
 		padding: 0 0.9vh;
-		border: 0.1vh solid #2E2E2C;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.4vh;
 		background: rgba(37, 37, 37, 0.6);
 		color: #F2F2F2;
-		font-family: "Poppins", sans-serif;
+		font-family: "Outfit", sans-serif;
 		font-size: 1.12vh;
 		cursor: pointer;
 	}
 
 	.dropdown-trigger:hover,
 	.dropdown-trigger.open {
-		border-color: rgba(251, 155, 4, 0.65);
+		border-color: rgba(110, 231, 242, 0.65);
 	}
 
 	.dropdown-trigger:disabled {
@@ -115,7 +115,7 @@
 	}
 
 	.dropdown-trigger svg.open {
-		color: #FB9B04;
+		color: #6EE7F2;
 		transform: rotate(180deg);
 	}
 
@@ -128,7 +128,7 @@
 		flex-direction: column;
 		max-height: 22vh;
 		overflow-y: auto;
-		border: 0.1vh solid #2E2E2C;
+		border: 0.1vh solid #2A3B58;
 		border-radius: 0.5vh;
 		background: #1A1A1A;
 		box-shadow: 0 1vh 2vh rgba(0, 0, 0, 0.35);
@@ -141,14 +141,14 @@
 		width: 100%;
 		padding: 0.65vh 0.9vh;
 		color: #F2F2F2;
-		font-family: "Poppins", sans-serif;
+		font-family: "Outfit", sans-serif;
 		font-size: 1.08vh;
 		cursor: pointer;
 	}
 
 	.dropdown-item:hover,
 	.dropdown-item.selected {
-		background: rgba(251, 155, 4, 0.14);
-		color: #FB9B04;
+		background: rgba(110, 231, 242, 0.14);
+		color: #6EE7F2;
 	}
 </style>

@@ -22,7 +22,7 @@
 		return Math.max(0, Math.min(100, value));
 	}
 
-	function barStyle(percent: number, color = "#FB9B04") {
+	function barStyle(percent: number, color = "#6EE7F2") {
 		return `--bar-width: ${clampPercent(percent).toFixed(2)}%; --bar-color: ${color};`;
 	}
 
@@ -63,7 +63,7 @@
 			value: totalCash,
 			display: `$${formatMoney(totalCash)}`,
 			percent: totalMoney > 0 ? (totalCash / totalMoney) * 100 : 0,
-			color: "#FB9B04",
+			color: "#6EE7F2",
 		},
 		{
 			label: t("bank_money"),
@@ -82,13 +82,13 @@
 	]);
 
 	const averageMoneyRows = $derived<ChartRow[]>([
-		{ label: t("money"), value: averageCash, display: `$${formatMoney(averageCash)}`, percent: averageMoney > 0 ? (averageCash / averageMoney) * 100 : 0, color: "#FB9B04" },
+		{ label: t("money"), value: averageCash, display: `$${formatMoney(averageCash)}`, percent: averageMoney > 0 ? (averageCash / averageMoney) * 100 : 0, color: "#6EE7F2" },
 		{ label: t("bank_money"), value: averageBank, display: `$${formatMoney(averageBank)}`, percent: averageMoney > 0 ? (averageBank / averageMoney) * 100 : 0, color: "#4ADE80" },
 		{ label: t("black_money"), value: averageBlack, display: `$${formatMoney(averageBlack)}`, percent: averageMoney > 0 ? (averageBlack / averageMoney) * 100 : 0, color: "#F23F3F" },
 	]);
 
 	const playerRows = $derived<ChartRow[]>([
-		{ label: t("players"), value: onlineCount, display: `${onlineCount}/${maxPlayers}`, percent: playerFill, color: "#FB9B04" },
+		{ label: t("players"), value: onlineCount, display: `${onlineCount}/${maxPlayers}`, percent: playerFill, color: "#6EE7F2" },
 		{ label: t("available_slots"), value: availableSlots, display: String(availableSlots), percent: maxPlayers > 0 ? (availableSlots / maxPlayers) * 100 : 0, color: "#8B8B8B" },
 	]);
 
@@ -108,7 +108,7 @@
 			value: averageMoney,
 			display: `$${formatMoney(averageMoney)}`,
 			percent: richestMoney > 0 ? (averageMoney / richestMoney) * 100 : 0,
-			color: "#FB9B04",
+			color: "#6EE7F2",
 		},
 		{
 			label: t("median_money"),
@@ -142,7 +142,7 @@
 				value,
 				display: String(value),
 				percent: players.length > 0 ? (value / players.length) * 100 : 0,
-				color: "#FB9B04",
+				color: "#6EE7F2",
 			}));
 	});
 
@@ -165,7 +165,7 @@
 				value,
 				display: String(value),
 				percent: players.length > 0 ? (value / players.length) * 100 : 0,
-				color: "#FB9B04",
+				color: "#6EE7F2",
 			};
 		});
 	});
@@ -213,7 +213,7 @@
 				<span>{onlineCount} online</span>
 			</div>
 			<div class="stacked-meter">
-				<span class="meter-online" style={segmentStyle(playerFill, "#FB9B04")}></span>
+				<span class="meter-online" style={segmentStyle(playerFill, "#6EE7F2")}></span>
 				<span class="meter-empty" style={segmentStyle(100 - playerFill, "rgba(242, 242, 242, 0.16)")}></span>
 			</div>
 			{@render BarList(playerRows)}
@@ -226,7 +226,7 @@
 			</div>
 			<div class="stacked-meter">
 				{#each moneyBuckets as bucket}
-					<span style={segmentStyle(bucket.percent, bucket.color ?? "#FB9B04")}></span>
+					<span style={segmentStyle(bucket.percent, bucket.color ?? "#6EE7F2")}></span>
 				{/each}
 			</div>
 			{@render BarList(moneyBuckets)}
@@ -313,7 +313,7 @@
 		justify-content: space-between;
 		gap: 1vh;
 		padding-bottom: 1vh;
-		border-bottom: 0.1vh solid #2e2e2c;
+		border-bottom: 0.1vh solid #2A3B58;
 	}
 
 	h2,
@@ -350,10 +350,10 @@
 		align-items: center;
 		min-height: 2.2vh;
 		padding: 0 0.75vh;
-		border: 0.1vh solid rgba(251, 155, 4, 0.65);
+		border: 0.1vh solid rgba(110, 231, 242, 0.65);
 		border-radius: 0.28vh;
-		background: rgba(251, 155, 4, 0.14);
-		color: #fb9b04 !important;
+		background: rgba(110, 231, 242, 0.14);
+		color: #6EE7F2 !important;
 		font-size: 1vh !important;
 		font-weight: 600;
 		white-space: nowrap;
@@ -369,9 +369,9 @@
 	.chart-panel {
 		position: relative;
 		box-sizing: border-box;
-		border: 0.1vh solid #2e2e2c;
-		border-radius: 0.5vh;
-		background: rgba(37, 37, 37, 0.35);
+		border: 1px solid rgba(176, 204, 245, 0.14);
+		border-radius: 1.3vh;
+		background: rgba(16, 24, 42, 0.55);
 		transition:
 			transform 0.16s ease,
 			border-color 0.16s ease,
@@ -383,7 +383,7 @@
 	.metric-panel:hover,
 	.chart-panel:hover {
 		transform: translateY(-0.22vh);
-		border-color: rgba(251, 155, 4, 0.45);
+		border-color: rgba(110, 231, 242, 0.45);
 		background: rgba(37, 37, 37, 0.52);
 		box-shadow: 0 0.8vh 1.8vh rgba(0, 0, 0, 0.24);
 	}
@@ -423,7 +423,7 @@
 		display: block;
 		height: 100%;
 		border-radius: inherit;
-		background: #fb9b04;
+		background: #6EE7F2;
 		transition: width 0.28s ease, background 0.18s ease;
 	}
 
@@ -483,7 +483,7 @@
 	}
 
 	.meter-online {
-		background: #fb9b04;
+		background: #6EE7F2;
 	}
 
 	.meter-empty {
@@ -509,7 +509,7 @@
 	}
 
 	.bar-row:hover {
-		background: rgba(251, 155, 4, 0.07);
+		background: rgba(110, 231, 242, 0.07);
 	}
 
 	.bar-row span {

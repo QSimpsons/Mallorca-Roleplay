@@ -80,7 +80,7 @@
 		padding: 1.4vh;
 		box-sizing: border-box;
 		min-height: 4.9vh;
-		background: #161616;
+		background: #121a2e;
 		border: 0.1vh solid rgba(242, 242, 242, 0.16);
 		border-radius: 0.5vh;
 		font-size: 1.3vh;
@@ -90,8 +90,8 @@
 	}
 
 	.ban-row:hover {
-		border-color: rgba(251, 155, 4, 0.72);
-		background: rgba(251, 155, 4, 0.06);
+		border-color: rgba(110, 231, 242, 0.72);
+		background: rgba(110, 231, 242, 0.06);
 	}
 
 	.ban-row span {
@@ -103,7 +103,7 @@
 
 	.id-badge {
 		padding: 0.2vh 0.5vh;
-		background-color: #fb9b04;
+		background-color: #6EE7F2;
 		color: #161616;
 		border-radius: 0.5vh;
 		font-weight: 600;

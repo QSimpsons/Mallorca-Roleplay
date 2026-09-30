@@ -8,7 +8,7 @@
 .menu-icon {
     aspect-ratio: 1/1;
     height: 100%;
-    animation: sway 1s ease-in-out infinite;
+    filter: drop-shadow(0 0 0.6vh rgba(110, 231, 242, 0.45));
 }
 
 .menu-titles {
@@ -20,14 +20,14 @@
 }
 
 .menu-title {
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 400;
     font-size: 1.8vh;
 }
 
 .menu-subtitle {
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 400;
     font-size: 1.3vh;
@@ -52,8 +52,8 @@
     box-sizing: border-box;
     padding: 0 1.6vh;
     background: rgba(37, 37, 37, 0.3);
-    border: 0.1vh solid #2E2E2C;
-    border-radius: 0.5vh;
+    border: 0.1vh solid #2A3B58;
+    border-radius: 999px;
     width: 37vh;
     height: 100%;
     color: #F2F2F2;
@@ -76,7 +76,7 @@
     max-height: 50%;
     font-size: 1.3vh;
     color: #F2F2F2;
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     background: none;
     border: none;
     outline: none;
@@ -84,7 +84,7 @@
 }
 
 .main-search-bar::placeholder {
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 400;
     font-size: 1.3vh;
@@ -113,9 +113,9 @@
     width: auto;
     height: 100%;
     background: rgba(37, 37, 37, 0.3);
-    border: 0.1vh solid #2E2E2C;
-    border-radius: 0.5vh;
-    font-family: 'Poppins';
+    border: 0.1vh solid #2A3B58;
+    border-radius: 999px;
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 400;
     font-size: 1.25vh;
@@ -139,8 +139,10 @@
     justify-content: center;
     aspect-ratio: 1/1;
     height: 100%;
-    border-radius: 0.5vh;
-    background: radial-gradient(50% 50% at 50% 50%, #C33535 0%, #F23F3F 100%);
+    border-radius: 999px;
+    background: rgba(255, 107, 138, 0.16);
+    border: 1px solid rgba(255, 107, 138, 0.4);
+    color: #ffd0da;
     transition: transform 50ms ease-in-out;
     outline: none;
     border: none;
@@ -152,9 +154,9 @@
     justify-content: center;
     aspect-ratio: 1/1;
     height: 100%;
-    border-radius: 0.5vh;
+    border-radius: 999px;
     background: rgba(37, 37, 37, 0.3);
-    border: 0.1vh solid #2E2E2C;
+    border: 0.1vh solid #2A3B58;
     color: #F2F2F2;
     cursor: pointer;
     transition: border 0.1s ease-in-out, background 0.1s ease-in-out;

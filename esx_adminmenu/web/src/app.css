@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap");
 
 :root {
-  font-family: "Poppins", sans-serif;
+  font-family: "Outfit", sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -43,7 +43,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 155, 4, 0.65);
+  background: rgba(110, 231, 242, 0.65);
 }
 /* Optional Scrollbar CSS */
 
@@ -54,17 +54,25 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .esx-adminmenu-container {
-  background-color: #161616;
+  background:
+    radial-gradient(90% 70% at 0% 0%, rgba(110, 231, 242, 0.16), transparent 46%),
+    radial-gradient(70% 60% at 100% 100%, rgba(129, 140, 248, 0.2), transparent 42%),
+    linear-gradient(180deg, rgba(14, 20, 36, 0.94), rgba(7, 11, 20, 0.96));
   aspect-ratio: 7/4;
-  height: 74vh;
-  border-radius: 1vh;
+  height: 78vh;
+  border: 1px solid rgba(186, 214, 255, 0.16);
+  border-radius: 2.2vh;
   display: flex;
   flex-direction: column;
-  gap: 1.9vh;
+  gap: 1.6vh;
   box-sizing: border-box;
-  padding: 1.6vh 2vh;
-  color: #F2F2F2;
-  animation: slideUp 0.5s ease-in-out forwards;
+  padding: 1.8vh 2vh 1.6vh;
+  color: #eef6ff;
+  box-shadow:
+    0 2.4vh 6vh rgba(0, 0, 0, 0.46),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(22px);
+  animation: slideUp 0.35s ease-out forwards;
 }
 
 .menu-content {
@@ -73,7 +81,7 @@ input[type="number"]::-webkit-inner-spin-button {
   display: flex;
   flex-direction: row;
   gap: 1.8vh;
-  animation: fadeIn 2s ease-in-out forwards;
+  animation: fadeIn 0.35s ease-out forwards;
   overflow: hidden;
 }
 
@@ -83,10 +91,10 @@ input[type="number"]::-webkit-inner-spin-button {
   height: 100%;
   max-height: 100%;
   min-height: 0;
-  background: rgba(37, 37, 37, 0.3);
-  border: 0.1vh solid #2E2E2C;
-  border-radius: 0.5vh;
-  font-family: 'Poppins';
+  background: rgba(10, 16, 30, 0.42);
+  border: 1px solid rgba(176, 204, 245, 0.12);
+  border-radius: 1.6vh;
+  font-family: 'Outfit';
   font-style: normal;
   font-weight: 400;
   user-select: none;
@@ -152,7 +160,7 @@ input[type="number"]::-webkit-inner-spin-button {
   background: #161616;
   box-shadow: 0 1vh 3vh rgba(0, 0, 0, 0.35);
   color: #f2f2f2;
-  font-family: "Poppins", sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 1.25vh;
   pointer-events: auto;
   animation: slideDown 0.18s ease-out;
@@ -167,7 +175,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .notification.info {
-  border-left-color: #fb9b04;
+  border-left-color: #6EE7F2;
 }
 
 .notification span {
@@ -200,22 +208,25 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .admin-menu-panel {
   position: absolute;
-  right: 1.6vh;
+  right: 2vh;
   top: 50%;
   transform: translateY(-50%);
   display: flex;
   flex-direction: column;
-  gap: 0.8vh;
-  width: 30.5vh;
+  gap: 0.9vh;
+  width: 32vh;
   max-height: min(82vh, calc(100vh - 3.2vh));
   box-sizing: border-box;
-  padding: 1vh;
-  border: 0.1vh solid #2E2E2C;
-  border-radius: 0.5vh;
-  background: linear-gradient(180deg, rgba(36, 36, 36, 0.98), rgba(22, 22, 22, 0.98));
-  color: #F2F2F2;
-  font-family: "Poppins", sans-serif;
-  box-shadow: 0 2vh 5vh rgba(0, 0, 0, 0.45);
+  padding: 1.2vh;
+  border: 1px solid rgba(176, 204, 245, 0.18);
+  border-radius: 1.8vh;
+  background:
+    radial-gradient(80% 50% at 100% 0%, rgba(110, 231, 242, 0.16), transparent 50%),
+    linear-gradient(180deg, rgba(16, 24, 42, 0.96), rgba(8, 12, 22, 0.98));
+  color: #eef6ff;
+  font-family: "Outfit", sans-serif;
+  box-shadow: 0 2vh 5vh rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
   animation: fadeIn 0.16s ease-out;
 }
 
@@ -270,7 +281,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .admin-menu-dashboard {
-  border: 0.1vh solid #2E2E2C;
+  border: 0.1vh solid #2A3B58;
 }
 
 .admin-menu-panel button:focus,
@@ -286,9 +297,9 @@ input[type="number"]::-webkit-inner-spin-button {
 
 .admin-menu-dashboard.selected,
 .admin-menu-close.selected {
-  background: rgba(251, 155, 4, 0.16);
-  color: #FB9B04;
-  box-shadow: inset 0 0 0 0.1vh rgba(251, 155, 4, 0.62);
+  background: rgba(110, 231, 242, 0.16);
+  color: #6EE7F2;
+  box-shadow: inset 0 0 0 0.1vh rgba(110, 231, 242, 0.62);
 }
 
 .admin-menu-close svg,
@@ -309,11 +320,11 @@ input[type="number"]::-webkit-inner-spin-button {
   min-height: 2.8vh;
   box-sizing: border-box;
   padding: 0 0.6vh;
-  border: 0.1vh solid #2E2E2C;
-  border-radius: 0.28vh;
-  background: rgba(37, 37, 37, 0.58);
+  border: 0.1vh solid #2A3B58;
+  border-radius: 999px;
+  background: rgba(16, 24, 42, 0.72);
   color: rgba(242, 242, 242, 0.72);
-  font-family: "Poppins", sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 1.02vh;
   font-weight: 600;
   line-height: 1;
@@ -328,17 +339,17 @@ input[type="number"]::-webkit-inner-spin-button {
 .admin-menu-categories button:hover,
 .admin-menu-categories button.active,
 .admin-menu-categories button.selected {
-  border-color: rgba(251, 155, 4, 0.72);
-  background: rgba(251, 155, 4, 0.16);
-  color: #FB9B04;
+  border-color: rgba(110, 231, 242, 0.72);
+  background: rgba(110, 231, 242, 0.16);
+  color: #6EE7F2;
 }
 
 .admin-menu-categories button.selected {
-  box-shadow: inset 0 0 0 0.1vh rgba(251, 155, 4, 0.35);
+  box-shadow: inset 0 0 0 0.1vh rgba(110, 231, 242, 0.35);
 }
 
 .admin-menu-categories button:active {
-  background: rgba(251, 155, 4, 0.24);
+  background: rgba(110, 231, 242, 0.24);
   color: #F2F2F2;
 }
 
@@ -362,11 +373,11 @@ input[type="number"]::-webkit-inner-spin-button {
   min-height: 3.55vh;
   box-sizing: border-box;
   padding: 0.68vh 0.9vh 0.68vh 1vh;
-  border: 0.1vh solid #2E2E2C;
-  border-radius: 0.32vh;
-  background: rgba(37, 37, 37, 0.6);
+  border: 0.1vh solid #2A3B58;
+  border-radius: 1vh;
+  background: rgba(12, 18, 34, 0.72);
   color: #F2F2F2;
-  font-family: "Poppins", sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 1.16vh;
   line-height: 1.15;
   text-align: left;
@@ -387,13 +398,13 @@ input[type="number"]::-webkit-inner-spin-button {
 .admin-menu-actions button.selected,
 .admin-menu-input-row:hover,
 .admin-menu-input-row.selected {
-  border-color: rgba(251, 155, 4, 0.65);
-  background: rgba(251, 155, 4, 0.12);
+  border-color: rgba(110, 231, 242, 0.65);
+  background: rgba(110, 231, 242, 0.12);
 }
 
 .admin-menu-actions button.active {
-  border-color: #FB9B04;
-  background: rgba(251, 155, 4, 0.16);
+  border-color: #6EE7F2;
+  background: rgba(110, 231, 242, 0.16);
 }
 
 .admin-menu-actions button:disabled {
@@ -425,7 +436,7 @@ input[type="number"]::-webkit-inner-spin-button {
   border-radius: 0.22vh;
   background: rgba(0, 0, 0, 0.22);
   color: #F2F2F2;
-  font-family: "Poppins", sans-serif;
+  font-family: "Outfit", sans-serif;
   font-size: 1.08vh;
   text-align: left;
   outline: none;
@@ -433,7 +444,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .admin-menu-input-row input:focus {
-  border-color: #FB9B04;
+  border-color: #6EE7F2;
   background: rgba(0, 0, 0, 0.34);
 }
 
@@ -456,8 +467,8 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 .admin-menu-actions button.active small {
-  border-color: #FB9B04;
-  background: #FB9B04;
+  border-color: #6EE7F2;
+  background: #6EE7F2;
   color: #161616;
 }
 
@@ -478,15 +489,15 @@ input[type="number"]::-webkit-inner-spin-button {
 .admin-menu-actions button .page-badge {
   min-width: 2.4vh;
   max-width: 2.4vh;
-  border-color: rgba(251, 155, 4, 0.72);
-  background: rgba(251, 155, 4, 0.16);
-  color: #FB9B04;
+  border-color: rgba(110, 231, 242, 0.72);
+  background: rgba(110, 231, 242, 0.16);
+  color: #6EE7F2;
   font-size: 1.2vh;
 }
 
 .admin-menu-actions button:hover .page-badge,
 .admin-menu-actions button.selected .page-badge {
-  background: #FB9B04;
+  background: #6EE7F2;
   color: #161616;
 }
 
@@ -543,7 +554,7 @@ input[type="number"]::-webkit-inner-spin-button {
   width: 4vh;
   height: 4vh;
   border: 0.4vh solid rgba(242, 242, 242, 0.2);
-  border-top: 0.4vh solid #fb9b04;
+  border-top: 0.4vh solid #6EE7F2;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }

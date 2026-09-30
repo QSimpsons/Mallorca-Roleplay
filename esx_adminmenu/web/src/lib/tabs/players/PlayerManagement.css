@@ -10,7 +10,7 @@
 }
 
 .players-title {
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 500;
     font-size: 2.2vh;
@@ -23,7 +23,7 @@
     box-sizing: border-box;
     padding: 0 1.6vh;
     background: rgba(37, 37, 37, 0.3);
-    border: 0.1vh solid #2E2E2C;
+    border: 0.1vh solid #2A3B58;
     border-radius: 0.5vh;
     width: min(37vh, 100%);
     min-width: 22vh;
@@ -48,7 +48,7 @@
     max-height: 50%;
     font-size: 1.3vh;
     color: #F2F2F2;
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     background: none;
     border: none;
     outline: none;
@@ -56,7 +56,7 @@
 }
 
 .player-search-bar::placeholder {
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-style: normal;
     font-weight: 400;
     font-size: 1.3vh;
@@ -81,7 +81,7 @@
     display: grid;
     grid-template-columns: 7vh 1.4fr repeat(6, 1fr);
     padding: 0.8vh 1.3vh 0.9vh;
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-size: 1.3vh;
     font-weight: 500;
     color: rgba(242, 242, 242, 0.72);
@@ -105,7 +105,7 @@
     outline: none;
     padding: 0;
     margin: 0;
-    font-family: 'Poppins';
+    font-family: 'Outfit';
     font-size: 1.3vh;
     font-weight: 500;
     color: #F2F2F2;
@@ -118,7 +118,7 @@
 }
 
 .ply-table-header button:hover {
-    color: #FB9B04;
+    color: #6EE7F2;
 }
 
 .list-wrapper {
