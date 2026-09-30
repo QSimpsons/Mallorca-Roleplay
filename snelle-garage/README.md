@@ -31,7 +31,7 @@ ensure snelle-garage
 
 Toetsen aanpassen: FiveM → Settings → Key Bindings → FiveM.
 
-Een voertuig dat buiten staat of weg is, haal je terug bij de impound. De prijs staat in `config.lua` (`Config.Prices.recover`, standaard €2000). Een takel-inbeslagname gebruikt de prijs uit `mallorca_impound` (standaard €1500).
+Een voertuig uit de impound halen is gratis, ook als het door de takel in beslag is genomen. Een voertuig dat buiten staat of weg is, zet je daar ook gratis weer neer.
 
 Boten en vliegtuigen haal je op bij hun eigen garage of impound. `/oproep` zet alleen auto's bij je neer.
 

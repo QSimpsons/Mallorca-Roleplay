@@ -509,10 +509,10 @@ local function entryFromRow(row, impound, mode, location)
     local price = 0
     local reason = nil
     if state == 'impound' then
-        price = tonumber(impound and impound.price) or Config.Prices.impound
+        price = 0
         reason = (impound and impound.reason) or 'In de impound'
     elseif state == 'out' then
-        price = Config.Prices.recover
+        price = 0
         reason = 'Staat buiten of is vermist'
     elseif mode == 'call' then
         price = tonumber(Config.Call.price) or Config.Prices.call or 0
@@ -615,7 +615,7 @@ local function sendList(src, payload, cbToken)
             local cash, bank = moneySnapshot(xPlayer)
             local subtitle = 'Kies een voertuig om op te roepen'
             if mode == 'impound' then
-                subtitle = 'Betaal om een voertuig uit de impound te halen'
+                subtitle = 'Haal een voertuig gratis uit de impound'
             elseif mode == 'call' then
                 subtitle = 'Het voertuig wordt bij je in de buurt gezet'
             end
@@ -889,10 +889,10 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
                 end
             elseif mode == 'impound' then
                 if state == 'impound' then
-                    price = tonumber(impound and impound.price) or Config.Prices.impound
+                    price = 0
                     action = 'impound'
                 elseif state == 'out' and Config.RecoverOutVehicles then
-                    price = Config.Prices.recover
+                    price = 0
                     action = 'recover'
                 else
                     deny(Config.Text.notStored)
@@ -1143,7 +1143,7 @@ local function impoundOwned(src, xPlayer, row, props, reason, onDone)
     end
     local officer = xPlayer.identifier
     local officerName = playerName(xPlayer, src)
-    local price = Config.Prices.impound
+    local price = 0
     local model = tostring(props.model or '')
 
     dbInsert(

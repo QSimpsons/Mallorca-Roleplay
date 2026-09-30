@@ -38,10 +38,11 @@ Config.Fuel = {
     default = 100.0
 }
 
+-- Ophalen, terugzetten en oproepen is gratis.
 Config.Prices = {
-    impound = 1500,   -- fallback als een impound-regel geen prijs heeft
-    recover = 2000,   -- voertuig staat buiten of is vermist
-    call = 0          -- prijs om een geparkeerd voertuig naar je toe te roepen
+    impound = 0,
+    recover = 0,
+    call = 0
 }
 
 -- Impound-betalingen gaan naar deze maatschappijrekening (leeg = nergens heen).

@@ -36,11 +36,6 @@
     return node;
   }
 
-  function euro(amount) {
-    const value = Math.floor(Number(amount) || 0);
-    return '€' + value.toLocaleString('nl-NL');
-  }
-
   function toast(message) {
     const node = el('div', 'toast', message);
     toasts.appendChild(node);
@@ -84,18 +79,10 @@
   function actionFor(vehicle) {
     const mode = state.mode;
     if (mode === 'impound' && (vehicle.state === 'impound' || vehicle.state === 'out')) {
-      const price = Number(vehicle.price) || 0;
-      return {
-        label: price > 0 ? 'Betaal ' + euro(price) : 'Ophalen',
-        enabled: !state.busy
-      };
+      return { label: 'Ophalen', enabled: !state.busy };
     }
     if ((mode === 'garage' || mode === 'call') && vehicle.state === 'garage' && vehicle.here !== false) {
-      const price = mode === 'call' ? (Number(vehicle.price) || 0) : 0;
-      return {
-        label: price > 0 ? 'Oproepen · ' + euro(price) : 'Oproepen',
-        enabled: !state.busy
-      };
+      return { label: 'Oproepen', enabled: !state.busy };
     }
     if (vehicle.state === 'impound') return { label: 'Staat in de impound', enabled: false };
     if (vehicle.state === 'out') return { label: 'Staat buiten', enabled: false };
@@ -147,15 +134,6 @@
 
   function renderWallet() {
     walletEl.innerHTML = '';
-    [
-      ['Contant', state.cash],
-      ['Bank', state.bank]
-    ].forEach(function (item) {
-      const box = el('span');
-      box.appendChild(document.createTextNode(item[0] + ' '));
-      box.appendChild(el('strong', null, euro(item[1])));
-      walletEl.appendChild(box);
-    });
   }
 
   function meter(label, value) {
@@ -237,7 +215,7 @@
     document.getElementById('subtitle').textContent = state.subtitle || '';
     document.getElementById('mode-label').textContent = state.mode === 'call'
       ? 'Toets of /oproep'
-      : (state.mode === 'impound' ? 'Betaal en haal op' : 'E bij de garage');
+      : (state.mode === 'impound' ? 'Gratis ophalen' : 'E bij de garage');
     renderWallet();
     renderChips();
     renderStats();
@@ -304,8 +282,8 @@
     const all = [
       { plate: 'SNL 104', label: 'Sultan RS', state: 'garage', here: true, price: 0, engine: 940, body: 880, fuel: 72, reason: 'Klaar om op te roepen' },
       { plate: 'GX 4421', label: 'Bison', state: 'garage', here: true, price: 0, engine: 1000, body: 760, fuel: 41, reason: 'Klaar om op te roepen' },
-      { plate: 'ML 9082', label: 'Dubsta', state: 'out', here: true, price: 2000, engine: 420, body: 510, fuel: 18, reason: 'Staat buiten of is vermist' },
-      { plate: 'PK 2201', label: 'Baller', state: 'impound', here: true, price: 1500, engine: 800, body: 640, fuel: 55, reason: 'Getakeld · foutparkeren' }
+      { plate: 'ML 9082', label: 'Dubsta', state: 'out', here: true, price: 0, engine: 420, body: 510, fuel: 18, reason: 'Staat buiten of is vermist' },
+      { plate: 'PK 2201', label: 'Baller', state: 'impound', here: true, price: 0, engine: 800, body: 640, fuel: 55, reason: 'Getakeld · foutparkeren' }
     ];
     if (mode === 'impound') {
       return all.filter(function (vehicle) { return vehicle.state === 'impound' || vehicle.state === 'out'; });
@@ -324,7 +302,7 @@
     const titles = { garage: 'Garage Legion Square', impound: 'Impound Davis', call: 'Voertuig oproepen' };
     const subtitles = {
       garage: 'Kies een voertuig om op te roepen',
-      impound: 'Betaal om een voertuig uit de impound te halen',
+      impound: 'Haal een voertuig gratis uit de impound',
       call: 'Het voertuig wordt bij je in de buurt gezet'
     };
     return {
@@ -351,15 +329,12 @@
       const vehicle = state.vehicles.find(function (item) { return item.plate === body.plate; });
       if (!vehicle) return;
       if (state.mode === 'impound') {
-        const price = Number(vehicle.price) || 0;
-        if (state.cash >= price) state.cash -= price;
-        else state.bank -= price;
         toast(vehicle.label + ' opgehaald uit de impound');
         state.vehicles = state.vehicles.filter(function (item) { return item.plate !== vehicle.plate; });
       } else {
         vehicle.state = 'out';
         vehicle.reason = 'Staat buiten of is vermist';
-        vehicle.price = 2000;
+        vehicle.price = 0;
         toast(vehicle.label + ' staat voor je klaar');
       }
       state.busy = false;
