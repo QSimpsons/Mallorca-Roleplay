@@ -196,8 +196,21 @@
       plate.appendChild(el('i', null, 'NL'));
       plate.appendChild(el('b', null, vehicle.plate || '—'));
       title.appendChild(plate);
+      const action = actionFor(vehicle);
+      const button = el('button', 'action', action.label);
+      button.type = 'button';
+      button.disabled = !action.enabled;
+      button.addEventListener('click', function () {
+        if (button.disabled) return;
+        state.busy = true;
+        render();
+        post('take', { plate: vehicle.plate });
+      });
+      const actions = el('div', 'card-actions');
+      actions.appendChild(el('span', 'badge ' + (vehicle.state || ''), statusLabel(vehicle.state)));
+      actions.appendChild(button);
       head.appendChild(title);
-      head.appendChild(el('span', 'badge ' + (vehicle.state || ''), statusLabel(vehicle.state)));
+      head.appendChild(actions);
       card.appendChild(head);
 
       const reason = el('p', 'reason', vehicle.reason || (vehicle.state === 'garage' ? 'Klaar om op te roepen' : ''));
@@ -212,19 +225,6 @@
       if (fuel) meters.appendChild(fuel);
       card.appendChild(meters);
 
-      const foot = el('div', 'card-foot');
-      const action = actionFor(vehicle);
-      const button = el('button', 'action', action.label);
-      button.type = 'button';
-      button.disabled = !action.enabled;
-      button.addEventListener('click', function () {
-        if (!action.enabled) return;
-        state.busy = true;
-        render();
-        post('take', { plate: vehicle.plate });
-      });
-      foot.appendChild(button);
-      card.appendChild(foot);
       listEl.appendChild(card);
     });
   }

@@ -58,11 +58,11 @@ body.demo-mode {
 
 .panel {
   width: min(1040px, 94vw);
-  height: min(700px, 88vh);
+  height: min(760px, 92vh);
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 22px 22px 16px;
+  gap: 10px;
+  padding: 16px 18px 12px;
   background:
     radial-gradient(80% 50% at 100% 0%, rgba(255, 138, 26, 0.16), transparent 50%),
     linear-gradient(180deg, #1c2430 0%, var(--bg) 100%);
@@ -111,7 +111,7 @@ body.demo-mode {
 
 h1 {
   margin: 0;
-  font-size: 28px;
+  font-size: 24px;
   letter-spacing: -0.03em;
 }
 
@@ -171,9 +171,9 @@ h1 {
 
 .stats { justify-content: flex-start; }
 
-.stat { min-width: 120px; }
+.stat { min-width: 108px; padding: 6px 10px; }
 .stat span, .wallet span { display: block; font-size: 12px; }
-.stat strong { font-size: 18px; }
+.stat strong { font-size: 16px; }
 
 .list {
   flex: 1;
@@ -189,22 +189,28 @@ h1 {
   background: linear-gradient(180deg, var(--card-2), var(--card));
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 14px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  min-height: 168px;
+  gap: 8px;
 }
 
-.card-head, .card-foot {
+.card-head {
   display: flex;
   justify-content: space-between;
   gap: 10px;
   align-items: flex-start;
 }
 
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .card h2 { margin: 0; font-size: 18px; }
-.reason { margin: 0; color: var(--muted); font-size: 13px; min-height: 18px; }
+.reason { margin: 0; color: var(--muted); font-size: 13px; }
 
 .badge {
   border-radius: 999px;
@@ -240,9 +246,9 @@ h1 {
 
 .plate b { padding: 2px 8px 2px 0; font-size: 14px; }
 
-.meters { display: grid; gap: 6px; }
+.meters { display: grid; gap: 3px; }
 .meter span { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
-.bar { height: 6px; border-radius: 99px; background: #0e131b; overflow: hidden; }
+.bar { height: 5px; border-radius: 99px; background: #0e131b; overflow: hidden; }
 .bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #ffc14d); }
 
 .empty, .loading {
