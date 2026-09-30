@@ -171,18 +171,18 @@ html, body {
 }
 
 .icon-box--hunger {
-  background: color-mix(in srgb, var(--hunger) 55%, rgba(8, 24, 40, 0.85));
+  background: rgba(150, 175, 40, 0.78);
   border-color: rgba(198, 224, 74, 0.45);
 }
 
 .icon-box--thirst {
-  background: color-mix(in srgb, var(--thirst) 55%, rgba(8, 24, 40, 0.85));
+  background: rgba(40, 130, 190, 0.78);
   border-color: rgba(78, 182, 245, 0.45);
 }
 
 .icon-box.is-low.icon-box--hunger,
 .icon-box.is-low.icon-box--thirst {
-  background: color-mix(in srgb, var(--hunger-low) 60%, rgba(20, 8, 12, 0.85));
+  background: rgba(170, 45, 55, 0.82);
   border-color: rgba(224, 85, 85, 0.55);
 }
 
