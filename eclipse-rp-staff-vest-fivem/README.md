@@ -1,25 +1,12 @@
-# Eclipse RP — Staff Hesje (FiveM)
+# Eclipse RP Staff Hesje
 
-Kant-en-klare resource. Alleen reflecterende stroken (zilver), **geen glow**.
+Heldere **zilveren reflectietape** (honeycomb), **geen cyan glow**.
 
-## Installatie
+## Install
+1. Unzip naar `resources/`
+2. `ensure eclipse-rp-staff-vest-fivem`
+3. In-game: Armor/Vest (task) drawable **1**, texture **0**
 
-1. Zet de map `eclipse-rp-staff-vest-fivem` in je `resources/` folder
-2. In `server.cfg`:
-
-```cfg
-ensure eclipse-rp-staff-vest-fivem
-```
-
-3. Herstart resource/server
-4. In-game: **Armor / Vest (task)** → drawable **1**, texture **0**
-
-## Bestanden
-
-- `stream/mp_m_freemode_01^task_diff_001_a_uni.ytd` (male)
-- `stream/mp_f_freemode_01^task_diff_001_a_uni.ytd` (female)
-- `fxmanifest.lua`
-
-Als je een ander vest-drawable nummer gebruikt, hernoem de `.ytd` zodat die matcht
-(bijv. `task_diff_005_a_uni`) — de interne textuurnaam moet gelijk zijn aan de naam
-zonder ped-prefix.
+> Let op: een texture kan er als reflectietape *uitzien*. Echte lichtreactie
+> (koplampen) hangt af van het vest-model/shader in GTA. Deze pack levert
+> heldere zilveren reflectorstroken + specular texture in de YTD.
