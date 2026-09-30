@@ -27,9 +27,13 @@ if GetResourceState(ox_lib) ~= 'started' then
     error('^1ox_lib must be started before this resource.^0', 0)
 end
 
-local status = export.hasLoaded()
+local ok, status = pcall(function()
+    return export.hasLoaded()
+end)
 
-if status ~= true then error(status, 2) end
+-- A missing hasLoaded export used to abort this file before lib and cache
+-- existed, which then crashed every dependent on those globals.
+local loadFailure = (ok and status ~= true) and status or nil
 
 -- Ignore invalid types during msgpack.pack (e.g. userdata)
 msgpack.setoption('ignore_invalid', true)
@@ -198,7 +202,20 @@ local cache = setmetatable({ game = GetGameName() --[[@as 'fxserver' | 'fivem' |
             self[key] = value
         end)
 
-        return rawset(self, key, export.cache(nil, key) or false)[key]
+        local value = false
+        local fetched, exported = pcall(function()
+            return export.cache(nil, key)
+        end)
+
+        if fetched and exported ~= nil then
+            value = exported
+        elseif context == 'client' and key == 'ped' then
+            value = PlayerPedId()
+        elseif context == 'client' and key == 'playerId' then
+            value = PlayerId()
+        end
+
+        return rawset(self, key, value)[key]
     end,
 
     __call = function(self, key, func, timeout)
@@ -282,4 +299,8 @@ for i = 1, GetNumResourceMetadata(cache.resource, 'ox_lib') do
 
         if type(module) == 'function' then pcall(module) end
     end
+end
+
+if loadFailure then
+    error(loadFailure, 0)
 end
