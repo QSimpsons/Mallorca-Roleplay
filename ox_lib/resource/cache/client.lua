@@ -73,3 +73,7 @@ end)
 function lib.cache(key)
 	return cache[key]
 end
+
+exports('cache', function(key)
+    return cache[key]
+end)
