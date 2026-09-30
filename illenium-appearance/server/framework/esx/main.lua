@@ -38,12 +38,14 @@ end
 
 function Framework.GetJob(src)
     local Player = ESX.GetPlayerFromId(src)
-    return normalizeGrade(Player.getJob())
+    if not Player then return end
+    local job = Player.getJob()
+    if not job then return end
+    return normalizeGrade(job)
 end
 
 function Framework.GetGang(src)
-    local Player = ESX.GetPlayerFromId(src)
-    return normalizeGrade(Player.getJob())
+    return Framework.GetJob(src)
 end
 
 function Framework.SaveAppearance(appearance, citizenID)

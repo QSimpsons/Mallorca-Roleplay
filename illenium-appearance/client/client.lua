@@ -1,6 +1,13 @@
 local client = client
 local reloadSkinTimer = GetGameTimer()
 
+local function normalizeOutfits(outfits)
+    if type(outfits) ~= "table" then
+        return {}
+    end
+    return outfits
+end
+
 local function LoadPlayerUniform(reset)
     if reset then
         TriggerServerEvent("illenium-appearance:server:syncUniform", nil)
@@ -11,7 +18,7 @@ local function LoadPlayerUniform(reset)
             return
         end
         if Config.BossManagedOutfits then
-            local result = lib.callback.await("illenium-appearance:server:getManagementOutfits", false, uniformData.type, Framework.GetGender())
+            local result = lib.callback.await("illenium-appearance:server:getManagementOutfits", false, uniformData.type, Framework.GetGender()) or {}
             local uniform = nil
             for i = 1, #result, 1 do
                 if result[i].name == uniformData.name then
@@ -262,6 +269,7 @@ RegisterNetEvent("illenium-appearance:client:saveOutfit", function()
     if outfitName then
         Wait(500)
         lib.callback("illenium-appearance:server:getOutfits", false, function(outfits)
+            outfits = normalizeOutfits(outfits)
             local outfitExists = false
             for i = 1, #outfits, 1 do
                 if outfits[i].name:lower() == outfitName:lower() then
@@ -293,6 +301,7 @@ RegisterNetEvent('illenium-appearance:client:updateOutfit', function(outfitID)
     if not outfitID then return end
 
     lib.callback("illenium-appearance:server:getOutfits", false, function(outfits)
+        outfits = normalizeOutfits(outfits)
         local outfitExists = false
         for i = 1, #outfits, 1 do
             if outfits[i].id == outfitID then
@@ -320,6 +329,7 @@ RegisterNetEvent('illenium-appearance:client:updateOutfit', function(outfitID)
 end)
 
 local function RegisterChangeOutfitMenu(id, parent, outfits, mType)
+    outfits = normalizeOutfits(outfits)
     local changeOutfitMenu = {
         id = id,
         title = _L("outfits.change.title"),
@@ -350,6 +360,7 @@ local function RegisterChangeOutfitMenu(id, parent, outfits, mType)
 end
 
 local function RegisterUpdateOutfitMenu(id, parent, outfits)
+    outfits = normalizeOutfits(outfits)
     local updateOutfitMenu = {
         id = id,
         title = _L("outfits.update.title"),
@@ -373,6 +384,7 @@ local function RegisterUpdateOutfitMenu(id, parent, outfits)
 end
 
 local function RegisterGenerateOutfitCodeMenu(id, parent, outfits)
+    outfits = normalizeOutfits(outfits)
     local generateOutfitCodeMenu = {
         id = id,
         title = _L("outfits.generate.title"),
@@ -392,6 +404,7 @@ local function RegisterGenerateOutfitCodeMenu(id, parent, outfits)
 end
 
 local function RegisterDeleteOutfitMenu(id, parent, outfits, deleteEvent)
+    outfits = normalizeOutfits(outfits)
     local deleteOutfitMenu = {
         id = id,
         title = _L("outfits.delete.title"),

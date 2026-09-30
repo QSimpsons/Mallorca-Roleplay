@@ -17,8 +17,17 @@ local function getMoneyForShop(shopType)
 end
 
 local function getOutfitsForPlayer(citizenid)
+    if not citizenid then
+        return {}
+    end
+
     outfitCache[citizenid] = {}
-    local result = Database.PlayerOutfits.GetAllByCitizenID(citizenid)
+    local ok, result = pcall(Database.PlayerOutfits.GetAllByCitizenID, citizenid)
+    if not ok or type(result) ~= "table" then
+        print(("[illenium-appearance] Could not load outfits for %s. Import sql/player_outfits.sql if that table is missing."):format(citizenid))
+        return outfitCache[citizenid]
+    end
+
     for i = 1, #result, 1 do
         outfitCache[citizenid][#outfitCache[citizenid] + 1] = {
             id = result[i].id,
@@ -127,10 +136,13 @@ end)
 
 lib.callback.register("illenium-appearance:server:getOutfits", function(source)
     local citizenID = Framework.GetPlayerID(source)
+    if not citizenID then
+        return {}
+    end
     if outfitCache[citizenID] == nil then
         getOutfitsForPlayer(citizenID)
     end
-    return outfitCache[citizenID]
+    return outfitCache[citizenID] or {}
 end)
 
 lib.callback.register("illenium-appearance:server:getManagementOutfits", function(source, mType, gender)
@@ -138,13 +150,20 @@ lib.callback.register("illenium-appearance:server:getManagementOutfits", functio
     if mType == "Gang" then
         job = Framework.GetGang(source)
     end
+    if not job or not job.name or not job.grade then
+        return {}
+    end
 
-    local grade = tonumber(job.grade.level)
+    local grade = tonumber(job.grade.level) or 0
     local managementOutfits = {}
-    local result = Database.ManagementOutfits.GetAllByJob(mType, job.name, gender)
+    local ok, result = pcall(Database.ManagementOutfits.GetAllByJob, mType, job.name, gender)
+    if not ok or type(result) ~= "table" then
+        print(("[illenium-appearance] Could not load management outfits for %s. Import sql/management_outfits.sql if that table is missing."):format(job.name))
+        return managementOutfits
+    end
 
     for i = 1, #result, 1 do
-        if grade >= result[i].minrank then
+        if grade >= (result[i].minrank or 0) then
             managementOutfits[#managementOutfits + 1] = {
                 id = result[i].id,
                 name = result[i].name,
