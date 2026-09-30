@@ -8,7 +8,7 @@
   <style>
     :root {
       --bg0:#05070d; --bg1:#0b1220; --cyan:#3ec7ff; --text:#e8eef8; --muted:#8b9bb3;
-      --line:rgba(62,199,255,.22);
+      --line:rgba(62,199,255,.22); --silver:#d7e2ef;
     }
     *{box-sizing:border-box}
     body{
@@ -23,7 +23,16 @@
       margin-bottom:16px;background:rgba(62,199,255,.06)}
     .brand{font-family:Orbitron,sans-serif;font-size:clamp(1.6rem,4vw,2.5rem);letter-spacing:.08em;margin:0 0 8px;
       text-shadow:0 0 24px rgba(62,199,255,.45)}
-    .sub{color:var(--muted);margin:0 0 28px;max-width:60ch;line-height:1.55}
+    .sub{color:var(--muted);margin:0 0 28px;max-width:62ch;line-height:1.55}
+    .hero{
+      border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(8,14,24,.78);
+      box-shadow:0 22px 50px rgba(0,0,0,.4);margin-bottom:18px
+    }
+    .hero-head{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 16px;
+      border-bottom:1px solid var(--line)}
+    .hero-head h2{margin:0;font-size:.9rem;letter-spacing:.04em;color:var(--cyan);font-family:Orbitron,sans-serif}
+    .hero-head span{color:var(--muted);font-size:.78rem}
+    .hero img{display:block;width:100%;height:auto;background:#000;max-height:72vh;object-fit:contain}
     .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
     @media(max-width:900px){.grid{grid-template-columns:1fr}}
     .panel{border:1px solid var(--line);background:rgba(8,14,24,.72);border-radius:16px;overflow:hidden;
@@ -41,13 +50,25 @@
     .meta div{border:1px solid var(--line);border-radius:14px;padding:14px 16px;background:rgba(8,14,24,.55)}
     .meta strong{display:block;color:var(--cyan);font-size:.78rem;letter-spacing:.05em;margin-bottom:6px}
     .meta code{color:var(--text);font-size:.84rem;word-break:break-all}
+    .pack{margin-top:18px;border:1px solid var(--line);border-radius:16px;padding:16px 18px;background:rgba(8,14,24,.55)}
+    .pack h2{margin:0 0 10px;font-size:.9rem;color:var(--cyan);font-family:Orbitron,sans-serif;letter-spacing:.04em}
+    .pack ul{margin:0;padding-left:18px;color:var(--silver);line-height:1.7}
+    .pack li code{color:var(--text)}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="badge">FiveM · YTD Demo · Eclipse RP</div>
-    <h1 class="brand">STAFF VEST</h1>
-    <p class="sub">Bekijk de mockup, de gestreamde texture (uit .ytd gehaald), reflectoren-closeup, logo’s en specular map.</p>
+    <div class="badge">FiveM Addon Demo · .ydd · .ytd · .meta · .ymt</div>
+    <h1 class="brand">ECLIPSE RP STAFF VEST</h1>
+    <p class="sub">Visuele demo van de complete addon: vest-mesh (ydd), staff-texture (ytd), shop-meta en ymt. Zilveren reflectorstrips zonder neon glow.</p>
+
+    <section class="hero" id="hero">
+      <div class="hero-head">
+        <h2>Diffuse texture (2048²) — in .ytd</h2>
+        <span>task_diff_000_a_uni</span>
+      </div>
+      <img src="vest_diffuse.png" alt="Eclipse RP staff vest diffuse texture" />
+    </section>
 
     <div class="grid">
       <section class="panel">
@@ -55,8 +76,8 @@
         <img src="mockup.jpg" alt="Mockup" />
       </section>
       <section class="panel">
-        <h2>2. Uit YTD geëxtraheerd</h2>
-        <img src="extracted_from_ytd.png" alt="Extracted from YTD" />
+        <h2>2. YTD texture (uit pack)</h2>
+        <img src="ydd_texture.png" alt="YTD pack texture" />
       </section>
     </div>
 
@@ -66,24 +87,34 @@
         <img src="closeup_reflectors.png" alt="Reflectors closeup" />
       </section>
       <section class="panel">
-        <h2>4. Specular map (glans)</h2>
-        <img src="vest_specular.png" alt="Specular map" />
+        <h2>4. Logo / STAFF close-up</h2>
+        <img src="closeup_logo.png" alt="Logo closeup" />
       </section>
     </div>
 
     <div class="assets">
-      <div class="asset"><img src="vest_diffuse_1024.png" alt="Diffuse" /><span>vest_diffuse_1024.png</span></div>
+      <div class="asset"><img src="vest_diffuse_1024.png" alt="Diffuse 1024" /><span>vest_diffuse_1024.png</span></div>
       <div class="asset"><img src="logo_back.png" alt="Logo" /><span>logo_back.png</span></div>
       <div class="asset"><img src="staff_text.png" alt="STAFF" /><span>staff_text.png</span></div>
-      <div class="asset"><img src="closeup_logo.png" alt="Logo closeup" /><span>logo close-up op vest</span></div>
       <div class="asset"><img src="reflector_tile.png" alt="Tile" /><span>reflector_tile.png</span></div>
       <div class="asset"><img src="logo_front.png" alt="Front logo" /><span>logo_front.png</span></div>
+      <div class="asset"><img src="vest_specular.png" alt="Specular" /><span>vest_specular.png</span></div>
+    </div>
+
+    <div class="pack">
+      <h2>Addon bestanden in de zip</h2>
+      <ul>
+        <li><code>mp_m_freemode_01_eclipse_staffvest.meta</code> — shop apparel</li>
+        <li><code>stream/...^task_000_u.ydd</code> … <code>task_003_u.ydd</code> — vest models</li>
+        <li><code>stream/...^task_diff_000_a_uni.ytd</code> … <code>task_diff_003_a_uni.ytd</code> — textures</li>
+        <li><code>stream/mp_m_freemode_01_eclipse_staffvest.ymt</code></li>
+      </ul>
     </div>
 
     <div class="meta">
-      <div><strong>STREAM YTD</strong><code>mp_m_freemode_01^task_diff_001_a_uni.ytd</code></div>
-      <div><strong>INTERNE TEXTURE</strong><code>task_diff_001_a_uni · 1024×1024 · A8R8G8B8</code></div>
-      <div><strong>FORMAT</strong><code>RSC7 · reflectoren + specular alpha</code></div>
+      <div><strong>DLC</strong><code>mp_m_freemode_01_eclipse_staffvest</code></div>
+      <div><strong>COMPONENT</strong><code>task (armor / vest) · male freemode</code></div>
+      <div><strong>ZIP</strong><code>eclipse-rp-staff-vest-fivem.zip</code></div>
     </div>
   </div>
 </body>
