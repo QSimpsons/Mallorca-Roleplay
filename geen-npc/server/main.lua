@@ -10,9 +10,14 @@ local function bucketsToDisable()
         return buckets
     end
 
-    for _, playerId in ipairs(GetPlayers()) do
-        local bucket = GetPlayerRoutingBucket(playerId)
-        if bucket then
+    local playersOk, players = pcall(GetPlayers)
+    if not playersOk or type(players) ~= 'table' then
+        return buckets
+    end
+
+    for _, playerId in ipairs(players) do
+        local bucketOk, bucket = pcall(GetPlayerRoutingBucket, playerId)
+        if bucketOk and bucket then
             buckets[bucket] = true
         end
     end

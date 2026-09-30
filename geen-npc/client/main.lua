@@ -101,6 +101,7 @@ CreateThread(function()
         if Config.DisablePeds then
             SetPedDensityMultiplierThisFrame(0.0)
             SetScenarioPedDensityMultiplierThisFrame(0.0, 0.0)
+            SetAmbientPedRangeMultiplierThisFrame(0.0)
         end
 
         if Config.DisableTraffic then
