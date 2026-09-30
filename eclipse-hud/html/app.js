@@ -1,26 +1,21 @@
 (() => {
-  const CIRC = 2 * Math.PI * 16;
-
   const el = {
     hud: document.getElementById('hud'),
-    hungerFill: document.getElementById('hunger-fill'),
-    hungerValue: document.getElementById('hunger-value'),
-    thirstFill: document.getElementById('thirst-fill'),
-    thirstValue: document.getElementById('thirst-value'),
     playerId: document.getElementById('player-id'),
     job1: document.getElementById('job1'),
     job2: document.getElementById('job2'),
-    healthArc: document.getElementById('health-arc'),
-    armorArc: document.getElementById('armor-arc'),
-    staminaArc: document.getElementById('stamina-arc'),
-    voiceArc: document.getElementById('voice-arc'),
-    voiceWrap: document.getElementById('voice-wrap'),
+    hungerBox: document.getElementById('hunger-box'),
+    thirstBox: document.getElementById('thirst-box'),
+    hungerFill: document.getElementById('hunger-fill'),
+    thirstFill: document.getElementById('thirst-fill'),
     money: document.getElementById('money'),
     cash: document.getElementById('cash'),
     bank: document.getElementById('bank'),
+    black: document.getElementById('black'),
     location: document.getElementById('location'),
     street: document.getElementById('street'),
     zone: document.getElementById('zone'),
+    voiceWrap: document.getElementById('voice-wrap'),
   };
 
   function clamp(n, min = 0, max = 100) {
@@ -29,23 +24,16 @@
     return Math.max(min, Math.min(max, n));
   }
 
-  function setBar(fill, valueEl, pct, needEl) {
-    const v = clamp(pct);
-    fill.style.width = `${v}%`;
-    valueEl.textContent = `${Math.round(v)}%`;
-    if (needEl) needEl.classList.toggle('is-low', v <= 20);
-  }
-
-  function setArc(arc, pct) {
-    const v = clamp(pct);
-    const offset = CIRC - (CIRC * v) / 100;
-    arc.style.strokeDasharray = `${CIRC}`;
-    arc.style.strokeDashoffset = `${offset}`;
-  }
-
   function formatMoney(amount) {
     const n = Math.floor(Number(amount) || 0);
     return `€${n.toLocaleString('nl-NL')}`;
+  }
+
+  function setNeed(box, fill, pct) {
+    const v = clamp(pct);
+    fill.style.transform = `scaleY(${v / 100})`;
+    box.classList.toggle('is-low', v <= 20);
+    box.title = `${box.dataset.label || box.title.split(':')[0]}: ${Math.round(v)}%`;
   }
 
   function show(visible) {
@@ -56,39 +44,22 @@
   function update(data = {}) {
     if (typeof data.visible === 'boolean') show(data.visible);
 
-    if (data.hunger != null) {
-      setBar(el.hungerFill, el.hungerValue, data.hunger, el.hungerFill.closest('.need'));
-    }
-    if (data.thirst != null) {
-      setBar(el.thirstFill, el.thirstValue, data.thirst, el.thirstFill.closest('.need'));
-    }
-
     if (data.id != null) el.playerId.textContent = String(data.id);
     if (data.job1 != null) el.job1.textContent = data.job1 || 'Werkloos';
     if (data.job2 != null) el.job2.textContent = data.job2 || 'Geen';
 
-    if (data.health != null) {
-      const h = clamp(data.health);
-      setArc(el.healthArc, h);
-      el.healthArc.closest('.vital')?.classList.toggle('is-low', h <= 25);
-    }
-    if (data.armor != null) setArc(el.armorArc, data.armor);
-    if (data.stamina != null) setArc(el.staminaArc, data.stamina);
-
-    if (typeof data.showVoice === 'boolean') {
-      el.voiceWrap.classList.toggle('is-hidden', !data.showVoice);
-    }
-    if (data.voice != null) setArc(el.voiceArc, data.voice);
-    if (typeof data.talking === 'boolean') {
-      el.voiceWrap.classList.toggle('is-talking', data.talking);
-    }
+    if (data.hunger != null) setNeed(el.hungerBox, el.hungerFill, data.hunger);
+    if (data.thirst != null) setNeed(el.thirstBox, el.thirstFill, data.thirst);
 
     if (typeof data.showMoney === 'boolean') {
-      el.money.classList.toggle('is-visible', data.showMoney);
-      el.money.setAttribute('aria-hidden', data.showMoney ? 'false' : 'true');
+      el.money.classList.toggle('is-hidden', !data.showMoney);
     }
     if (data.cash != null) el.cash.textContent = formatMoney(data.cash);
     if (data.bank != null) el.bank.textContent = formatMoney(data.bank);
+    if (data.black != null) {
+      el.black.textContent = formatMoney(data.black);
+      el.black.classList.toggle('is-hot', Number(data.black) > 0);
+    }
 
     if (typeof data.showLocation === 'boolean') {
       el.location.classList.toggle('is-visible', data.showLocation);
@@ -96,52 +67,46 @@
     }
     if (data.street != null) el.street.textContent = data.street || '—';
     if (data.zone != null) el.zone.textContent = data.zone || '—';
+
+    if (typeof data.showVoice === 'boolean') {
+      el.voiceWrap.classList.toggle('is-visible', data.showVoice);
+      el.voiceWrap.setAttribute('aria-hidden', data.showVoice ? 'false' : 'true');
+    }
+    if (typeof data.talking === 'boolean') {
+      el.voiceWrap.classList.toggle('is-talking', data.talking);
+    }
   }
 
   window.addEventListener('message', (event) => {
     const msg = event.data;
     if (!msg || typeof msg !== 'object') return;
-
     if (msg.action === 'show') {
       show(!!msg.visible);
       return;
     }
-    if (msg.action === 'update' || msg.action === 'hud') {
+    if (msg.action === 'update' || msg.action === 'hud' || msg.action === 'set') {
       update(msg.data || msg);
-      return;
-    }
-    if (msg.action === 'set') {
-      update(msg);
     }
   });
 
-  // Browser preview helper
+  // Browser preview defaults
   if (!window.invokeNative) {
     show(true);
     update({
-      hunger: 78,
-      thirst: 62,
       id: 42,
-      job1: 'Politie',
-      job2: 'Monteur',
-      health: 92,
-      armor: 40,
-      stamina: 70,
-      voice: 66,
-      talking: false,
-      showVoice: true,
+      job1: 'Politie | Recherche',
+      job2: 'Staff | Beheer',
+      hunger: 82,
+      thirst: 64,
       showMoney: true,
-      cash: 2450,
-      bank: 12800,
+      cash: 1000,
+      bank: 1000,
+      black: 0,
       showLocation: true,
       street: 'Power Street',
       zone: 'Pillbox Hill',
+      showVoice: true,
+      talking: false,
     });
   }
-
-  // Init arcs
-  [el.healthArc, el.armorArc, el.staminaArc, el.voiceArc].forEach((arc) => {
-    arc.style.strokeDasharray = `${CIRC}`;
-    arc.style.strokeDashoffset = '0';
-  });
 })();

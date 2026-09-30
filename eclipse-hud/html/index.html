@@ -6,131 +6,97 @@
   <title>Eclipse Roleplay HUD</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="hud" class="hud" aria-hidden="true">
-    <!-- Top-right: logo + voeding/drinken + ID/jobs -->
-    <aside class="panel panel--status" id="status-panel">
-      <div class="panel__glow"></div>
-
-      <div class="status-grid">
-        <div class="status-left">
-          <div class="logo-wrap">
-            <img src="img/logo.jpg" alt="Eclipse RP" class="logo" draggable="false" />
-            <div class="logo-ring"></div>
+    <div class="hud-right">
+      <div class="cluster">
+        <!-- Info bars (ID / Job2 / Job1) -->
+        <div class="bars">
+          <div class="pill pill--id" title="Speler ID">
+            <span class="pill__icon pill__icon--id" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12zm0 2.2c-3.6 0-8 1.8-8 4.3V21h16v-2.5c0-2.5-4.4-4.3-8-4.3z"/></svg>
+            </span>
+            <span class="pill__text"><span class="pill__muted">ID</span> <span id="player-id">0</span></span>
           </div>
 
-          <div class="needs">
-            <div class="need" data-need="hunger" title="Voeding">
-              <div class="need__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M11 2v9.2c0 1.5-.9 2.8-2.2 3.4V21H7v-6.4C5.7 14 4.8 12.7 4.8 11.2V2h1.7v7.5h1.1V2H9v7.5h1.1V2H11zm9.2 0c0 4.2-2.2 6.5-4.4 7.1V21h-1.8V9.1C11.8 8.5 9.6 6.2 9.6 2h1.7c0 3.1 1.5 4.8 3 5.1V2h1.8v5.1c1.5-.3 3-2 3-5.1h1.7z"/></svg>
-              </div>
-              <div class="need__body">
-                <div class="need__meta">
-                  <span class="need__label">Voeding</span>
-                  <span class="need__value" id="hunger-value">100%</span>
-                </div>
-                <div class="need__track">
-                  <div class="need__fill need__fill--hunger" id="hunger-fill" style="width:100%"></div>
-                </div>
-              </div>
-            </div>
+          <div class="pill" title="Job 2">
+            <span class="pill__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.4 4.2 5.5v5.4c0 4.9 3.3 9.5 7.8 10.7 4.5-1.2 7.8-5.8 7.8-10.7V5.5L12 2.4zm0 2.3 5.8 2.1v4.1c0 3.6-2.3 7-5.8 8.1-3.5-1.1-5.8-4.5-5.8-8.1V6.8L12 4.7z"/></svg>
+            </span>
+            <span class="pill__text" id="job2">Geen</span>
+          </div>
 
-            <div class="need" data-need="thirst" title="Drinken">
-              <div class="need__icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.2c.4 0 .7.2.9.5l6.4 10.2c.6 1 .7 2.1.3 3.1-.4 1-1.2 1.8-2.2 2.2-.7.3-1.4.4-2.1.4H8.7c-.7 0-1.4-.1-2.1-.4-1-.4-1.8-1.2-2.2-2.2-.4-1-.3-2.1.3-3.1L11.1 2.7c.2-.3.5-.5.9-.5zm0 2.6L6.7 13.3c-.2.3-.2.6-.1.9.1.3.4.6.7.7.2.1.5.2.7.2h7.9c.3 0 .5-.1.7-.2.3-.1.5-.4.7-.7.1-.3.1-.6-.1-.9L12 4.8z"/></svg>
-              </div>
-              <div class="need__body">
-                <div class="need__meta">
-                  <span class="need__label">Drinken</span>
-                  <span class="need__value" id="thirst-value">100%</span>
-                </div>
-                <div class="need__track">
-                  <div class="need__fill need__fill--thirst" id="thirst-fill" style="width:100%"></div>
-                </div>
-              </div>
-            </div>
+          <div class="pill" title="Job 1">
+            <span class="pill__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 3h4l.8 2.4H19v2.2h-1.1L19 18.2A2 2 0 0 1 17 20.4H7a2 2 0 0 1-2-2.2L6.1 7.6H5V5.4h4.2L10 3zm1.2 2.4.4-1.2h.8l.4 1.2h-1.6zM7.3 7.6l-1 10.6h11.4l-1-10.6H7.3z"/></svg>
+            </span>
+            <span class="pill__text" id="job1">Werkloos</span>
           </div>
         </div>
 
-        <div class="status-right">
-          <div class="info-block info-block--id">
-            <span class="info-block__label">ID</span>
-            <span class="info-block__value" id="player-id">0</span>
+        <!-- Vertical status icons: logo, food, drink -->
+        <div class="icons">
+          <div class="icon-box icon-box--logo" title="Eclipse RP">
+            <img src="img/logo.jpg" alt="Eclipse RP" class="icon-logo" draggable="false" />
           </div>
-          <div class="info-block">
-            <span class="info-block__label">Job 2</span>
-            <span class="info-block__value" id="job2">Geen</span>
+
+          <div class="icon-box icon-box--hunger" id="hunger-box" title="Voeding">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M4.8 4.2h1.6v5.4c0 .9-.4 1.6-1.1 2v8.2H3.5v-8.2c-.7-.4-1.1-1.1-1.1-2V4.2h1.6v5h.8V4.2zm7.4 0c2.8 0 4.6 1.9 4.6 5.1v2.1h-1.7V9.3c0-2-.9-3.2-2.4-3.2h-.2v12.7h-1.8V6.1h-.2c-1.5 0-2.4 1.2-2.4 3.2v2.1H6.4V9.3c0-3.2 1.8-5.1 4.6-5.1h1.2zM19.4 4.5l1.3 1.2-3.2 3.5 2 7.6-1.6.4-2-7.5-1.5 1.6-1.2-1.1 6.2-5.7z"/>
+            </svg>
+            <div class="icon-fill" id="hunger-fill"></div>
           </div>
-          <div class="info-block">
-            <span class="info-block__label">Job 1</span>
-            <span class="info-block__value" id="job1">Werkloos</span>
+
+          <div class="icon-box icon-box--thirst" id="thirst-box" title="Drinken">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M8.2 2.8h7.6l.8 2.2h1.4v2H16.7l1.2 14.2a1.6 1.6 0 0 1-1.6 1.7H7.7a1.6 1.6 0 0 1-1.6-1.7L7.3 7H5.2v-2h1.4l.8-2.2h.8zm1.1 2  -.4 1.2h6.2l-.4-1.2H9.3zM8.5 7l-1.1 13.2h9.2L15.5 7H8.5zm2.2 2.2h2.6v2.4h2.2v2.2h-2.2V16H10.7v-2.2H8.5v-2.2h2.2V9.2z"/>
+            </svg>
+            <div class="icon-fill" id="thirst-fill"></div>
           </div>
         </div>
       </div>
-    </aside>
 
-    <!-- Bottom-left: vital bars -->
-    <div class="vitals" id="vitals">
-      <div class="vital" data-vital="health" title="Leven">
-        <div class="vital__ring">
-          <svg viewBox="0 0 40 40">
-            <circle class="vital__track" cx="20" cy="20" r="16" />
-            <circle class="vital__arc vital__arc--health" id="health-arc" cx="20" cy="20" r="16" />
-          </svg>
-          <svg class="vital__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 21.4 10.4 20C5.4 15.4 2 12.3 2 8.5 2 5.4 4.4 3 7.5 3c1.7 0 3.4.8 4.5 2.1C13.1 3.8 14.8 3 16.5 3 19.6 3 22 5.4 22 8.5c0 3.8-3.4 6.9-8.4 11.5L12 21.4z"/></svg>
+      <!-- Money row -->
+      <div class="money-row" id="money">
+        <div class="pill pill--money" title="Cash">
+          <span class="pill__icon pill__icon--cash" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4.2 7.2h13.2a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4.2A1.6 1.6 0 0 1 2.6 17.2V8.8A1.6 1.6 0 0 1 4.2 7.2zm1.4 2.2v6.8h10.4V9.4H5.6zm12.8-3.4.2 1.4h1.6a1.4 1.4 0 0 1 1.4 1.4v8.2h-1.6V8.8h-1.6l-.2-1.4h.2zM11 10.6a2.4 2.4 0 1 1 0 4.8 2.4 2.4 0 0 1 0-4.8z"/></svg>
+          </span>
+          <span class="pill__text" id="cash">€0</span>
         </div>
-      </div>
 
-      <div class="vital" data-vital="armor" title="Armor">
-        <div class="vital__ring">
-          <svg viewBox="0 0 40 40">
-            <circle class="vital__track" cx="20" cy="20" r="16" />
-            <circle class="vital__arc vital__arc--armor" id="armor-arc" cx="20" cy="20" r="16" />
-          </svg>
-          <svg class="vital__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2 4 5v6.1c0 5.1 3.4 9.8 8 11 4.6-1.2 8-5.9 8-11V5l-8-3zm0 2.2 6 2.2v4.7c0 4-2.6 7.7-6 8.8-3.4-1.1-6-4.8-6-8.8V6.4l6-2.2z"/></svg>
+        <div class="pill pill--money" title="Bank">
+          <span class="pill__icon pill__icon--bank" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 8.2h17.2v9.2a1.8 1.8 0 0 1-1.8 1.8H5.2a1.8 1.8 0 0 1-1.8-1.8V8.2zm1.8 2.2v5.8h13.6v-5.8H5.2zm1.4-5.6h10.8L19 7H5l1.6-2.2zM7 13.2h4.2v1.6H7v-1.6z"/></svg>
+          </span>
+          <span class="pill__text" id="bank">€0</span>
         </div>
-      </div>
 
-      <div class="vital" data-vital="stamina" title="Stamina">
-        <div class="vital__ring">
-          <svg viewBox="0 0 40 40">
-            <circle class="vital__track" cx="20" cy="20" r="16" />
-            <circle class="vital__arc vital__arc--stamina" id="stamina-arc" cx="20" cy="20" r="16" />
-          </svg>
-          <svg class="vital__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M13.2 2.1 7.4 12.3h4.1l-1.5 9.6 7.3-12.2h-4.3l2.2-7.6z"/></svg>
-        </div>
-      </div>
-
-      <div class="vital vital--voice" id="voice-wrap" data-vital="voice" title="Voice">
-        <div class="vital__ring">
-          <svg viewBox="0 0 40 40">
-            <circle class="vital__track" cx="20" cy="20" r="16" />
-            <circle class="vital__arc vital__arc--voice" id="voice-arc" cx="20" cy="20" r="16" />
-          </svg>
-          <svg class="vital__icon" viewBox="0 0 24 24"><path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z"/></svg>
+        <div class="pill pill--money" title="Zwart geld">
+          <span class="pill__icon pill__icon--black" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M8.2 10.2c1.7 0 3 1.1 3 2.8v7.2H9.4v-1.4H5.8v1.4H4V13c0-1.7 1.4-2.8 3.1-2.8h1.1zm-.6 1.7c-.7 0-1.3.4-1.3 1.1v2.2h2.8V13c0-.7-.5-1.1-1.2-1.1h-.3zm9.1-5.5c2 0 3.5 1.3 3.5 3.3v10.5h-1.8v-1.6h-4.2v1.6h-1.8V9.7c0-2 1.5-3.3 3.5-3.3h.8zm-.5 1.8c-.9 0-1.5.5-1.5 1.3v4.1h3.4V9.5c0-.8-.6-1.3-1.5-1.3h-.4zM9.5 3.2a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2zm7.4 1.2a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2z"/></svg>
+          </span>
+          <span class="pill__text" id="black">€0</span>
         </div>
       </div>
     </div>
 
-    <!-- Bottom money strip -->
-    <div class="money" id="money" aria-hidden="true">
-      <div class="money__row">
-        <span class="money__label">Cash</span>
-        <span class="money__value" id="cash">€0</span>
-      </div>
-      <div class="money__row">
-        <span class="money__label">Bank</span>
-        <span class="money__value" id="bank">€0</span>
-      </div>
-    </div>
-
-    <!-- Location -->
+    <!-- Optional location (bottom-left) -->
     <div class="location" id="location" aria-hidden="true">
       <span class="location__street" id="street">—</span>
       <span class="location__zone" id="zone">—</span>
+    </div>
+
+    <!-- Mic / voice (small, near icons style) -->
+    <div class="voice" id="voice-wrap" aria-hidden="true">
+      <div class="icon-box icon-box--voice" id="voice-box" title="Voice">
+        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z"/>
+        </svg>
+      </div>
     </div>
   </div>
 

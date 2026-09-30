@@ -9,25 +9,7 @@ local thirst = Config.DefaultThirst or 100
 local function notifyNui(action, data)
     SendNUIMessage({
         action = action,
-        data = data,
-        visible = data and data.visible,
-        hunger = data and data.hunger,
-        thirst = data and data.thirst,
-        id = data and data.id,
-        job1 = data and data.job1,
-        job2 = data and data.job2,
-        health = data and data.health,
-        armor = data and data.armor,
-        stamina = data and data.stamina,
-        voice = data and data.voice,
-        talking = data and data.talking,
-        showVoice = data and data.showVoice,
-        showMoney = data and data.showMoney,
-        cash = data and data.cash,
-        bank = data and data.bank,
-        showLocation = data and data.showLocation,
-        street = data and data.street,
-        zone = data and data.zone,
+        data = data
     })
 end
 
@@ -61,13 +43,11 @@ local function jobLabel(name, gradeLabel)
         return Config.UnemployedLabel or 'Werkloos'
     end
     local mapped = Config.JobLabels and Config.JobLabels[name]
+    local base = mapped or name
     if gradeLabel and gradeLabel ~= '' then
-        if mapped then
-            return ('%s — %s'):format(mapped, gradeLabel)
-        end
-        return ('%s — %s'):format(name, gradeLabel)
+        return ('%s | %s'):format(base, gradeLabel)
     end
-    return mapped or name
+    return base
 end
 
 local function getPlayerId()
@@ -100,17 +80,19 @@ local function getJobs()
 end
 
 local function getMoney()
-    local cash, bank = 0, 0
+    local cash, bank, black = 0, 0, 0
     if framework == 'esx' and PlayerData.accounts then
         for _, acc in pairs(PlayerData.accounts) do
             if acc.name == 'money' then cash = acc.money or 0 end
             if acc.name == 'bank' then bank = acc.money or 0 end
+            if acc.name == 'black_money' then black = acc.money or 0 end
         end
     elseif (framework == 'qb' or framework == 'qbx') and PlayerData.money then
         cash = PlayerData.money.cash or 0
         bank = PlayerData.money.bank or 0
+                black = PlayerData.money.black_money or 0
     end
-    return cash, bank
+    return cash, bank, black
 end
 
 local function getNeeds()
@@ -127,46 +109,9 @@ local function getNeeds()
     return hunger, thirst
 end
 
-local function getHealthArmorStamina()
-    local ped = PlayerPedId()
-    local health = GetEntityHealth(ped)
-    local maxHealth = GetEntityMaxHealth(ped)
-    local hpPct = 0
-    if maxHealth > 100 then
-        hpPct = ((health - 100) / (maxHealth - 100)) * 100
-    else
-        hpPct = (health / math.max(maxHealth, 1)) * 100
-    end
-    hpPct = math.max(0.0, math.min(100.0, hpPct))
-
-    local armor = math.max(0.0, math.min(100.0, GetPedArmour(ped) + 0.0))
-    local stamina = 100.0
-    local ok, val = pcall(function()
-        return GetPlayerSprintStaminaRemaining(PlayerId())
-    end)
-    if ok and type(val) == 'number' then
-        stamina = math.max(0.0, math.min(100.0, val + 0.0))
-    end
-    return hpPct, armor, stamina
-end
-
 local function getVoice()
-    local talking = false
-    local level = 66
-    if NetworkIsPlayerTalking(PlayerId()) then
-        talking = true
-    end
-    -- pma-voice proximity if available
-    local ok, prox = pcall(function()
-        return LocalPlayer.state and LocalPlayer.state['proximity']
-    end)
-    if ok and type(prox) == 'table' and prox.distance then
-        local d = prox.distance
-        if d <= 1.5 then level = 33
-        elseif d <= 3.0 then level = 66
-        else level = 100 end
-    end
-    return level, talking
+    local talking = NetworkIsPlayerTalking(PlayerId())
+    return talking and true or false
 end
 
 local function getLocation()
@@ -190,9 +135,8 @@ function pushHud(force)
 
     local h, t = getNeeds()
     local job1, job2 = getJobs()
-    local hp, armor, stamina = getHealthArmorStamina()
-    local voice, talking = getVoice()
-    local cash, bank = getMoney()
+    local talking = getVoice()
+    local cash, bank, black = getMoney()
     local street, zone = getLocation()
 
     notifyNui('update', {
@@ -202,15 +146,12 @@ function pushHud(force)
         id = getPlayerId(),
         job1 = job1,
         job2 = job2,
-        health = hp,
-        armor = armor,
-        stamina = stamina,
-        voice = voice,
         talking = talking,
         showVoice = Config.ShowVoice ~= false,
         showMoney = Config.ShowMoney ~= false,
         cash = cash,
         bank = bank,
+        black = black,
         showLocation = Config.ShowLocation ~= false,
         street = street,
         zone = zone,
