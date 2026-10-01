@@ -6,10 +6,8 @@ esrp_lib.callback.register("vx_garage:getExistingVehicles", function()
 end)
 
 esrp_lib.callback.register("vx_garage:returnFromImpound", function(playerId, plate)
-    local identifier = functions.ownerId(playerId)
-    local vehicle = functions.getVehicleByPlate(plate)
-
-    if not identifier or not vehicle or vehicle.owner ~= identifier then
+    local vehicle = functions.findOwnedVehicle(playerId, plate)
+    if not vehicle then
         return false
     end
 
@@ -18,8 +16,9 @@ esrp_lib.callback.register("vx_garage:returnFromImpound", function(playerId, pla
         player:removeAccountMoney("bank", Config.impoundPrice)
     end
 
-    MySQL.update("UPDATE owned_vehicles SET `pound` = false WHERE `plate` = @plate", {
-        ["@plate"] = plate
+    MySQL.update.await("UPDATE owned_vehicles SET `pound` = 0 WHERE `plate` = ? AND `owner` = ?", {
+        vehicle.plate,
+        vehicle.owner
     })
 
     return true
@@ -28,15 +27,14 @@ end)
 esrp_lib.callback.register("vx_garage:storedVehicle", function(playerId, plate)
     Citizen.Wait(2000)
 
-    local identifier = functions.ownerId(playerId)
-    local vehicle = functions.getVehicleByPlate(plate)
-
-    if not identifier or not vehicle or vehicle.owner ~= identifier then
+    local vehicle = functions.findOwnedVehicle(playerId, plate)
+    if not vehicle then
         return false
     end
 
-    MySQL.update("UPDATE owned_vehicles SET `pound` = false WHERE `plate` = @plate", {
-        ["@plate"] = plate
+    MySQL.update.await("UPDATE owned_vehicles SET `pound` = 0 WHERE `plate` = ? AND `owner` = ?", {
+        vehicle.plate,
+        vehicle.owner
     })
 
     return true
@@ -49,12 +47,10 @@ RegisterNetEvent("entityCreated", function(entity)
     end
 
     local plate = GetVehicleNumberPlateText(entity)
-    plate = plate:gsub("%s+", "")
-
     local vehicle = functions.getVehicleByPlate(plate)
     if vehicle then
         table.insert(existingVehiclesCache, {
-            plate = plate,
+            plate = vehicle.plate,
             networkId = entity
         })
         -- esrp_lib.print.info("added vehicle to cache", plate)
@@ -69,29 +65,20 @@ RegisterNetEvent("entityRemoved", function(entity)
         return
     end
 
-    local plate = GetVehicleNumberPlateText(entity)
-    if not plate then return end
-
-    local foundInCache = false
+    local cached
     for i, cachedVehicle in pairs(existingVehiclesCache) do
         if cachedVehicle.networkId == entity then
-            foundInCache = true
-            break
-        end
-    end
-
-    if not foundInCache then
-        return
-    end
-
-    MySQL.update("UPDATE owned_vehicles SET `pound` = true WHERE `plate` = @plate", {
-        ["@plate"] = plate
-    })
-
-    for i, cachedVehicle in pairs(existingVehiclesCache) do
-        if cachedVehicle.networkId == entity then
+            cached = cachedVehicle
             table.remove(existingVehiclesCache, i)
             break
         end
     end
+
+    if not cached then
+        return
+    end
+
+    MySQL.update("UPDATE owned_vehicles SET `pound` = 1 WHERE `plate` = ?", {
+        cached.plate
+    })
 end)

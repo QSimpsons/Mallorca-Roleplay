@@ -71,9 +71,17 @@ local function openGarage(garage)
 
     local uiVehicles = {}
 
+    local function plateKey(plate)
+        if type(plate) ~= 'string' then
+            return ''
+        end
+        return ((plate:gsub('^%s*(.-)%s*$', '%1')):upper():gsub('%s+', ''))
+    end
+
     local function isExistingVehicle(plate)
+        local key = plateKey(plate)
         for _, existingVehicle in pairs(existingVehicles) do
-            if existingVehicle.plate == plate then
+            if plateKey(existingVehicle.plate) == key then
                 return true
             end
         end

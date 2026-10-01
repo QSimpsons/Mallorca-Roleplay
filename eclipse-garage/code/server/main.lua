@@ -1,7 +1,13 @@
 local function updateStoredStatus(plate, stored)
-    MySQL.update("UPDATE owned_vehicles SET `stored` = @stored WHERE `plate` = @plate", {
-        ["@stored"] = stored,
-        ["@plate"] = plate
+    local vehicle = functions.getVehicleByPlate(plate)
+    if not vehicle then
+        return
+    end
+
+    MySQL.update.await("UPDATE owned_vehicles SET `stored` = ? WHERE `plate` = ? AND `owner` = ?", {
+        stored and 1 or 0,
+        vehicle.plate,
+        vehicle.owner
     })
 end
 
@@ -37,69 +43,60 @@ esrp_lib.callback.register("vx_garage:vehicleSpawned", function(source, netId)
 end)
 
 esrp_lib.callback.register("vx_garage:storeVehicle", function(source, garage, vehicleData, plate)
-    local identifier = functions.ownerId(source)
-    local cleanedPlate = plate:gsub("^%s+", "")
+    local vehicle = functions.findOwnedVehicle(source, plate)
+    if not vehicle and type(vehicleData) == 'table' then
+        vehicle = functions.findOwnedVehicle(source, vehicleData.plate)
+    end
 
-    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
-        ["@owner"] = identifier,
-        ["@plate"] = cleanedPlate
-    })
-
-    if not vehicles then
+    if not vehicle or type(vehicleData) ~= 'table' then
+        print(('^3[eclipse-garage]^7 Opslaan geweigerd voor %s, plaat "%s"'):format(
+            tostring(functions.ownerId(source)),
+            functions.normalizePlate(plate)
+        ))
         return false
     end
 
-    local vehicle = vehicles[1]
-    if not vehicle then
-        return false
-    end
+    vehicleData.plate = vehicle.plate
 
-    MySQL.update([[ 
+    MySQL.update.await([[
         UPDATE owned_vehicles
-        SET `vehicle` = @vehicle,
-            `pound` = false
-        WHERE `plate` = @plate
+        SET `vehicle` = ?,
+            `pound` = 0
+        WHERE `plate` = ? AND `owner` = ?
     ]], {
-        ["@vehicle"] = json.encode(vehicleData),
-        ["@plate"] = plate
+        json.encode(vehicleData),
+        vehicle.plate,
+        vehicle.owner
     })
 
     return true
 end)
 
 esrp_lib.callback.register("vx_garage:setVehicleName", function(source, plate, name)
-    local identifier = functions.ownerId(source)
-    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
-        ["@owner"] = identifier,
-        ["@plate"] = plate
-    })
+    local vehicle = functions.findOwnedVehicle(source, plate)
+    if not vehicle then
+        return false
+    end
 
-    if not vehicles then return false end
-    local vehicle = vehicles[1]
-    if not vehicle then return false end
-
-    MySQL.update("UPDATE owned_vehicles SET `name` = @name WHERE `plate` = @plate", {
-        ["@name"] = name,
-        ["@plate"] = plate
+    MySQL.update.await("UPDATE owned_vehicles SET `name` = ? WHERE `plate` = ? AND `owner` = ?", {
+        name,
+        vehicle.plate,
+        vehicle.owner
     })
 
     return true
 end)
 
 esrp_lib.callback.register("vx_garage:setFavorite", function(source, plate, favorite)
-    local identifier = functions.ownerId(source)
-    local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
-        ["@owner"] = identifier,
-        ["@plate"] = plate
-    })
-
-    if not vehicles or not vehicles[1] then
+    local vehicle = functions.findOwnedVehicle(source, plate)
+    if not vehicle then
         return false
     end
 
-    MySQL.update("UPDATE owned_vehicles SET `favorite` = @favorite WHERE `plate` = @plate", {
-        ["@favorite"] = favorite,
-        ["@plate"] = plate
+    MySQL.update.await("UPDATE owned_vehicles SET `favorite` = ? WHERE `plate` = ? AND `owner` = ?", {
+        favorite,
+        vehicle.plate,
+        vehicle.owner
     })
 
     return true
