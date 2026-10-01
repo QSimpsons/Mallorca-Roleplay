@@ -1,0 +1,109 @@
+vx.currentPlayer = {}
+
+function vx.currentPlayer.isLoaded()
+   if ESX then
+      return ESX.GetPlayerData()?.identifier ~= nil
+   elseif QBCore then
+      return QBCore.Functions.GetPlayerData()?.citizenid ~= nil
+   end
+end
+
+function vx.currentPlayer.waitForLoaded(cb)
+   Citizen.CreateThread(function()
+      while not vx.currentPlayer.isLoaded() do
+         Citizen.Wait(100)
+      end
+
+      cb()
+   end)
+end
+
+function vx.currentPlayer.getFirstName()
+   if ESX then
+      local playerData = ESX.GetPlayerData()
+      return playerData.firstName
+   elseif QBCore then
+      local playerData = QBCore.Functions.GetPlayerData()
+      return playerData.charinfo?.firstname
+   end
+end
+
+function vx.currentPlayer.getLastName()
+   if ESX then
+      local playerData = ESX.GetPlayerData()
+      return playerData.lastName
+   elseif QBCore then
+      local playerData = QBCore.Functions.GetPlayerData()
+      return playerData.charinfo?.lastname
+   end
+end
+
+function vx.currentPlayer.getFullName()
+   return ("%s %s"):format(vx.currentPlayer.getFirstName(), vx.currentPlayer.getLastName())
+end
+
+function vx.currentPlayer.getJob()
+   if ESX then
+      local playerData = ESX.GetPlayerData()
+      return {
+         name = playerData.job.name,
+         label = playerData.job.label,
+         grade = playerData.job.grade,
+         grade_name = playerData.job.grade_name,
+         grade_label = playerData.job.grade_label,
+      }
+   elseif QBCore then
+      local playerData = QBCore.Functions.GetPlayerData()
+      local job = playerData.job
+      return {
+         name = job.name,
+         label = job.label,
+         grade = job.grade,
+         grade_name = job.grade_name,
+         grade_label = job.grade_label,
+      }
+   end
+end
+
+---@param coords vector3
+---@param options? { heading?: number, fadeOut?: number, fadeIn?: number }
+function vx.currentPlayer.teleport(coords, options)
+   options       = options or {}
+
+   local fadeOut = options.fadeOut or 0
+   local fadeIn  = options.fadeIn or 0
+
+   local ped     = vx.cache.ped
+   if fadeOut > 0 then
+      DoScreenFadeOut(fadeOut)
+      while not IsScreenFadedOut() do
+         Wait(10)
+      end
+   end
+
+   SetEntityCoords(ped, coords.x, coords.y, coords.z, false, false, false, true)
+   if options.heading then SetEntityHeading(ped, options.heading) end
+
+   Citizen.Wait(50)
+   if fadeIn > 0 then
+      DoScreenFadeIn(fadeIn)
+   end
+end
+
+function vx.currentPlayer.heal()
+   vx.currentPlayer.setHealth(200)
+end
+
+---@param health number
+function vx.currentPlayer.setHealth(health)
+   local ped = vx.cache.ped
+   SetEntityHealth(ped, health)
+end
+
+---@param armor number
+function vx.currentPlayer.setArmor(armor)
+   local ped = vx.cache.ped
+   SetPedArmour(ped, armor)
+end
+
+return vx.currentPlayer

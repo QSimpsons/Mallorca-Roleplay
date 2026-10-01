@@ -1,0 +1,78 @@
+if not LoadResourceFile("esrp_lib", "web/dist/index.html") then
+   error(
+      "Failed to load UI, build esrp_lib or download the latest release. (https://github.com/Vertex-Scripts/esrp_lib)")
+end
+
+local context = IsDuplicityVersion() and "server" or "client"
+local currentResourceName = GetCurrentResourceName()
+
+---@type VxCache
+---@diagnostic disable-next-line: missing-fields
+local cache = {
+   resource = currentResourceName
+}
+
+local function proxyExports(self, key, value)
+   rawset(self, key, value)
+
+   local info = debug.getinfo(2, 'S')
+   if not info or not info.short_src:find('@esrp_lib/resource') then
+      return
+   end
+
+   if type(value) == "function" then
+      exports(key, value)
+      return
+   end
+
+   if type(value) == "table" then
+      setmetatable(value, {
+         __newindex = function(t, k, v)
+            proxyExports(t, key .. k, v)
+         end
+      })
+   end
+end
+
+vx = setmetatable({
+   context = context,
+   cache = cache,
+   serverConfig = ServerConfig,
+   sharedConfig = SharedConfig
+}, {
+   __index = vx_loadModule,
+   __newindex = proxyExports,
+})
+
+esrp_lib = vx
+
+vx.frameworkResource = vx_autoDetect.getFramework()
+vx.targetResource = vx_autoDetect.getTarget()
+vx.inventoryResource = vx_autoDetect.getInventory()
+vx.notifyResource = vx_autoDetect.getNotify()
+vx.textuiResource = vx_autoDetect.getTextUi()
+
+if GetResourceState("ox_lib") ~= "missing" then
+   local oxInit = LoadResourceFile("ox_lib", "init.lua")
+   local loadOx, err = load(oxInit)
+   if not loadOx or err then
+      vx.print.error(("Failed to load ox_lib (%s)"):format(err))
+   else
+      loadOx()
+      if context == "server" then
+         vx.print.info("Successfully loaded ox_lib")
+      end
+   end
+end
+
+function vx.getFramework() return vx.frameworkResource end
+
+function vx.getTarget() return vx.targetResource end
+
+function vx.getServerConfig() return ServerConfig end
+
+function vx.getSharedConfig() return SharedConfig end
+
+function vx.getInventory() return vx_autoDetect.getInventory() end
+
+vx_autoDetect.loadFramework()
