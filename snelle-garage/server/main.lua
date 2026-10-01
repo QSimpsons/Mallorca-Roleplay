@@ -241,14 +241,13 @@ local function entityNetId(ent)
     return 0
 end
 
-local function fromThisGarage(plateKey, veh)
-    local ridingNet = entityNetId(veh)
+local function trackedNetId(plateKey)
     local track = spawned[plateKey]
-    local trackedNet = track and (tonumber(track.netId) or 0) or 0
-    if trackedNet ~= 0 and ridingNet == trackedNet and netEntity(trackedNet) ~= 0 then
-        return true, ridingNet
+    local netId = track and (tonumber(track.netId) or 0) or 0
+    if netId ~= 0 and netEntity(netId) ~= 0 then
+        return netId
     end
-    return false, ridingNet
+    return 0
 end
 
 local function actionAllowed(src)
@@ -1131,11 +1130,27 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                 notify(src, Config.Text.plateMismatch)
                 return
             end
-            local known, ridingNet = fromThisGarage(plateKey, veh)
-            if not known then
-                busy[plateKey] = nil
-                notify(src, Config.Text.spawnedVehicle)
-                return
+            local ridingNet = entityNetId(veh)
+            if Config.OnlyPurchasedVehicles ~= false then
+                if schema.job and not Config.IncludeJobVehicles and not Config.IsPersonalVehicle(row.job) then
+                    busy[plateKey] = nil
+                    notify(src, Config.Text.notOwner)
+                    return
+                end
+                local trackedNet = trackedNetId(plateKey)
+                if trackedNet ~= 0 and ridingNet ~= trackedNet then
+                    busy[plateKey] = nil
+                    notify(src, Config.Text.spawnedVehicle)
+                    return
+                end
+                local parking = row.parking
+                local alreadyParked = schema.stored and isStored(row.stored)
+                    and schema.parking and type(parking) == 'string' and parking ~= ''
+                if alreadyParked and ridingNet ~= trackedNet then
+                    busy[plateKey] = nil
+                    notify(src, Config.Text.spawnedVehicle)
+                    return
+                end
             end
             if next(incoming) == nil then
                 incoming = current

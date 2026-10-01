@@ -47,7 +47,7 @@ for needle in (
     'snelle-garage:server:staffImpound',
     'mallorca_impound',
     'owned_vehicles',
-    'fromThisGarage',
+    'OnlyPurchasedVehicles',
     'spawnedVehicle',
 ):
     if needle not in server:

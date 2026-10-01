@@ -17,6 +17,10 @@ Config.RecoverOutVehicles = true
 -- Job-voertuigen (owned_vehicles.job gevuld) in de gewone garage tonen.
 Config.IncludeJobVehicles = false
 
+-- Alleen gekochte voertuigen op jouw naam (owned_vehicles) kunnen geparkeerd worden.
+-- Een auto uit een spawnmenu of commando komt er niet in.
+Config.OnlyPurchasedVehicles = true
+
 -- In het voertuig zetten zodra het gespawned is.
 Config.WarpIntoVehicle = true
 
@@ -91,8 +95,8 @@ Config.Text = {
     called = 'Je voertuig is bij je neergezet.',
     recovered = 'Voertuig opgehaald uit de impound.',
     noMoney = 'Je hebt niet genoeg geld bij je of op de bank.',
-    notOwner = 'Dit voertuig is niet van jou.',
-    spawnedVehicle = 'Alleen het voertuig dat je uit de garage hebt gehaald, kun je parkeren.',
+    notOwner = 'Alleen een gekocht voertuig kun je in de garage zetten.',
+    spawnedVehicle = 'Dit voertuig staat al in de garage. Een gespawnde kopie kun je niet parkeren.',
     alreadyOut = 'Dit voertuig staat al buiten. Haal het op bij de impound.',
     impounded = 'Dit voertuig staat in de impound.',
     notHere = 'Je staat niet bij een garage. Gebruik /oproep om een voertuig bij je te roepen.',
