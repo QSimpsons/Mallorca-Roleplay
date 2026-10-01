@@ -18,7 +18,7 @@
        * tabellen: eclipse_politie_impound, eclipse_politie_fines
 
 3) BAAN GEVEN
-   UPDATE users SET job = 'police', job_grade = 9
+   UPDATE users SET job = 'police', job_grade = 10
    WHERE identifier = 'char1:JOUW_LICENSE';
 
 4) CONFIG
@@ -33,13 +33,13 @@
 ============================================================
  RANGEN
 ============================================================
- 0  Aspirant
- 1  Surveillant van politie
- 2  Agent
- 3  Hoofdagent
- 4  Brigadier
- 5  Inspecteur
- 6  Hoofdinspecteur
- 7  Commissaris
- 8  Hoofdcommissaris          (boss)
- 9  Eerste hoofdcommissaris   (boss)
+ 1   Aspirant
+ 2   Surveillant van politie
+ 3   Agent
+ 4   Hoofdagent
+ 5   Brigadier
+ 6   Inspecteur
+ 7   Hoofdinspecteur
+ 8   Commissaris
+ 9   Hoofdcommissaris          (boss)
+ 10  Eerste hoofdcommissaris   (boss)

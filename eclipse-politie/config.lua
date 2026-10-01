@@ -10,37 +10,37 @@ Config.UseOxLibNotify = true
 
 ------------------------------------------------------------------------
 -- 10 Nederlandse politierangen (laag → hoog)
--- grade 0 = Aspirant  …  grade 9 = Eerste hoofdcommissaris (boss)
+-- grade 1 = Aspirant  …  grade 10 = Eerste hoofdcommissaris (boss)
 ------------------------------------------------------------------------
 Config.Grades = {
-    [0] = { name = 'aspirant',              label = 'Aspirant',                 salary = 250,  boss = false },
-    [1] = { name = 'surveillant',           label = 'Surveillant van politie',  salary = 350,  boss = false },
-    [2] = { name = 'agent',                 label = 'Agent',                    salary = 450,  boss = false },
-    [3] = { name = 'hoofdagent',            label = 'Hoofdagent',               salary = 550,  boss = false },
-    [4] = { name = 'brigadier',             label = 'Brigadier',                salary = 650,  boss = false },
-    [5] = { name = 'inspecteur',            label = 'Inspecteur',               salary = 800,  boss = false },
-    [6] = { name = 'hoofdinspecteur',       label = 'Hoofdinspecteur',          salary = 950,  boss = false },
-    [7] = { name = 'commissaris',           label = 'Commissaris',              salary = 1100, boss = false },
-    [8] = { name = 'hoofdcommissaris',      label = 'Hoofdcommissaris',         salary = 1300, boss = true  },
-    [9] = { name = 'eerste_hoofdcommissaris', label = 'Eerste hoofdcommissaris', salary = 1600, boss = true  },
+    [1]  = { name = 'aspirant',                 label = 'Aspirant',                 salary = 250,  boss = false },
+    [2]  = { name = 'surveillant',              label = 'Surveillant van politie',  salary = 350,  boss = false },
+    [3]  = { name = 'agent',                    label = 'Agent',                    salary = 450,  boss = false },
+    [4]  = { name = 'hoofdagent',               label = 'Hoofdagent',               salary = 550,  boss = false },
+    [5]  = { name = 'brigadier',                label = 'Brigadier',                salary = 650,  boss = false },
+    [6]  = { name = 'inspecteur',               label = 'Inspecteur',               salary = 800,  boss = false },
+    [7]  = { name = 'hoofdinspecteur',          label = 'Hoofdinspecteur',          salary = 950,  boss = false },
+    [8]  = { name = 'commissaris',              label = 'Commissaris',              salary = 1100, boss = false },
+    [9]  = { name = 'hoofdcommissaris',         label = 'Hoofdcommissaris',         salary = 1300, boss = true  },
+    [10] = { name = 'eerste_hoofdcommissaris',  label = 'Eerste hoofdcommissaris',  salary = 1600, boss = true  },
 }
 
 -- Minimum grade per actie
 Config.MinGrade = {
-    armory        = 0,  -- aspirant
-    garage        = 0,
-    cloakroom     = 0,
-    cuff          = 1,  -- surveillant+
-    escort        = 1,
-    vehicle       = 1,
-    search        = 1,
-    fine          = 2,  -- agent+
-    id            = 0,
-    license       = 4,  -- brigadier+
-    impound       = 3,  -- hoofdagent+
-    boss          = 8,  -- hoofdcommissaris+
-    heli          = 5,  -- inspecteur+
-    heavy_weapons = 4,  -- brigadier+
+    armory        = 1,  -- aspirant
+    garage        = 1,
+    cloakroom     = 1,
+    cuff          = 2,  -- surveillant+
+    escort        = 2,
+    vehicle       = 2,
+    search        = 2,
+    fine          = 3,  -- agent+
+    id            = 1,
+    license       = 5,  -- brigadier+
+    impound       = 4,  -- hoofdagent+
+    boss          = 9,  -- hoofdcommissaris+
+    heli          = 6,  -- inspecteur+
+    heavy_weapons = 5,  -- brigadier+
 }
 
 Config.Keys = {
@@ -74,19 +74,19 @@ Config.Locations = {
         { coords = vector3(441.0, -981.9, 30.69), label = 'In-/uitklokken' },
     },
     cloakroom = {
-        { coords = vector3(452.6, -992.8, 30.69), label = 'Omkleedkamer', minGrade = 0 },
+        { coords = vector3(452.6, -992.8, 30.69), label = 'Omkleedkamer', minGrade = 1 },
     },
     armory = {
-        { coords = vector3(452.6, -980.0, 30.69), label = 'Wapenkamer', minGrade = 0 },
+        { coords = vector3(452.6, -980.0, 30.69), label = 'Wapenkamer', minGrade = 1 },
     },
     boss = {
-        { coords = vector3(448.4, -973.2, 30.69), label = 'Korpsleiding', minGrade = 8 },
+        { coords = vector3(448.4, -973.2, 30.69), label = 'Korpsleiding', minGrade = 9 },
     },
     garage = {
         {
             coords = vector3(452.6, -1017.4, 28.5),
             label = 'Garage',
-            minGrade = 0,
+            minGrade = 1,
             spawnPoints = {
                 vector4(446.0, -1025.5, 28.6, 5.0),
                 vector4(442.4, -1025.8, 28.7, 5.0),
@@ -99,7 +99,7 @@ Config.Locations = {
         {
             coords = vector3(449.2, -981.4, 43.69),
             label = 'Helikopter',
-            minGrade = 5,
+            minGrade = 6,
             spawnPoints = {
                 vector4(449.2, -981.4, 43.69, 90.0),
             },
@@ -113,21 +113,21 @@ Config.Locations = {
 ------------------------------------------------------------------------
 Config.Armory = {
     weapons = {
-        { name = 'WEAPON_FLASHLIGHT',     label = 'Zaklamp',           grade = 0,  price = 0 },
-        { name = 'WEAPON_NIGHTSTICK',     label = 'Wapenstok',         grade = 0,  price = 0 },
-        { name = 'WEAPON_STUNGUN',        label = 'Taser',             grade = 1,  price = 0 },
-        { name = 'WEAPON_COMBATPISTOL',   label = 'Dienstpistool',     grade = 2,  price = 0 },
-        { name = 'WEAPON_PUMPSHOTGUN',    label = 'Shotgun',           grade = 4,  price = 0 },
-        { name = 'WEAPON_CARBINERIFLE',   label = 'Karabijn',          grade = 5,  price = 0 },
-        { name = 'WEAPON_SMG',            label = 'SMG',               grade = 5,  price = 0 },
+        { name = 'WEAPON_FLASHLIGHT',     label = 'Zaklamp',           grade = 1,  price = 0 },
+        { name = 'WEAPON_NIGHTSTICK',     label = 'Wapenstok',         grade = 1,  price = 0 },
+        { name = 'WEAPON_STUNGUN',        label = 'Taser',             grade = 2,  price = 0 },
+        { name = 'WEAPON_COMBATPISTOL',   label = 'Dienstpistool',     grade = 3,  price = 0 },
+        { name = 'WEAPON_PUMPSHOTGUN',    label = 'Shotgun',           grade = 5,  price = 0 },
+        { name = 'WEAPON_CARBINERIFLE',   label = 'Karabijn',          grade = 6,  price = 0 },
+        { name = 'WEAPON_SMG',            label = 'SMG',               grade = 6,  price = 0 },
     },
     items = {
-        { name = 'radio',       label = 'Portofoon',   grade = 0, count = 1 },
-        { name = 'handcuffs',   label = 'Handboeien',  grade = 0, count = 1 },
-        { name = 'armor',       label = 'Kogelvrij vest', grade = 1, count = 1 },
-        { name = 'ammo-9',      label = '9mm munitie', grade = 2, count = 50 },
-        { name = 'ammo-shotgun', label = 'Shotgun ammo', grade = 4, count = 20 },
-        { name = 'ammo-rifle',  label = 'Geweer ammo', grade = 5, count = 60 },
+        { name = 'radio',       label = 'Portofoon',   grade = 1, count = 1 },
+        { name = 'handcuffs',   label = 'Handboeien',  grade = 1, count = 1 },
+        { name = 'armor',       label = 'Kogelvrij vest', grade = 2, count = 1 },
+        { name = 'ammo-9',      label = '9mm munitie', grade = 3, count = 50 },
+        { name = 'ammo-shotgun', label = 'Shotgun ammo', grade = 5, count = 20 },
+        { name = 'ammo-rifle',  label = 'Geweer ammo', grade = 6, count = 60 },
     },
 }
 
@@ -138,7 +138,7 @@ Config.Vehicles = {
     cars = {
         {
             category = 'Patrouille',
-            minGrade = 0,
+            minGrade = 1,
             vehicles = {
                 { label = 'Politie Cruiser',   model = 'police' },
                 { label = 'Politie Cruiser 2', model = 'police2' },
@@ -147,7 +147,7 @@ Config.Vehicles = {
         },
         {
             category = 'Onopvallend',
-            minGrade = 3,
+            minGrade = 4,
             vehicles = {
                 { label = 'Onopvallende Sedan', model = 'police4' },
                 { label = 'FBI SUV',            model = 'fbi2' },
@@ -155,7 +155,7 @@ Config.Vehicles = {
         },
         {
             category = 'Speciale eenheden',
-            minGrade = 5,
+            minGrade = 6,
             vehicles = {
                 { label = 'Riot',   model = 'riot' },
                 { label = 'Transporter', model = 'policet' },
@@ -163,7 +163,7 @@ Config.Vehicles = {
         },
         {
             category = 'Motor',
-            minGrade = 2,
+            minGrade = 3,
             vehicles = {
                 { label = 'Politie Motor', model = 'policeb' },
             },
@@ -172,7 +172,7 @@ Config.Vehicles = {
     helis = {
         {
             category = 'Luchtsteun',
-            minGrade = 5,
+            minGrade = 6,
             vehicles = {
                 { label = 'Politieheli', model = 'polmav' },
             },
@@ -189,7 +189,7 @@ Config.VehicleExtras = {
 -- Uniformen per rang (pas componenten aan naar jullie EUP)
 ------------------------------------------------------------------------
 Config.Uniforms = {
-    [0] = { -- Aspirant
+    [1] = { -- Aspirant
         male = {
             tshirt_1 = 58, tshirt_2 = 0,
             torso_1 = 55, torso_2 = 0,
@@ -213,7 +213,7 @@ Config.Uniforms = {
             ears_1 = 2, ears_2 = 0,
         },
     },
-    [1] = { -- Surveillant
+    [2] = { -- Surveillant
         male = {
             tshirt_1 = 58, tshirt_2 = 0,
             torso_1 = 55, torso_2 = 0,

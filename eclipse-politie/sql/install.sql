@@ -3,16 +3,16 @@
 -- Volledige SQL-installatie (ESX Legacy / MySQL / MariaDB)
 --
 -- 10 rangen (laag → hoog):
---   0 Aspirant
---   1 Surveillant van politie
---   2 Agent
---   3 Hoofdagent
---   4 Brigadier
---   5 Inspecteur
---   6 Hoofdinspecteur
---   7 Commissaris
---   8 Hoofdcommissaris
---   9 Eerste hoofdcommissaris  (boss)
+--   1  Aspirant
+--   2  Surveillant van politie
+--   3  Agent
+--   4  Hoofdagent
+--   5  Brigadier
+--   6  Inspecteur
+--   7  Hoofdinspecteur
+--   8  Commissaris
+--   9  Hoofdcommissaris
+--   10 Eerste hoofdcommissaris  (boss)
 --
 -- Importeer dit bestand éénmalig via HeidiSQL / phpMyAdmin / mysql CLI.
 -- ============================================================================
@@ -34,29 +34,29 @@ WHERE NOT EXISTS (SELECT 1 FROM `jobs` WHERE `name` = 'offpolice');
 DELETE FROM `job_grades` WHERE `job_name` IN ('police', 'offpolice');
 
 INSERT INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`) VALUES
-('police', 0, 'aspirant',                 'Aspirant',                 250,  '{}', '{}'),
-('police', 1, 'surveillant',              'Surveillant van politie',  350,  '{}', '{}'),
-('police', 2, 'agent',                    'Agent',                    450,  '{}', '{}'),
-('police', 3, 'hoofdagent',               'Hoofdagent',               550,  '{}', '{}'),
-('police', 4, 'brigadier',                'Brigadier',                650,  '{}', '{}'),
-('police', 5, 'inspecteur',               'Inspecteur',               800,  '{}', '{}'),
-('police', 6, 'hoofdinspecteur',          'Hoofdinspecteur',          950,  '{}', '{}'),
-('police', 7, 'commissaris',              'Commissaris',              1100, '{}', '{}'),
-('police', 8, 'hoofdcommissaris',         'Hoofdcommissaris',         1300, '{}', '{}'),
-('police', 9, 'eerste_hoofdcommissaris',  'Eerste hoofdcommissaris',  1600, '{}', '{}');
+('police', 1,  'aspirant',                 'Aspirant',                 250,  '{}', '{}'),
+('police', 2,  'surveillant',              'Surveillant van politie',  350,  '{}', '{}'),
+('police', 3,  'agent',                    'Agent',                    450,  '{}', '{}'),
+('police', 4,  'hoofdagent',               'Hoofdagent',               550,  '{}', '{}'),
+('police', 5,  'brigadier',                'Brigadier',                650,  '{}', '{}'),
+('police', 6,  'inspecteur',               'Inspecteur',               800,  '{}', '{}'),
+('police', 7,  'hoofdinspecteur',          'Hoofdinspecteur',          950,  '{}', '{}'),
+('police', 8,  'commissaris',              'Commissaris',              1100, '{}', '{}'),
+('police', 9,  'hoofdcommissaris',         'Hoofdcommissaris',         1300, '{}', '{}'),
+('police', 10, 'eerste_hoofdcommissaris',  'Eerste hoofdcommissaris',  1600, '{}', '{}');
 
 -- Off-duty grades (zelfde labels, salaris 0)
 INSERT INTO `job_grades` (`job_name`, `grade`, `name`, `label`, `salary`, `skin_male`, `skin_female`) VALUES
-('offpolice', 0, 'aspirant',                 'Aspirant',                 0, '{}', '{}'),
-('offpolice', 1, 'surveillant',              'Surveillant van politie',  0, '{}', '{}'),
-('offpolice', 2, 'agent',                    'Agent',                    0, '{}', '{}'),
-('offpolice', 3, 'hoofdagent',               'Hoofdagent',               0, '{}', '{}'),
-('offpolice', 4, 'brigadier',                'Brigadier',                0, '{}', '{}'),
-('offpolice', 5, 'inspecteur',               'Inspecteur',               0, '{}', '{}'),
-('offpolice', 6, 'hoofdinspecteur',          'Hoofdinspecteur',          0, '{}', '{}'),
-('offpolice', 7, 'commissaris',              'Commissaris',              0, '{}', '{}'),
-('offpolice', 8, 'hoofdcommissaris',         'Hoofdcommissaris',         0, '{}', '{}'),
-('offpolice', 9, 'eerste_hoofdcommissaris',  'Eerste hoofdcommissaris',  0, '{}', '{}');
+('offpolice', 1,  'aspirant',                 'Aspirant',                 0, '{}', '{}'),
+('offpolice', 2,  'surveillant',              'Surveillant van politie',  0, '{}', '{}'),
+('offpolice', 3,  'agent',                    'Agent',                    0, '{}', '{}'),
+('offpolice', 4,  'hoofdagent',               'Hoofdagent',               0, '{}', '{}'),
+('offpolice', 5,  'brigadier',                'Brigadier',                0, '{}', '{}'),
+('offpolice', 6,  'inspecteur',               'Inspecteur',               0, '{}', '{}'),
+('offpolice', 7,  'hoofdinspecteur',          'Hoofdinspecteur',          0, '{}', '{}'),
+('offpolice', 8,  'commissaris',              'Commissaris',              0, '{}', '{}'),
+('offpolice', 9,  'hoofdcommissaris',         'Hoofdcommissaris',         0, '{}', '{}'),
+('offpolice', 10, 'eerste_hoofdcommissaris',  'Eerste hoofdcommissaris',  0, '{}', '{}');
 
 -- --------------------------------------------------------------------------
 -- Society / addon account (esx_addonaccount + esx_society)
@@ -162,7 +162,7 @@ CREATE TABLE IF NOT EXISTS `eclipse_politie_fines` (
 -- --------------------------------------------------------------------------
 -- Speler een politiebaan geven (voorbeeld – pas identifier aan)
 -- --------------------------------------------------------------------------
--- UPDATE `users` SET `job` = 'police', `job_grade` = 9
+-- UPDATE `users` SET `job` = 'police', `job_grade` = 10
 -- WHERE `identifier` = 'char1:JOUW_LICENSE_HIER';
 
 -- --------------------------------------------------------------------------
