@@ -1,0 +1,14 @@
+# Eclipse HUD — Installatie
+
+1. Plaats `eclipse-hud` in je resources-map.
+2. Voeg toe aan `server.cfg`:
+
+```
+ensure eclipse-hud
+```
+
+3. Zorg dat oude HUD’s (qb-hud / esx_hud / etc.) uit staan als ze overlappen.
+4. Herstart: `ensure eclipse-hud`
+5. In-game: `/togglehud` om te tonen/verbergen.
+
+Browser preview: open `html/preview.html`.

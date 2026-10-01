@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eclipse RP HUD — Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    body {
+      background:
+        radial-gradient(ellipse at 80% 70%, rgba(20, 80, 160, 0.28), transparent 45%),
+        linear-gradient(160deg, #07121f 0%, #0b1c33 50%, #061018 100%);
+    }
+    .preview-note {
+      position: fixed; left: 50%; top: 42%; transform: translate(-50%, -50%);
+      text-align: center; color: rgba(200, 220, 245, 0.28);
+      font-family: "Exo 2", sans-serif; pointer-events: none;
+    }
+    .preview-note h1 { font-size: 34px; letter-spacing: 0.14em; margin-bottom: 8px; }
+    .controls {
+      position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%);
+      display: flex; gap: 10px; z-index: 20; pointer-events: auto;
+    }
+    .controls button {
+      font-family: "Exo 2", sans-serif; font-weight: 700; font-size: 13px;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 10px 16px;
+      border-radius: 10px; border: 1px solid rgba(70, 160, 255, 0.45);
+      background: rgba(6, 24, 52, 0.92); color: #e8f4ff; cursor: pointer;
+    }
+    .controls button:hover { background: rgba(14, 70, 140, 0.95); }
+  </style>
+</head>
+<body>
+  <div class="preview-note">
+    <h1>ECLIPSE ROLEPLAY</h1>
+    <p>HUD preview — zonder microfoon</p>
+  </div>
+
+<div id="hud" class="hud" aria-hidden="true">
+    <div class="hud-right">
+      <div class="cluster">
+        <!-- Info bars (ID / Job2 / Job1) -->
+        <div class="bars">
+          <div class="pill pill--id" title="Speler ID">
+            <span class="pill__icon pill__icon--id" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12a4.2 4.2 0 1 0-4.2-4.2A4.2 4.2 0 0 0 12 12zm0 2.2c-3.6 0-8 1.8-8 4.3V21h16v-2.5c0-2.5-4.4-4.3-8-4.3z"/></svg>
+            </span>
+            <span class="pill__text"><span class="pill__muted">ID</span> <span id="player-id">0</span></span>
+          </div>
+
+          <div class="pill" title="Job 2">
+            <span class="pill__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.4 4.2 5.5v5.4c0 4.9 3.3 9.5 7.8 10.7 4.5-1.2 7.8-5.8 7.8-10.7V5.5L12 2.4zm0 2.3 5.8 2.1v4.1c0 3.6-2.3 7-5.8 8.1-3.5-1.1-5.8-4.5-5.8-8.1V6.8L12 4.7z"/></svg>
+            </span>
+            <span class="pill__text" id="job2">Geen</span>
+          </div>
+
+          <div class="pill" title="Job 1">
+            <span class="pill__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 3h4l.8 2.4H19v2.2h-1.1L19 18.2A2 2 0 0 1 17 20.4H7a2 2 0 0 1-2-2.2L6.1 7.6H5V5.4h4.2L10 3zm1.2 2.4.4-1.2h.8l.4 1.2h-1.6zM7.3 7.6l-1 10.6h11.4l-1-10.6H7.3z"/></svg>
+            </span>
+            <span class="pill__text" id="job1">Werkloos</span>
+          </div>
+        </div>
+
+        <!-- Vertical status icons: logo, food, drink -->
+        <div class="icons">
+          <div class="icon-box icon-box--logo" title="Eclipse RP">
+            <img src="img/logo.jpg" alt="Eclipse RP" class="icon-logo" draggable="false" />
+          </div>
+
+          <div class="icon-box icon-box--hunger" id="hunger-box" title="Voeding">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <!-- hotdog -->
+              <path fill="currentColor" d="M5.2 14.2c-1.8-1.8-1.9-4.6-.2-6.3 1.7-1.7 4.5-1.6 6.3.2l7.7 7.7c1.8 1.8 1.9 4.6.2 6.3-1.7 1.7-4.5 1.6-6.3-.2L5.2 14.2zm1.6-4.7c-.9.9-.8 2.3.1 3.2l7.7 7.7c.9.9 2.3 1 3.2.1.9-.9.8-2.3-.1-3.2l-7.7-7.7c-.9-.9-2.3-1-3.2-.1z"/>
+              <path fill="currentColor" d="M8.2 12.1c.4-.4 1-.4 1.4 0l2.3 2.3c.4.4.4 1 0 1.4-.4.4-1 .4-1.4 0l-2.3-2.3c-.4-.4-.4-1 0-1.4zm3.1 3.1c.4-.4 1-.4 1.4 0l1.2 1.2c.4.4.4 1 0 1.4-.4.4-1 .4-1.4 0l-1.2-1.2c-.4-.4-.4-1 0-1.4z"/>
+              <path fill="currentColor" d="M4.4 8.6c-.5.2-1-.6-.6-1.1 1.5-1.8 3.7-2.5 5.8-2.1.5.1.7.7.4 1.1-.2.4-.7.5-1.1.4-1.5-.3-3.1.2-4.2 1.5-.2.3-.3.3-.3.2z"/>
+            </svg>
+            <div class="icon-fill" id="hunger-fill"></div>
+          </div>
+
+          <div class="icon-box icon-box--thirst" id="thirst-box" title="Drinken">
+            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+              <!-- water bottle -->
+              <path fill="currentColor" d="M10.2 2.5h3.6v1.4h1.2v1.8h-6V3.9h1.2V2.5zm-1.4 4.2h6.4l.9 14.2a1.5 1.5 0 0 1-1.5 1.6H10.4a1.5 1.5 0 0 1-1.5-1.6l.9-14.2zm1.6 2.1-.6 10.4h4.4l-.6-10.4h-3.2zm.8 2.2h1.6v1.8h1.4v1.6H12.8v1.8h-1.6v-1.8H9.8v-1.6h1.4v-1.8z"/>
+            </svg>
+            <div class="icon-fill" id="thirst-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Money row -->
+      <div class="money-row" id="money">
+        <div class="pill pill--money" title="Cash">
+          <span class="pill__icon pill__icon--cash" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M4.2 7.2h13.2a1.6 1.6 0 0 1 1.6 1.6v8.4a1.6 1.6 0 0 1-1.6 1.6H4.2A1.6 1.6 0 0 1 2.6 17.2V8.8A1.6 1.6 0 0 1 4.2 7.2zm1.4 2.2v6.8h10.4V9.4H5.6zm12.8-3.4.2 1.4h1.6a1.4 1.4 0 0 1 1.4 1.4v8.2h-1.6V8.8h-1.6l-.2-1.4h.2zM11 10.6a2.4 2.4 0 1 1 0 4.8 2.4 2.4 0 0 1 0-4.8z"/></svg>
+          </span>
+          <span class="pill__text" id="cash">€0</span>
+        </div>
+
+        <div class="pill pill--money" title="Bank">
+          <span class="pill__icon pill__icon--bank" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M3.4 8.2h17.2v9.2a1.8 1.8 0 0 1-1.8 1.8H5.2a1.8 1.8 0 0 1-1.8-1.8V8.2zm1.8 2.2v5.8h13.6v-5.8H5.2zm1.4-5.6h10.8L19 7H5l1.6-2.2zM7 13.2h4.2v1.6H7v-1.6z"/></svg>
+          </span>
+          <span class="pill__text" id="bank">€0</span>
+        </div>
+
+        <div class="pill pill--money" title="Zwart geld">
+          <span class="pill__icon pill__icon--black" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M8.2 10.2c1.7 0 3 1.1 3 2.8v7.2H9.4v-1.4H5.8v1.4H4V13c0-1.7 1.4-2.8 3.1-2.8h1.1zm-.6 1.7c-.7 0-1.3.4-1.3 1.1v2.2h2.8V13c0-.7-.5-1.1-1.2-1.1h-.3zm9.1-5.5c2 0 3.5 1.3 3.5 3.3v10.5h-1.8v-1.6h-4.2v1.6h-1.8V9.7c0-2 1.5-3.3 3.5-3.3h.8zm-.5 1.8c-.9 0-1.5.5-1.5 1.3v4.1h3.4V9.5c0-.8-.6-1.3-1.5-1.3h-.4zM9.5 3.2a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2zm7.4 1.2a2.1 2.1 0 1 1 0 4.2 2.1 2.1 0 0 1 0-4.2z"/></svg>
+          </span>
+          <span class="pill__text" id="black">€0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="location" id="location" aria-hidden="true">
+      <span class="location__street" id="street">—</span>
+      <span class="location__zone" id="zone">—</span>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button type="button" id="btn-low">Lage needs</button>
+    <button type="button" id="btn-full">Vol</button>
+    <button type="button" id="btn-black">Zwart geld</button>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    function push(data) {
+      window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data } }));
+    }
+    document.getElementById('btn-low').onclick = () => push({ hunger: 12, thirst: 8 });
+    document.getElementById('btn-full').onclick = () => push({ hunger: 100, thirst: 100 });
+    let blackOn = false;
+    document.getElementById('btn-black').onclick = () => {
+      blackOn = !blackOn;
+      push({ black: blackOn ? 2500 : 0 });
+    };
+  </script>
+</body>
+</html>
