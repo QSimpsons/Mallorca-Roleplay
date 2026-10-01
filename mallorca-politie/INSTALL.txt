@@ -1,0 +1,45 @@
+============================================================
+ Mallorca Politie — INSTALLATIE
+============================================================
+
+1) RESOURCE
+   - Kopieer de map "mallorca-politie" naar je server resources.
+   - Voeg toe in server.cfg:
+       ensure mallorca-politie
+
+2) DATABASE
+   - Open HeidiSQL / phpMyAdmin.
+   - Importeer: mallorca-politie/sql/install.sql
+   - Dit maakt aan:
+       * jobs: police + offpolice
+       * 10 job_grades (aspirant → eerste hoofdcommissaris)
+       * society_police (account / inventory / datastore)
+       * items: handcuffs, radio, armor (als ESX items-tabel bestaat)
+       * tabellen: mallorca_politie_impound, mallorca_politie_fines
+
+3) BAAN GEVEN
+   UPDATE users SET job = 'police', job_grade = 9
+   WHERE identifier = 'char1:JOUW_LICENSE';
+
+4) CONFIG
+   - Pas Config.Locations aan naar jullie politiebureau-MLO.
+   - Pas Config.Vehicles / Config.Armory / Config.Uniforms aan.
+   - Config.FuelResource / Config.KeyResource: zet op jullie resources.
+
+5) HERSTART
+   refresh
+   ensure mallorca-politie
+
+============================================================
+ RANGEN
+============================================================
+ 0  Aspirant
+ 1  Surveillant van politie
+ 2  Agent
+ 3  Hoofdagent
+ 4  Brigadier
+ 5  Inspecteur
+ 6  Hoofdinspecteur
+ 7  Commissaris
+ 8  Hoofdcommissaris          (boss)
+ 9  Eerste hoofdcommissaris   (boss)
