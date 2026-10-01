@@ -1,0 +1,11 @@
+{
+    "no_access": "Je hebt geen toegang tot TX-Admin.",
+    "duty_on": "Je bent nu in-dienst als staff.",
+    "duty_off": "Je bent nu uit-dienst.",
+    "command_help": "Verander staff dienst",
+    "panel_help": "Open het staff dienst paneel",
+    "not_on_duty": "Niet in dienst",
+    "not_on_duty_desc": "Je moet in dienst zijn om het staff paneel te openen.",
+    "panel_open": "Staff paneel geopend.",
+    "panel_closed": "Staff paneel gesloten."
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Eclipse Staff Settings</title>
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div id="tags-layer"></div>
+
+	<div id="settings" class="hidden">
+		<div class="settings-container">
+			<div class="settings-panel">
+				<!-- Header -->
+				<div class="panel-header">
+					<div class="header-content">
+						<div class="header-title">
+							<div class="title-text">
+								<h2>Eclipse Staff Settings</h2>
+								<p>Configureer je tag weergave</p>
+							</div>
+						</div>
+						<button class="close-button" id="closeBtn">
+							<svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+								<path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+							</svg>
+						</button>
+					</div>
+				</div>
+				<div class="tabs-nav">
+					<button class="tab-nav-btn active" data-tab="tag-options">
+						<span class="tab-label">Tag Opties</span>
+					</button>
+					<button class="tab-nav-btn" data-tab="settings">
+						<span class="tab-label">Settings</span>
+					</button>
+				</div>
+				<div class="panel-content">
+					<div class="tab-panel active" id="tag-options-tab">
+						<div class="profile-section">
+							<div class="profile-card">
+								<div class="profile-avatar">
+									<img id="avatar" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23333'/%3E%3C/svg%3E" alt="avatar" />
+									<div class="avatar-badge"></div>
+								</div>
+								<div class="profile-info">
+									<div id="discordName" class="profile-name">Discord Naam</div>
+									<div id="discordRank" class="profile-rank">Rang</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="settings-section">
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Tag Weergave</label>
+									<div class="toggle-switch">
+										<input type="checkbox" id="tagEnabled" />
+										<span class="toggle-slider"></span>
+									</div>
+								</div>
+								<p class="setting-description">Schakel tags in of uit</p>
+							</div>
+
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Rang Weergave</label>
+									<div class="toggle-switch">
+										<input type="checkbox" id="showRank" />
+										<span class="toggle-slider"></span>
+									</div>
+								</div>
+								<p class="setting-description">Toon rang in tag</p>
+							</div>
+
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Avatar Weergave</label>
+									<div class="toggle-switch">
+										<input type="checkbox" id="showAvatar" />
+										<span class="toggle-slider"></span>
+									</div>
+								</div>
+								<p class="setting-description">Toon avatar in tag</p>
+							</div>
+						</div>
+					</div>
+					<div class="tab-panel" id="settings-tab">
+						<div class="settings-section">
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Tag Grootte</label>
+									<span class="setting-value" id="tagSizeVal">1.3</span>
+								</div>
+								<input type="range" id="tagSize" class="slider" min="0.5" max="3.5" step="0.05" value="1.3" />
+								<div class="slider-labels">
+									<span>Klein</span>
+									<span>Groot</span>
+								</div>
+							</div>
+
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Achtergrond Opacity</label>
+									<span class="setting-value" id="bgOpacityVal">0.7</span>
+								</div>
+								<input type="range" id="backgroundOpacity" class="slider" min="0" max="1" step="0.05" value="0.7" />
+								<div class="slider-labels">
+									<span>Transparant</span>
+									<span>Opaak</span>
+								</div>
+							</div>
+
+							<div class="setting-item">
+								<div class="setting-header">
+									<label class="setting-label">Border Radius</label>
+									<span class="setting-value" id="borderRadiusVal">20</span><span class="setting-unit">px</span>
+								</div>
+								<input type="range" id="borderRadius" class="slider" min="0" max="50" step="1" value="20" />
+								<div class="slider-labels">
+									<span>Vierkant (0px)</span>
+									<span>Rond (50px)</span>
+								</div>
+								<div class="preview-box">
+									<div class="preview-label">Preview:</div>
+									<div class="preview-shape" id="borderRadiusPreview"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="panel-footer">
+					<button class="btn btn-secondary" id="closeBtn2">Annuleren</button>
+					<button class="btn btn-primary" id="saveBtn">
+						<span>Opslaan</span>
+						<svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+							<path d="M13.3333 4L6 11.3333L2.66667 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+						</svg>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script src="js/script.js"></script>
+</body>
+</html>

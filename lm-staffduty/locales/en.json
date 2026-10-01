@@ -1,0 +1,11 @@
+{
+    "no_access": "You do not have access to TX-Admin.",
+    "duty_on": "You are now on duty as staff.",
+    "duty_off": "You are now off duty.",
+    "command_help": "Toggle staff duty",
+    "panel_help": "Open the staff on duty panel",
+    "not_on_duty": "Not on duty",
+    "not_on_duty_desc": "You must be on duty to open the staff panel.",
+    "panel_open": "Staff panel opened.",
+    "panel_closed": "Staff panel closed."
+}
