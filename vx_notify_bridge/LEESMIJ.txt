@@ -1,0 +1,31 @@
+vx_notify_bridge
+================
+
+Fout in F8 tijdens het kopen van een voertuig:
+
+  error during NUI callback purchase:
+  @vx_cardealer/client/client.lua:104:
+  No such export notify in resource vx_notify
+
+vx_cardealer roept exports['vx_notify']:notify aan. Die export zit niet in
+vx_notify. Lua stopt daar. Geld is dan vaak al afgeschreven, maar de rest van
+de aankoop (voertuig opslaan, terugkoppeling naar de garage) draait niet meer.
+
+Deze resource vult alleen die ontbrekende export aan. vx_notify zelf blijft
+draaien. Bestaat daar wel Notify / Show, dan wordt die gebruikt. Anders gaat
+de melding naar ox_lib, ESX, of de standaard GTA-melding.
+
+Installatie
+-----------
+
+1. Zet de map vx_notify_bridge in je resources.
+2. Zet dit in server.cfg, na vx_notify en voor vx_cardealer:
+
+   ensure vx_notify_bridge
+
+3. Herstart de server, of in de live console:
+
+   ensure vx_notify_bridge
+
+Daarna een voertuig opnieuw kopen. Een aankoop die al crashte komt niet vanzelf
+in de garage; die is tijdens de fout niet opgeslagen.
