@@ -396,6 +396,26 @@ local function tekenDebug(coords)
     end
 end
 
+local function maakRodeCameraBlip(coords, label)
+    local bol = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(bol, 1)
+    SetBlipColour(bol, 1)
+    SetBlipScale(bol, 0.95)
+    SetBlipDisplay(bol, 4)
+    SetBlipAsShortRange(bol, Config.BlipKorteAfstand)
+    SetBlipHiddenOnLegend(bol, true)
+
+    local camera = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(camera, 184)
+    SetBlipColour(camera, 0)
+    SetBlipScale(camera, 0.55)
+    SetBlipDisplay(camera, 4)
+    SetBlipAsShortRange(camera, Config.BlipKorteAfstand)
+    BeginTextCommandSetBlipName('STRING')
+    AddTextComponentSubstringPlayerName(label)
+    EndTextCommandSetBlipName(camera)
+end
+
 local function laadJob()
     if GetResourceState('es_extended') == 'started' then
         local ok, ESX = pcall(function()
@@ -430,26 +450,7 @@ CreateThread(function()
     if Config.ToonBlips then
         for i = 1, #Config.Flitspalen do
             local paal = Config.Flitspalen[i]
-            local blip = AddBlipForCoord(paal.coords.x, paal.coords.y, paal.coords.z)
-            SetBlipSprite(blip, 184)
-            SetBlipColour(blip, 1)
-            SetBlipScale(blip, 0.75)
-            SetBlipAsShortRange(blip, Config.BlipKorteAfstand)
-            BeginTextCommandSetBlipName('STRING')
-            AddTextComponentSubstringPlayerName(('Flitspaal %d km/h'):format(paal.limiet))
-            EndTextCommandSetBlipName(blip)
-        end
-
-        for i = 1, #Config.Roodlicht do
-            local kruispunt = Config.Roodlicht[i]
-            local blip = AddBlipForCoord(kruispunt.centrum.x, kruispunt.centrum.y, kruispunt.centrum.z)
-            SetBlipSprite(blip, 184)
-            SetBlipColour(blip, 47)
-            SetBlipScale(blip, 0.75)
-            SetBlipAsShortRange(blip, Config.BlipKorteAfstand)
-            BeginTextCommandSetBlipName('STRING')
-            AddTextComponentSubstringPlayerName(('Roodlicht %d km/h'):format(kruispunt.limiet))
-            EndTextCommandSetBlipName(blip)
+            maakRodeCameraBlip(paal.coords, ('Flitspaal %d km/h'):format(paal.limiet))
         end
     end
 end)

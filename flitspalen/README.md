@@ -27,6 +27,8 @@ In `config.lua` staat bij elke paal `limiet`. Dat is het maximum in km/h op die 
 
 `Config.Tolerantie` is de meetmarge boven dat maximum. Standaard 5 km/h.
 
+Op de kaart staat alleen een rood bolletje met het camerapictogram, met het maximum erbij (bijvoorbeeld `Flitspaal 50 km/h`). De oranje iconen zijn weg. Door rood rijden flitst nog wel, maar dat kruispunt heeft geen eigen icoon.
+
 ## Rood licht
 
 `Config.Roodlicht` zijn de kruispunten. `limiet` is daar ook het maximum: te hard flitst, en door rood rijden flitst apart (of allebei tegelijk).
