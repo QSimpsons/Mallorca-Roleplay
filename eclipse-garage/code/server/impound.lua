@@ -6,15 +6,17 @@ esrp_lib.callback.register("vx_garage:getExistingVehicles", function()
 end)
 
 esrp_lib.callback.register("vx_garage:returnFromImpound", function(playerId, plate)
-    local player = esrp_lib.player.getFromId(playerId)
-    local identifier = player:getIdentifier()
+    local identifier = functions.ownerId(playerId)
     local vehicle = functions.getVehicleByPlate(plate)
 
-    if vehicle.owner ~= identifier then
+    if not identifier or not vehicle or vehicle.owner ~= identifier then
         return false
     end
 
-    player:removeAccountMoney("bank", Config.impoundPrice)
+    local player = esrp_lib.player.getFromId(playerId)
+    if player then
+        player:removeAccountMoney("bank", Config.impoundPrice)
+    end
 
     MySQL.update("UPDATE owned_vehicles SET `pound` = false WHERE `plate` = @plate", {
         ["@plate"] = plate
@@ -26,11 +28,10 @@ end)
 esrp_lib.callback.register("vx_garage:storedVehicle", function(playerId, plate)
     Citizen.Wait(2000)
 
-    local player = esrp_lib.player.getFromId(playerId)
-    local identifier = player:getIdentifier()
+    local identifier = functions.ownerId(playerId)
     local vehicle = functions.getVehicleByPlate(plate)
 
-    if vehicle.owner ~= identifier then
+    if not identifier or not vehicle or vehicle.owner ~= identifier then
         return false
     end
 

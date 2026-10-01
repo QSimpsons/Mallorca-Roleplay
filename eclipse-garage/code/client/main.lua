@@ -50,8 +50,10 @@ local currentVehicles = {}
 ---@param garage Garage
 local function openGarage(garage)
     currentGarage = garage
-    local vehicles = esrp_lib.callback.await("vx_garage:getOwnedVehicles", false, garage.type)
-    local existingVehicles = esrp_lib.callback.await("vx_garage:getExistingVehicles", false)
+    local vehicles = esrp_lib.callback.await("vx_garage:getOwnedVehicles", false, garage.type) or {}
+    local existingVehicles = esrp_lib.callback.await("vx_garage:getExistingVehicles", false) or {}
+    if type(vehicles) ~= 'table' then vehicles = {} end
+    if type(existingVehicles) ~= 'table' then existingVehicles = {} end
     currentVehicles = vehicles
 
     local uiVehicles = {}
@@ -66,7 +68,13 @@ local function openGarage(garage)
     end
 
     for _, vehicle in pairs(vehicles) do
-        local props = json.decode(vehicle.vehicle)
+        local props = {}
+        if type(vehicle.vehicle) == 'string' and vehicle.vehicle ~= '' then
+            local decodedOk, decoded = pcall(json.decode, vehicle.vehicle)
+            if decodedOk and type(decoded) == 'table' then
+                props = decoded
+            end
+        end
         local model = props.model
         local vehicleName = vehicle.name or GetDisplayNameFromVehicleModel(model) or locale("unknown")
         

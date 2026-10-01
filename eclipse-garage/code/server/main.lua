@@ -6,17 +6,24 @@ local function updateStoredStatus(plate, stored)
 end
 
 esrp_lib.callback.register("vx_garage:getOwnedVehicles", function(source, vehicleType)
-    local identifier = esrp_lib.player.getIdentifier(source)
-    local vehicles = MySQL.query.await([[
-        SELECT *,
-               IFNULL(`favorite`, 0) as favorite
-        FROM owned_vehicles
-        WHERE `owner` = @owner AND `type` = @type
-    ]], {
-        ["@owner"] = identifier,
-        ["@type"] = vehicleType
-    })
-    if not vehicles then vehicles = {} end
+    local identifier = functions.ownerId(source)
+    if not identifier then
+        return {}
+    end
+    local ok, vehicles = pcall(function()
+        return MySQL.query.await([[
+            SELECT * FROM owned_vehicles
+            WHERE `owner` = ? AND `type` = ?
+        ]], { identifier, vehicleType or 'car' })
+    end)
+    if not ok or type(vehicles) ~= 'table' then
+        return {}
+    end
+    for i = 1, #vehicles do
+        if vehicles[i].favorite == nil then
+            vehicles[i].favorite = 0
+        end
+    end
     return vehicles
 end)
 
@@ -29,7 +36,7 @@ esrp_lib.callback.register("vx_garage:vehicleSpawned", function(source, netId)
 end)
 
 esrp_lib.callback.register("vx_garage:storeVehicle", function(source, garage, vehicleData, plate)
-    local identifier = esrp_lib.player.getIdentifier(source)
+    local identifier = functions.ownerId(source)
     local cleanedPlate = plate:gsub("^%s+", "")
 
     local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
@@ -60,7 +67,7 @@ esrp_lib.callback.register("vx_garage:storeVehicle", function(source, garage, ve
 end)
 
 esrp_lib.callback.register("vx_garage:setVehicleName", function(source, plate, name)
-    local identifier = esrp_lib.player.getIdentifier(source)
+    local identifier = functions.ownerId(source)
     local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
         ["@owner"] = identifier,
         ["@plate"] = plate
@@ -79,7 +86,7 @@ esrp_lib.callback.register("vx_garage:setVehicleName", function(source, plate, n
 end)
 
 esrp_lib.callback.register("vx_garage:setFavorite", function(source, plate, favorite)
-    local identifier = esrp_lib.player.getIdentifier(source)
+    local identifier = functions.ownerId(source)
     local vehicles = MySQL.query.await("SELECT * FROM owned_vehicles WHERE `owner` = @owner AND `plate` = @plate", {
         ["@owner"] = identifier,
         ["@plate"] = plate
@@ -98,5 +105,21 @@ esrp_lib.callback.register("vx_garage:setFavorite", function(source, plate, favo
 end)
 
 MySQL.ready(function()
-    MySQL.update.await("UPDATE owned_vehicles SET `stored` = true WHERE `stored` = false")
+    local function ensureColumn(name, ddl)
+        local exists = pcall(function()
+            MySQL.query.await(('SELECT `%s` FROM owned_vehicles LIMIT 1'):format(name))
+        end)
+        if not exists then
+            pcall(function()
+                MySQL.query.await(ddl)
+            end)
+        end
+    end
+
+    ensureColumn('favorite', 'ALTER TABLE owned_vehicles ADD COLUMN `favorite` TINYINT(1) NOT NULL DEFAULT 0')
+    ensureColumn('name', 'ALTER TABLE owned_vehicles ADD COLUMN `name` VARCHAR(64) DEFAULT NULL')
+    ensureColumn('pound', 'ALTER TABLE owned_vehicles ADD COLUMN `pound` TINYINT(1) NOT NULL DEFAULT 0')
+    pcall(function()
+        MySQL.update.await("UPDATE owned_vehicles SET `stored` = true WHERE `stored` = false")
+    end)
 end)
