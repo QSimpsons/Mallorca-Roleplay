@@ -1,0 +1,13 @@
+# snelle-cayo installatie
+
+1. Kopieer `snelle-cayo` naar je `resources` map.
+2. Voeg toe aan server.cfg (vóór MLO/streaming maps):
+
+```cfg
+ensure snelle-cayo
+add_ace group.admin command.cayofix allow
+```
+
+3. Restart de server.
+4. Test: vlieg/teleport naar Cayo. Wereld moet laden (geen blurry void).
+5. Bij problemen: `/cayofix` als admin.

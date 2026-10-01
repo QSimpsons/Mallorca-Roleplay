@@ -1,0 +1,8 @@
+# Cayo Perico loader voor Mallorca/Snelle
+
+# Zet dit BOVEN ensure [streaming] / ensure [MLO]
+ensure snelle-cayo
+
+# Admin teleport + force reload naar airstrip
+add_ace group.admin command.cayofix allow
+add_ace group.owner command.cayofix allow
