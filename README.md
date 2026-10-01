@@ -1,4 +1,4 @@
-# Snelle
+# Eclipse
 
 ## Resources
 

@@ -1,7 +1,7 @@
 Config = {}
 
 -- ═══════════════════════════════════════════════════════════════
--- Snelle Garage · ESX Legacy
+-- Eclipse Garage · ESX Legacy
 -- Parkeer je voertuig, roep het op, of haal het uit de impound.
 -- ═══════════════════════════════════════════════════════════════
 

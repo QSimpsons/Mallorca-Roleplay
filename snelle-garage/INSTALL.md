@@ -1,4 +1,4 @@
-Snelle Garage — installatie
+Eclipse Garage — installatie
 ===========================
 
 1. Map `snelle-garage` in je resources-folder.

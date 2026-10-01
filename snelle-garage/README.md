@@ -1,4 +1,4 @@
-# Snelle Garage
+# Eclipse Garage
 
 Garage voor **ESX Legacy**. Je parkeert een voertuig, roept het weer op, of haalt het tegen betaling uit de impound.
 

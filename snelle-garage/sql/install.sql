@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- Snelle Garage · ESX Legacy · MySQL / MariaDB
+-- Eclipse Garage · ESX Legacy · MySQL / MariaDB
 -- Eenmalig importeren in HeidiSQL of phpMyAdmin.
 -- owned_vehicles moet al bestaan (es_extended).
 -- ═══════════════════════════════════════════════════════════════

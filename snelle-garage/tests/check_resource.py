@@ -62,7 +62,7 @@ for needle in (
         errors.append(f'client missing {needle}')
 
 html = (ROOT / 'html/index.html').read_text(encoding='utf-8')
-for needle in ('id="list"', 'id="search"', 'id="close"', 'Snelle Garage'):
+for needle in ('id="list"', 'id="search"', 'id="close"', 'Eclipse Garage'):
     if needle not in html:
         errors.append(f'html missing {needle}')
 
