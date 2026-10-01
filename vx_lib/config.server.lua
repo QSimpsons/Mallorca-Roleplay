@@ -1,5 +1,12 @@
 ServerConfig = {}
 
+-- Discord stays disabled until a bot token is configured.
+-- Override with the discordToken / discordGuildId convars, or set these directly.
+ServerConfig.token = GetConvar("discordToken", "none")
+ServerConfig.guildId = GetConvar("discordGuildId", "")
+ServerConfig.debug = false
+ServerConfig.refreshCommandCooldown = 60000
+
 ServerConfig.txHost = "http://localhost:3000"
 ServerConfig.txUsername = "thoo0224"
 ServerConfig.txPassword = "password"

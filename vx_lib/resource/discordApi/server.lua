@@ -1,8 +1,10 @@
 vx.discordApi = {}
 
-if ServerConfig.token == "none" then
-   error(
-      "Discord bot token is not set in the server configuration. Please set 'discordToken' convar or update config.server.lua.")
+local token = ServerConfig.token
+if not token or token == "" or token == "none" then
+   print(
+      "^3[WARN] ^7vx_lib Discord API is disabled. Set the discordToken convar or ServerConfig.token in config.server.lua to enable it.")
+   return
 end
 
 local baseUrl = string.format("https://discordapp.com/api/v9/guilds/%s", ServerConfig.guildId)
