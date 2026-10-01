@@ -48,6 +48,8 @@ for needle in (
     'mallorca_impound',
     'owned_vehicles',
     'OnlyPurchasedVehicles',
+    'storePurchases',
+    'esx_vehicleshop:setVehicleOwnedPlayerId',
     'spawnedVehicle',
 ):
     if needle not in server:

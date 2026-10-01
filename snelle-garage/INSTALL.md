@@ -13,7 +13,7 @@ Eclipse Garage — installatie
 
 In-game
 -------
-E bij een garage          = menu, of een gekocht voertuig parkeren
+E bij een garage          = menu, of een gekochte auto parkeren (ook van de cardealer)
 E bij een impound         = betalen en ophalen
 /garage                   = dichtstbijzijnde garage
 /impound of /inbeslag     = dichtstbijzijnde impound

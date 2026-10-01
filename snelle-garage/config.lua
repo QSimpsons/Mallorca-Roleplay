@@ -21,6 +21,13 @@ Config.IncludeJobVehicles = false
 -- Een auto uit een spawnmenu of commando komt er niet in.
 Config.OnlyPurchasedVehicles = true
 
+-- Auto's die je bij de cardealer koopt (esx_vehicleshop / cardealer) kun je
+-- daarna naar een garage rijden en parkeren, ook als de dealer ze al
+-- als "in de garage" had gezet.
+Config.Cardealer = {
+    storePurchases = true
+}
+
 -- In het voertuig zetten zodra het gespawned is.
 Config.WarpIntoVehicle = true
 

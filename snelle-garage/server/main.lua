@@ -183,17 +183,19 @@ local function modelKey(model)
     if model == nil then
         return nil
     end
-    if type(model) == 'number' then
-        return model
+    local n = model
+    if type(model) ~= 'number' then
+        n = tonumber(model)
+        if not n and joaat then
+            n = joaat(tostring(model))
+        end
     end
-    local n = tonumber(model)
-    if n then
-        return n
+    n = tonumber(n)
+    if not n then
+        return nil
     end
-    if joaat then
-        return joaat(tostring(model))
-    end
-    return nil
+    -- Dealer en client gebruiken soms een signed en soms een unsigned hash.
+    return n & 0xFFFFFFFF
 end
 
 local function plateOfEntity(ent)
@@ -1143,10 +1145,11 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                     notify(src, Config.Text.spawnedVehicle)
                     return
                 end
+                local dealerAllows = Config.Cardealer and Config.Cardealer.storePurchases ~= false
                 local parking = row.parking
                 local alreadyParked = schema.stored and isStored(row.stored)
                     and schema.parking and type(parking) == 'string' and parking ~= ''
-                if alreadyParked and ridingNet ~= trackedNet then
+                if alreadyParked and not dealerAllows and ridingNet ~= trackedNet then
                     busy[plateKey] = nil
                     notify(src, Config.Text.spawnedVehicle)
                     return
@@ -1330,6 +1333,83 @@ RegisterNetEvent('snelle-garage:server:staffImpound', function(payload)
             })
         end)
     end)
+end)
+
+local function deliverPurchase(plate, ownerIdent)
+    if not (Config.Cardealer and Config.Cardealer.storePurchases ~= false) then
+        return
+    end
+    local plateKey = Config.NormalizePlate(plate)
+    if plateKey == '' or type(ownerIdent) ~= 'string' or ownerIdent == '' then
+        return
+    end
+    local tries = 0
+    local function attempt()
+        tries = tries + 1
+        if not schema.stored then
+            if tries < 5 then
+                SetTimeout(1000, attempt)
+            end
+            return
+        end
+        local sets = { 'stored = 0' }
+        local where = { 'owner = ?', plateWhere(), 'stored = 1' }
+        if schema.parking then
+            sets[#sets + 1] = 'parking = NULL'
+            where[#where + 1] = "(parking IS NULL OR parking = '')"
+        end
+        if schema.pound then
+            sets[#sets + 1] = 'pound = NULL'
+        end
+        dbExecute(
+            'UPDATE owned_vehicles SET ' .. table.concat(sets, ', ') .. ' WHERE ' .. table.concat(where, ' AND '),
+            { ownerIdent, plateKey },
+            function(affected)
+                if (not affected or affected < 1) and tries < 5 then
+                    SetTimeout(1000, attempt)
+                end
+            end
+        )
+    end
+    attempt()
+end
+
+-- Cardealer verkoopt de auto aan de speler. Daarna staat hij buiten,
+-- zodat die naar een garage gereden en geparkeerd kan worden.
+AddEventHandler('esx_vehicleshop:setVehicleOwned', function(vehicleProps)
+    local src = source
+    if not src or src == 0 or type(vehicleProps) ~= 'table' then
+        return
+    end
+    local xPlayer = getPlayer(src)
+    if not xPlayer then
+        return
+    end
+    deliverPurchase(vehicleProps.plate, xPlayer.identifier)
+end)
+
+AddEventHandler('esx_vehicleshop:setVehicleOwnedPlayerId', function(playerId, vehicleProps)
+    local src = source
+    if not src or src == 0 or type(vehicleProps) ~= 'table' then
+        return
+    end
+    local seller = getPlayer(src)
+    local job = seller and seller.job and seller.job.name
+    if not job or string.lower(tostring(job)) ~= 'cardealer' then
+        return
+    end
+    local buyer = getPlayer(tonumber(playerId) or -1)
+    if not buyer then
+        return
+    end
+    deliverPurchase(vehicleProps.plate, buyer.identifier)
+end)
+
+AddEventHandler('snelle-garage:purchased', function(plate, ownerIdent)
+    if type(source) == 'number' and source > 0 then
+        return
+    end
+    deliverPurchase(plate, ownerIdent)
 end)
 
 AddEventHandler('playerDropped', function()
