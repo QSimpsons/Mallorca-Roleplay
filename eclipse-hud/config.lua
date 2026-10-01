@@ -50,8 +50,8 @@ Config.ShowMoney = true
 -- Locatie / straatnaam
 Config.ShowLocation = true
 
--- Voice indicator (pma-voice / mumble)
-Config.ShowVoice = true
+-- Voice / microfoon indicator (uitgeschakeld)
+Config.ShowVoice = false
 
 -- Minimap health/armor bars verbergen (native GTA bars)
 Config.HideDefaultBars = true

@@ -36,7 +36,7 @@
 <body>
   <div class="preview-note">
     <h1>ECLIPSE ROLEPLAY</h1>
-    <p>HUD preview — zelfde stijl als referentie, blauw thema</p>
+    <p>HUD preview — zonder microfoon</p>
   </div>
 
 <div id="hud" class="hud" aria-hidden="true">
@@ -121,20 +121,11 @@
       <span class="location__street" id="street">—</span>
       <span class="location__zone" id="zone">—</span>
     </div>
-
-    <div class="voice" id="voice-wrap" aria-hidden="true">
-      <div class="icon-box icon-box--voice" id="voice-box" title="Voice">
-        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-          <path fill="currentColor" d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.9V21h2v-3.1A7 7 0 0 0 19 11h-2z"/>
-        </svg>
-      </div>
-    </div>
   </div>
 
   <div class="controls">
     <button type="button" id="btn-low">Lage needs</button>
     <button type="button" id="btn-full">Vol</button>
-    <button type="button" id="btn-talk">Toggle voice</button>
     <button type="button" id="btn-black">Zwart geld</button>
   </div>
 
@@ -145,8 +136,6 @@
     }
     document.getElementById('btn-low').onclick = () => push({ hunger: 12, thirst: 8 });
     document.getElementById('btn-full').onclick = () => push({ hunger: 100, thirst: 100 });
-    let talking = false;
-    document.getElementById('btn-talk').onclick = () => { talking = !talking; push({ talking }); };
     let blackOn = false;
     document.getElementById('btn-black').onclick = () => {
       blackOn = !blackOn;

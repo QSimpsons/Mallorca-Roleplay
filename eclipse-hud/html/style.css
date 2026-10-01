@@ -258,35 +258,6 @@ html, body {
   color: var(--accent);
 }
 
-/* Voice sits above the whole right cluster, not on the logo */
-.voice {
-  position: absolute;
-  right: 2.2vw;
-  bottom: calc(3.6vh + 220px);
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.voice.is-visible { opacity: 1; }
-.voice.is-talking .icon-box--voice {
-  border-color: rgba(120, 210, 255, 0.85);
-  box-shadow: 0 0 0 2px rgba(80, 180, 255, 0.35), 0 0 16px rgba(60, 160, 255, 0.55);
-  transform: scale(1.06);
-}
-
-.icon-box--voice {
-  background: var(--blue-deep);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-/* Keep voice out of the main icon stack visually on small screens */
-@media (max-width: 900px) {
-  .voice {
-    right: 2.2vw;
-    bottom: calc(3.6vh + 210px);
-  }
-}
-
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(18px); }
   to { opacity: 1; transform: translateX(0); }

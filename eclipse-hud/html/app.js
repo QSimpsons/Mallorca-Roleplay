@@ -15,7 +15,6 @@
     location: document.getElementById('location'),
     street: document.getElementById('street'),
     zone: document.getElementById('zone'),
-    voiceWrap: document.getElementById('voice-wrap'),
   };
 
   function clamp(n, min = 0, max = 100) {
@@ -67,14 +66,6 @@
     }
     if (data.street != null) el.street.textContent = data.street || '—';
     if (data.zone != null) el.zone.textContent = data.zone || '—';
-
-    if (typeof data.showVoice === 'boolean') {
-      el.voiceWrap.classList.toggle('is-visible', data.showVoice);
-      el.voiceWrap.setAttribute('aria-hidden', data.showVoice ? 'false' : 'true');
-    }
-    if (typeof data.talking === 'boolean') {
-      el.voiceWrap.classList.toggle('is-talking', data.talking);
-    }
   }
 
   window.addEventListener('message', (event) => {
@@ -105,8 +96,6 @@
       showLocation: true,
       street: 'Power Street',
       zone: 'Pillbox Hill',
-      showVoice: true,
-      talking: false,
     });
   }
 })();

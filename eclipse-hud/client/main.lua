@@ -109,11 +109,6 @@ local function getNeeds()
     return hunger, thirst
 end
 
-local function getVoice()
-    local talking = NetworkIsPlayerTalking(PlayerId())
-    return talking and true or false
-end
-
 local function getLocation()
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
@@ -135,7 +130,6 @@ function pushHud(force)
 
     local h, t = getNeeds()
     local job1, job2 = getJobs()
-    local talking = getVoice()
     local cash, bank, black = getMoney()
     local street, zone = getLocation()
 
@@ -146,8 +140,6 @@ function pushHud(force)
         id = getPlayerId(),
         job1 = job1,
         job2 = job2,
-        talking = talking,
-        showVoice = Config.ShowVoice ~= false,
         showMoney = Config.ShowMoney ~= false,
         cash = cash,
         bank = bank,
