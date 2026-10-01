@@ -103,8 +103,8 @@ body.demo-mode {
   display: grid;
   place-items: center;
   border-radius: 14px;
-  background: linear-gradient(160deg, var(--accent), #c2410c);
-  color: #1a1008;
+  background: linear-gradient(160deg, #60a5fa, #1d4ed8);
+  color: #f4f8ff;
   font-weight: 800;
   letter-spacing: 0.04em;
 }

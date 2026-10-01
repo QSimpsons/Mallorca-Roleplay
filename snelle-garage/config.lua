@@ -118,19 +118,19 @@ Config.Text = {
 }
 
 -- Blip: sprite 357 = garage, 68 = impound, 356 = boot, 359 = vliegtuig.
--- Kleuren: 17 = oranje, 1 = rood, 3 = blauw, 46 = geel.
+-- Kleur 3 = blauw voor elk icoon.
 Config.Blips = {
-    car = { sprite = 357, color = 17, scale = 0.75 },
+    car = { sprite = 357, color = 3, scale = 0.75 },
     boat = { sprite = 356, color = 3, scale = 0.75 },
-    aircraft = { sprite = 359, color = 46, scale = 0.8 },
-    impound = { sprite = 68, color = 1, scale = 0.8 }
+    aircraft = { sprite = 359, color = 3, scale = 0.8 },
+    impound = { sprite = 68, color = 3, scale = 0.8 }
 }
 
 Config.Markers = {
-    car = { type = 36, r = 255, g = 138, b = 26 },
-    boat = { type = 35, r = 80, g = 170, b = 255 },
-    aircraft = { type = 34, r = 255, g = 196, b = 64 },
-    impound = { type = 36, r = 255, g = 70, b = 70 }
+    car = { type = 36, r = 64, g = 156, b = 255 },
+    boat = { type = 35, r = 64, g = 156, b = 255 },
+    aircraft = { type = 34, r = 64, g = 156, b = 255 },
+    impound = { type = 36, r = 64, g = 156, b = 255 }
 }
 
 -- Verplaats coördinaten vrij: coords = marker, spawns = plekken waar de auto komt.

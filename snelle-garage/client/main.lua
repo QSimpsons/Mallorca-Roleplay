@@ -521,7 +521,7 @@ local function drawMarker(loc, kind)
         0.0, 0.0, 0.0,
         0.0, 0.0, 0.0,
         0.85, 0.85, 0.85,
-        marker.r or 255, marker.g or 138, marker.b or 26, 170,
+        marker.r or 64, marker.g or 156, marker.b or 255, 170,
         false, true, 2, false, nil, nil, false
     )
 end
@@ -534,7 +534,7 @@ local function createBlips()
         local defaults = Config.Blips[kind] or Config.Blips.car
         local blip = AddBlipForCoord(loc.coords.x, loc.coords.y, loc.coords.z)
         SetBlipSprite(blip, defaults.sprite or 357)
-        SetBlipColour(blip, defaults.color or 17)
+        SetBlipColour(blip, defaults.color or 3)
         SetBlipScale(blip, defaults.scale or 0.75)
         SetBlipAsShortRange(blip, Config.BlipShortRange == true)
         BeginTextCommandSetBlipName('STRING')
