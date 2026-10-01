@@ -27,9 +27,8 @@ Config.SpawnPalen = true
 Config.PaalModel = 'prop_cctv_pole_04'
 Config.PaalOpzij = 5.5
 
--- Alleen de rode flitspalen staan op de kaart: een rood bolletje met het camerapictogram erin.
--- Roodlichtcamera's hebben geen icoon.
-Config.ToonBlips = true
+-- Flitspalen blijven werken, maar staan niet op de minimap of de pauzekaart.
+Config.ToonBlips = false
 Config.BlipKorteAfstand = true
 
 -- Tekst als je een paal nadert, met het maximum van die plek
