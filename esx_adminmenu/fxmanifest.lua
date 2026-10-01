@@ -4,7 +4,7 @@ lua54("yes")
 
 author("ESX (Zox)")
 description("ESX Admin Menu")
-version("0.4.0")
+version("0.4.1")
 legacyversion("1.15.0")
 
 shared_scripts({

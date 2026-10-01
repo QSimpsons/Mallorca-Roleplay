@@ -8,6 +8,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html,
+body,
+#app {
+  background: transparent;
+  background-color: transparent;
+}
+
 body {
   margin: 0;
   width: 100vw;
@@ -71,7 +78,6 @@ input[type="number"]::-webkit-inner-spin-button {
   box-shadow:
     0 2.4vh 6vh rgba(0, 0, 0, 0.46),
     inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(22px);
   animation: slideUp 0.35s ease-out forwards;
 }
 
@@ -226,7 +232,6 @@ input[type="number"]::-webkit-inner-spin-button {
   color: #eef6ff;
   font-family: "Outfit", sans-serif;
   box-shadow: 0 2vh 5vh rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(18px);
   animation: fadeIn 0.16s ease-out;
 }
 
