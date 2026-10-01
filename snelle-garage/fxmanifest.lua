@@ -9,7 +9,8 @@ version '1.0.0'
 ui_page 'html/index.html'
 
 shared_scripts {
-    'config.lua'
+    'config.lua',
+    'shared/owner.lua'
 }
 
 client_scripts {

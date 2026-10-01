@@ -14,6 +14,8 @@ Snelle Garage — installatie
 In-game
 -------
 E bij een garage          = menu, of parkeren als je bestuurder bent
+Een gekochte auto die nog niet in de garage staat, wordt bij het parkeren
+op jouw naam gezet. Daarna staat hij in het menu.
 E bij een impound         = betalen en ophalen
 /garage                   = dichtstbijzijnde garage
 /impound of /inbeslag     = dichtstbijzijnde impound

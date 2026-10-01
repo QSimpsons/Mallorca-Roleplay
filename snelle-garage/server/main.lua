@@ -423,10 +423,56 @@ local function ensureSchema(done)
     end)
 end
 
+local function playerIdents(src, xPlayer)
+    local list = {}
+    if xPlayer and type(xPlayer.identifier) == 'string' then
+        list[#list + 1] = xPlayer.identifier
+    end
+    local count = 0
+    if GetNumPlayerIdentifiers then
+        count = GetNumPlayerIdentifiers(src) or 0
+    end
+    for i = 0, count - 1 do
+        local ident = GetPlayerIdentifier(src, i)
+        list[#list + 1] = ident
+        if type(ident) == 'string' then
+            local bare = SnelleOwner.bare(ident)
+            if bare ~= '' and bare ~= ident:lower() then
+                list[#list + 1] = bare
+            end
+        end
+    end
+    if xPlayer and type(xPlayer.identifier) == 'string' then
+        local bare = SnelleOwner.bare(xPlayer.identifier)
+        if bare ~= '' then
+            list[#list + 1] = bare
+        end
+    end
+    return SnelleOwner.unique(list)
+end
+
 local function fetchOwned(ident, cb)
     dbFetch('SELECT ' .. columnSql() .. ' FROM owned_vehicles WHERE owner = ?', { ident }, function(rows)
         cb(rows)
     end)
+end
+
+local function fetchOwnedMany(idents, cb)
+    if not idents or #idents == 0 then
+        cb({})
+        return
+    end
+    local marks = {}
+    for i = 1, #idents do
+        marks[i] = '?'
+    end
+    dbFetch(
+        'SELECT ' .. columnSql() .. ' FROM owned_vehicles WHERE owner IN (' .. table.concat(marks, ', ') .. ')',
+        idents,
+        function(rows)
+            cb(rows)
+        end
+    )
 end
 
 local function fetchOwnedPlate(ident, plateKey, cb)
@@ -588,7 +634,8 @@ local function sendList(src, payload, cbToken)
     end
 
     local ident = xPlayer.identifier
-    fetchOwned(ident, function(rows)
+    local idents = playerIdents(src, xPlayer)
+    fetchOwnedMany(idents, function(rows)
         if rows == nil then
             notify(src, Config.Text.dbDown)
             TriggerClientEvent('snelle-garage:client:close', src)
@@ -834,12 +881,12 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
         TriggerClientEvent('snelle-garage:client:idle', src)
     end
 
-    fetchOwnedPlate(xPlayer.identifier, plateKey, function(row)
-        if row == false then
+    fetchPlate(plateKey, function(row, failed)
+        if failed then
             deny(Config.Text.dbDown)
             return
         end
-        if not row then
+        if not row or not SnelleOwner.same(row.owner, playerIdents(src, xPlayer)) then
             deny(Config.Text.notOwner)
             return
         end
@@ -1016,7 +1063,7 @@ local function saveStored(plateKey, propsJson, parking, cb)
         'UPDATE owned_vehicles SET ' .. table.concat(sets, ', ') .. ' WHERE UPPER(REPLACE(plate, \' \', \'\')) = ?',
         params,
         function(affected)
-            cb(affected ~= nil and affected > 0)
+            cb(affected ~= nil)
         end
     )
 end
@@ -1041,24 +1088,29 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
 
     local xPlayer = getPlayer(src)
     if not xPlayer then
+        notify(src, Config.Text.dbDown)
         return
     end
 
     local _, ped = playerCoords(src)
-    local veh = pedVehicle(ped)
+    local veh = 0
+    if ped and ped ~= 0 then
+        veh = pedVehicle(ped)
+    end
     if veh == 0 then
-        notify(src, Config.Text.notDriver)
-        return
+        veh = netEntity(payload.netId)
     end
-    local actual = plateOfEntity(veh)
-    if actual and Config.NormalizePlate(actual) ~= plateKey then
-        notify(src, Config.Text.plateMismatch)
-        return
-    end
-    local seatOk, driver = pcall(GetPedInVehicleSeat, veh, -1)
-    if seatOk and driver and driver ~= 0 and driver ~= ped then
-        notify(src, Config.Text.notDriver)
-        return
+    if veh ~= 0 then
+        local actual = plateOfEntity(veh)
+        if actual and Config.NormalizePlate(actual) ~= plateKey then
+            notify(src, Config.Text.plateMismatch)
+            return
+        end
+        local seatOk, driver = pcall(GetPedInVehicleSeat, veh, -1)
+        if seatOk and driver and driver ~= 0 and ped and ped ~= 0 and driver ~= ped then
+            notify(src, Config.Text.notDriver)
+            return
+        end
     end
 
     if busy[plateKey] then
@@ -1067,71 +1119,149 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
     end
     busy[plateKey] = src
 
-    fetchOwnedPlate(xPlayer.identifier, plateKey, function(row)
-        if row == false then
+    local idents = playerIdents(src, xPlayer)
+    local displayPlate = tostring(payload.plate or ''):upper():gsub('^%s+', ''):gsub('%s+$', '')
+    if #displayPlate > 12 then
+        displayPlate = displayPlate:sub(1, 12)
+    end
+
+    local function release()
+        if busy[plateKey] == src then
             busy[plateKey] = nil
+        end
+    end
+
+    local function parked(plate, message)
+        release()
+        spawned[plateKey] = nil
+        logAction(xPlayer.identifier, playerName(xPlayer, src), 'store', plate, location.id, 0)
+        TriggerClientEvent('snelle-garage:client:stored', src, {
+            plate = plate,
+            netId = tonumber(payload.netId) or 0,
+            message = message
+        })
+    end
+
+    local function claim(props)
+        if not props.model then
+            release()
+            notify(src, Config.Text.modelFail)
+            return
+        end
+        props.plate = displayPlate
+        local encoded = encodeProps(props)
+        if not encoded then
+            release()
             notify(src, Config.Text.dbDown)
             return
         end
+        local cols = { '`owner`', '`plate`', '`vehicle`', '`type`' }
+        local marks = { '?', '?', '?', '?' }
+        local params = { xPlayer.identifier, displayPlate, encoded, 'car' }
+        if schema.stored then
+            cols[#cols + 1] = '`stored`'
+            marks[#marks + 1] = '?'
+            params[#params + 1] = 1
+        end
+        if schema.parking then
+            cols[#cols + 1] = '`parking`'
+            marks[#marks + 1] = '?'
+            params[#params + 1] = location.id
+        end
+        if schema.job then
+            cols[#cols + 1] = '`job`'
+            marks[#marks + 1] = '?'
+            params[#params + 1] = ''
+        end
+        dbInsert(
+            'INSERT INTO owned_vehicles (' .. table.concat(cols, ', ') .. ') VALUES (' .. table.concat(marks, ', ') .. ')',
+            params,
+            function(insertId)
+                if insertId == nil then
+                    release()
+                    notify(src, Config.Text.dbDown)
+                    return
+                end
+                parked(displayPlate, Config.Text.storedNew)
+            end
+        )
+    end
+
+    fetchPlate(plateKey, function(row, failed)
+        if failed then
+            release()
+            notify(src, Config.Text.dbDown)
+            return
+        end
+
+        local incoming = decodeProps(payload.props)
         if not row then
-            busy[plateKey] = nil
+            claim(incoming)
+            return
+        end
+        if not SnelleOwner.same(row.owner, idents) then
+            release()
             notify(src, Config.Text.notOwner)
             return
         end
         if not Config.SameType(location.type, row.type) then
-            busy[plateKey] = nil
+            release()
             notify(src, Config.Text.wrongType)
             return
         end
-        fetchImpounds(xPlayer.identifier, function(impoundRows)
-            if impoundRows == nil then
-                busy[plateKey] = nil
-                notify(src, Config.Text.dbDown)
-                return
-            end
-            if indexImpounds(impoundRows)[plateKey] then
-                busy[plateKey] = nil
-                notify(src, Config.Text.impounded)
-                return
-            end
+        if schema.pound and type(row.pound) == 'string' and row.pound ~= '' then
+            release()
+            notify(src, Config.Text.impounded)
+            return
+        end
 
-            local current = decodeProps(row.vehicle)
-            local incoming = decodeProps(payload.props)
-            local currentModel = modelKey(current.model)
-            local incomingModel = modelKey(incoming.model)
-            if currentModel and incomingModel and currentModel ~= incomingModel then
-                busy[plateKey] = nil
-                notify(src, Config.Text.plateMismatch)
-                return
-            end
-            if next(incoming) == nil then
-                incoming = current
-            end
-            incoming.plate = row.plate
-            if not incoming.model then
-                incoming.model = current.model
-            end
-            local encoded = encodeProps(incoming)
-            if not encoded then
-                busy[plateKey] = nil
-                notify(src, Config.Text.dbDown)
-                return
-            end
-
-            saveStored(plateKey, encoded, location.id, function(ok)
-                busy[plateKey] = nil
-                if not ok then
+        dbFetch(
+            [[SELECT id FROM mallorca_impound WHERE UPPER(REPLACE(plate, ' ', '')) = ? LIMIT 1]],
+            { plateKey },
+            function(impoundRows)
+                if impoundRows == nil then
+                    release()
                     notify(src, Config.Text.dbDown)
                     return
                 end
-                spawned[plateKey] = nil
-                logAction(xPlayer.identifier, playerName(xPlayer, src), 'store', row.plate, location.id, 0)
-                TriggerClientEvent('snelle-garage:client:stored', src, {
-                    plate = row.plate,
-                    netId = tonumber(payload.netId) or 0
-                })
-            end)
-        end)
+                if impoundRows[1] then
+                    release()
+                    notify(src, Config.Text.impounded)
+                    return
+                end
+
+                local current = decodeProps(row.vehicle)
+                local currentModel = modelKey(current.model)
+                local incomingModel = modelKey(incoming.model)
+                if currentModel and incomingModel and currentModel ~= incomingModel then
+                    release()
+                    notify(src, Config.Text.plateMismatch)
+                    return
+                end
+                if next(incoming) == nil then
+                    incoming = current
+                end
+                incoming.plate = row.plate
+                if not incoming.model then
+                    incoming.model = current.model
+                end
+                local encoded = encodeProps(incoming)
+                if not encoded then
+                    release()
+                    notify(src, Config.Text.dbDown)
+                    return
+                end
+
+                saveStored(plateKey, encoded, location.id, function(ok)
+                    if not ok then
+                        release()
+                        notify(src, Config.Text.dbDown)
+                        return
+                    end
+                    parked(row.plate)
+                end)
+            end
+        )
     end)
 end)
 

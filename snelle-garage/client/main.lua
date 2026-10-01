@@ -334,7 +334,16 @@ local function requestOpen(mode, location)
     })
 end
 
+local storing = false
+
+local function pressedInteract()
+    return IsControlJustReleased(0, 38) or IsDisabledControlJustReleased(0, 38)
+end
+
 local function storeVehicle(location)
+    if storing then
+        return
+    end
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped, false)
     if veh == 0 or GetPedInVehicleSeat(veh, -1) ~= ped then
@@ -342,12 +351,21 @@ local function storeVehicle(location)
         return
     end
     local props = getProps(veh)
+    if not props.plate or props.plate == '' then
+        notify(Config.Text.plateMismatch)
+        return
+    end
+    storing = true
+    notify(Config.Text.storing)
     TriggerServerEvent('snelle-garage:server:store', {
         plate = props.plate,
         props = props,
         locationId = location.id,
         netId = NetworkGetNetworkIdFromEntity(veh)
     })
+    SetTimeout(1200, function()
+        storing = false
+    end)
 end
 
 local function staffImpound(entity, reason)
@@ -433,7 +451,15 @@ end)
 
 RegisterNetEvent('snelle-garage:client:stored', function(data)
     data = data or {}
-    local veh = findVeh(data.netId, data.plate)
+    storing = false
+    local veh = 0
+    local ped = PlayerPedId()
+    local current = GetVehiclePedIsIn(ped, false)
+    if current ~= 0 and Config.NormalizePlate(GetVehicleNumberPlateText(current)) == Config.NormalizePlate(data.plate) then
+        veh = current
+    else
+        veh = findVeh(data.netId, data.plate)
+    end
     if veh ~= 0 then
         local ped = PlayerPedId()
         if GetVehiclePedIsIn(ped, false) == veh then
@@ -447,7 +473,7 @@ RegisterNetEvent('snelle-garage:client:stored', function(data)
         end
     end
     if not data.quiet then
-        notify(Config.Text.parked)
+        notify(data.message or Config.Text.parked)
     end
 end)
 
@@ -687,12 +713,12 @@ CreateThread(function()
                 sleep = 0
                 if closestKind == 'garage' and driving then
                     help(Config.Text.store)
-                    if IsControlJustReleased(0, 38) then
+                    if pressedInteract() then
                         storeVehicle(closest)
                     end
                 elseif veh == 0 then
                     help(closestKind == 'impound' and Config.Text.openImpound or Config.Text.openGarage)
-                    if IsControlJustReleased(0, 38) then
+                    if pressedInteract() then
                         requestOpen(closestKind == 'impound' and 'impound' or 'garage', closest)
                     end
                 end
