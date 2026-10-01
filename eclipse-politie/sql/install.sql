@@ -1,5 +1,5 @@
 -- ============================================================================
--- Mallorca Roleplay · Politie Job
+-- Eclipse Roleplay · Politie Job
 -- Volledige SQL-installatie (ESX Legacy / MySQL / MariaDB)
 --
 -- 10 rangen (laag → hoog):
@@ -132,7 +132,7 @@ AND NOT EXISTS (SELECT 1 FROM `items` WHERE `name` = 'armor');
 -- --------------------------------------------------------------------------
 -- Bewijskluis / inbeslagnames log (eigen tabel)
 -- --------------------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mallorca_politie_impound` (
+CREATE TABLE IF NOT EXISTS `eclipse_politie_impound` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `plate` VARCHAR(12) NOT NULL,
     `owner` VARCHAR(64) DEFAULT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `mallorca_politie_impound` (
     KEY `idx_owner` (`owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `mallorca_politie_fines` (
+CREATE TABLE IF NOT EXISTS `eclipse_politie_fines` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `identifier` VARCHAR(64) NOT NULL,
     `player_name` VARCHAR(80) DEFAULT NULL,

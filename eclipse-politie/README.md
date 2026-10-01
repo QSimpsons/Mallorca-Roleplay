@@ -1,4 +1,4 @@
-# Mallorca Politie
+# Eclipse Politie
 
 Volledige Nederlandse politie-job voor ESX Legacy met **10 officiële rangen**.
 
@@ -29,7 +29,7 @@ Volledige Nederlandse politie-job voor ESX Legacy met **10 officiële rangen**.
 
 ## Installatie
 
-1. Zet de map `mallorca-politie` in je resources-folder.
+1. Zet de map `eclipse-politie` in je resources-folder.
 2. Importeer `sql/install.sql` in je database.
 3. Voeg toe aan `server.cfg`:
 
@@ -39,7 +39,7 @@ ensure oxmysql
 ensure es_extended
 ensure esx_society
 ensure esx_addonaccount
-ensure mallorca-politie
+ensure eclipse-politie
 ```
 
 4. Geef jezelf de job (voorbeeld):

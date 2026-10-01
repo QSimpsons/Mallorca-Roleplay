@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-author 'Mallorca Roleplay'
+author 'Eclipse Roleplay'
 description 'Volledige Nederlandse Politie-job — 10 rangen van aspirant tot eerste hoofdcommissaris'
 version '1.0.0'
 

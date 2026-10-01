@@ -33,7 +33,7 @@ function OpenArmory()
         title = 'Wapens inleveren',
         description = 'Lever je dienstwapens in',
         onSelect = function()
-            TriggerServerEvent('mallorca-politie:server:storeWeapons')
+            TriggerServerEvent('eclipse-politie:server:storeWeapons')
         end,
     }
 
@@ -45,7 +45,7 @@ function OpenArmory()
                 title = w.label,
                 description = ('Rang %s+'):format(w.grade),
                 onSelect = function()
-                    TriggerServerEvent('mallorca-politie:server:giveWeapon', w.name)
+                    TriggerServerEvent('eclipse-politie:server:giveWeapon', w.name)
                 end,
             }
         end
@@ -59,7 +59,7 @@ function OpenArmory()
                 title = it.label,
                 description = ('x%s · Rang %s+'):format(it.count, it.grade),
                 onSelect = function()
-                    TriggerServerEvent('mallorca-politie:server:giveItem', it.name, it.count)
+                    TriggerServerEvent('eclipse-politie:server:giveItem', it.name, it.count)
                 end,
             }
         end

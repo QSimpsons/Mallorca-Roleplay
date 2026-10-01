@@ -45,9 +45,9 @@ local function openFineMenu()
                         Notify(_('invalid_amount'), 'error')
                         return
                     end
-                    TriggerServerEvent('mallorca-politie:server:fine', target, amount, input[2])
+                    TriggerServerEvent('eclipse-politie:server:fine', target, amount, input[2])
                 else
-                    TriggerServerEvent('mallorca-politie:server:fine', target, fine.amount, fine.label)
+                    TriggerServerEvent('eclipse-politie:server:fine', target, fine.amount, fine.label)
                 end
             end,
         }
@@ -76,7 +76,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('id')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:checkId', target)
+                    TriggerServerEvent('eclipse-politie:server:checkId', target)
                 end
             end,
         },
@@ -87,7 +87,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('cuff')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:handcuff', target)
+                    TriggerServerEvent('eclipse-politie:server:handcuff', target)
                 end
             end,
         },
@@ -98,7 +98,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('escort')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:drag', target)
+                    TriggerServerEvent('eclipse-politie:server:drag', target)
                 end
             end,
         },
@@ -109,7 +109,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('vehicle')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:putInVehicle', target)
+                    TriggerServerEvent('eclipse-politie:server:putInVehicle', target)
                 end
             end,
         },
@@ -120,7 +120,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('vehicle')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:outVehicle', target)
+                    TriggerServerEvent('eclipse-politie:server:outVehicle', target)
                 end
             end,
         },
@@ -131,7 +131,7 @@ function OpenPoliceActions()
             onSelect = function()
                 local target = requireTarget('search')
                 if target then
-                    TriggerServerEvent('mallorca-politie:server:search', target)
+                    TriggerServerEvent('eclipse-politie:server:search', target)
                 end
             end,
         },
@@ -152,7 +152,7 @@ function OpenPoliceActions()
                 end
                 local plate = ESX.Math.Trim(GetVehicleNumberPlateText(vehicle))
                 Notify(_('radar_plate', plate), 'inform')
-                TriggerServerEvent('mallorca-politie:server:checkPlate', plate)
+                TriggerServerEvent('eclipse-politie:server:checkPlate', plate)
             end,
         },
         {
@@ -179,7 +179,7 @@ function OpenPoliceActions()
                     anim = { dict = 'mini@repair', clip = 'fixing_a_player' },
                 }) then
                     local props = ESX.Game.GetVehicleProperties(vehicle)
-                    TriggerServerEvent('mallorca-politie:server:impound', props)
+                    TriggerServerEvent('eclipse-politie:server:impound', props)
                     ESX.Game.DeleteVehicle(vehicle)
                     Notify(_('impounded'), 'success')
                 end
@@ -202,7 +202,7 @@ end, false)
 RegisterKeyMapping('politieacties', 'Politie actiemenu', 'keyboard', Config.Keys.actions or 'F6')
 
 -- Zoekresultaat tonen
-RegisterNetEvent('mallorca-politie:client:showSearch', function(targetName, inventory)
+RegisterNetEvent('eclipse-politie:client:showSearch', function(targetName, inventory)
     local lines = {}
     if type(inventory) == 'table' then
         for i = 1, #inventory do
@@ -223,7 +223,7 @@ RegisterNetEvent('mallorca-politie:client:showSearch', function(targetName, inve
     lib.showContext('politie_search_result')
 end)
 
-RegisterNetEvent('mallorca-politie:client:showId', function(data)
+RegisterNetEvent('eclipse-politie:client:showId', function(data)
     lib.registerContext({
         id = 'politie_id_card',
         title = 'Identiteitsbewijs',

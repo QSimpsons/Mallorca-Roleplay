@@ -95,7 +95,7 @@ local function openDutyMenu()
         Notify(_('not_police'), 'error')
         return
     end
-    TriggerServerEvent('mallorca-politie:server:toggleDuty')
+    TriggerServerEvent('eclipse-politie:server:toggleDuty')
 end
 
 local function openBossMenu()
@@ -120,7 +120,7 @@ local function openBossMenu()
                 {
                     title = 'Maatschappij saldo opvragen',
                     onSelect = function()
-                        TriggerServerEvent('mallorca-politie:server:getSocietyMoney')
+                        TriggerServerEvent('eclipse-politie:server:getSocietyMoney')
                     end,
                 },
             },
@@ -143,7 +143,7 @@ RegisterNetEvent('esx:setJob', function(job)
     PlayerData.job = job
 end)
 
-RegisterNetEvent('mallorca-politie:client:notify', function(msg, nType)
+RegisterNetEvent('eclipse-politie:client:notify', function(msg, nType)
     Notify(msg, nType)
 end)
 
@@ -261,7 +261,7 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent('mallorca-politie:client:setHandcuff', function(state)
+RegisterNetEvent('eclipse-politie:client:setHandcuff', function(state)
     IsHandcuffed = state == true
     local ped = PlayerPedId()
     if IsHandcuffed then
@@ -282,7 +282,7 @@ RegisterNetEvent('mallorca-politie:client:setHandcuff', function(state)
     end
 end)
 
-RegisterNetEvent('mallorca-politie:client:drag', function(copId)
+RegisterNetEvent('eclipse-politie:client:drag', function(copId)
     if not IsHandcuffed then return end
     DragStatus.isDragged = not DragStatus.isDragged
     DragStatus.copId = copId
@@ -291,7 +291,7 @@ RegisterNetEvent('mallorca-politie:client:drag', function(copId)
     end
 end)
 
-RegisterNetEvent('mallorca-politie:client:putInVehicle', function()
+RegisterNetEvent('eclipse-politie:client:putInVehicle', function()
     if not IsHandcuffed then return end
     local ped = PlayerPedId()
     local vehicle = ESX.Game.GetVehicleInDirection()
@@ -310,7 +310,7 @@ RegisterNetEvent('mallorca-politie:client:putInVehicle', function()
     end
 end)
 
-RegisterNetEvent('mallorca-politie:client:outVehicle', function()
+RegisterNetEvent('eclipse-politie:client:outVehicle', function()
     local ped = PlayerPedId()
     if IsPedSittingInAnyVehicle(ped) then
         local vehicle = GetVehiclePedIsIn(ped, false)

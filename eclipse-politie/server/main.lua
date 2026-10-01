@@ -11,7 +11,7 @@ local function _(key, ...)
 end
 
 local function notify(src, msg, nType)
-    TriggerClientEvent('mallorca-politie:client:notify', src, msg, nType or 'inform')
+    TriggerClientEvent('eclipse-politie:client:notify', src, msg, nType or 'inform')
 end
 
 local function getPolicePlayer(src)
@@ -46,7 +46,7 @@ end)
 ------------------------------------------------------------------------
 -- Duty
 ------------------------------------------------------------------------
-RegisterNetEvent('mallorca-politie:server:toggleDuty', function()
+RegisterNetEvent('eclipse-politie:server:toggleDuty', function()
     local src = source
     local xPlayer = ESX.GetPlayerFromId(src)
     if not xPlayer or not xPlayer.job then return end
@@ -68,7 +68,7 @@ end)
 ------------------------------------------------------------------------
 -- Armory
 ------------------------------------------------------------------------
-RegisterNetEvent('mallorca-politie:server:giveWeapon', function(weaponName)
+RegisterNetEvent('eclipse-politie:server:giveWeapon', function(weaponName)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer then
@@ -94,7 +94,7 @@ RegisterNetEvent('mallorca-politie:server:giveWeapon', function(weaponName)
     notify(src, _('armory_taken', allowed.label), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:giveItem', function(itemName, count)
+RegisterNetEvent('eclipse-politie:server:giveItem', function(itemName, count)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer then
@@ -121,7 +121,7 @@ RegisterNetEvent('mallorca-politie:server:giveItem', function(itemName, count)
     notify(src, _('armory_taken', allowed.label), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:storeWeapons', function()
+RegisterNetEvent('eclipse-politie:server:storeWeapons', function()
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer then return end
@@ -138,7 +138,7 @@ end)
 ------------------------------------------------------------------------
 -- Player actions
 ------------------------------------------------------------------------
-RegisterNetEvent('mallorca-politie:server:handcuff', function(target)
+RegisterNetEvent('eclipse-politie:server:handcuff', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'cuff') then
@@ -160,7 +160,7 @@ RegisterNetEvent('mallorca-politie:server:handcuff', function(target)
     end
 
     Handcuffed[target] = not Handcuffed[target]
-    TriggerClientEvent('mallorca-politie:client:setHandcuff', target, Handcuffed[target])
+    TriggerClientEvent('eclipse-politie:client:setHandcuff', target, Handcuffed[target])
     if Handcuffed[target] then
         notify(src, _('cuffed'), 'success')
     else
@@ -168,7 +168,7 @@ RegisterNetEvent('mallorca-politie:server:handcuff', function(target)
     end
 end)
 
-RegisterNetEvent('mallorca-politie:server:drag', function(target)
+RegisterNetEvent('eclipse-politie:server:drag', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'escort') then return end
@@ -181,31 +181,31 @@ RegisterNetEvent('mallorca-politie:server:drag', function(target)
         notify(src, 'Verdachte is niet geboeid.', 'error')
         return
     end
-    TriggerClientEvent('mallorca-politie:client:drag', target, src)
+    TriggerClientEvent('eclipse-politie:client:drag', target, src)
     notify(src, _('escorting'), 'inform')
 end)
 
-RegisterNetEvent('mallorca-politie:server:putInVehicle', function(target)
+RegisterNetEvent('eclipse-politie:server:putInVehicle', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'vehicle') then return end
     target = tonumber(target)
     if not target or not isNear(src, target, 5.0) then return end
-    TriggerClientEvent('mallorca-politie:client:putInVehicle', target)
+    TriggerClientEvent('eclipse-politie:client:putInVehicle', target)
     notify(src, _('in_vehicle'), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:outVehicle', function(target)
+RegisterNetEvent('eclipse-politie:server:outVehicle', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'vehicle') then return end
     target = tonumber(target)
     if not target or not isNear(src, target, 5.0) then return end
-    TriggerClientEvent('mallorca-politie:client:outVehicle', target)
+    TriggerClientEvent('eclipse-politie:client:outVehicle', target)
     notify(src, _('out_vehicle'), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:search', function(target)
+RegisterNetEvent('eclipse-politie:server:search', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'search') then return end
@@ -243,11 +243,11 @@ RegisterNetEvent('mallorca-politie:server:search', function(target)
         }
     end
 
-    TriggerClientEvent('mallorca-politie:client:showSearch', src, tPlayer.getName(), inventory)
+    TriggerClientEvent('eclipse-politie:client:showSearch', src, tPlayer.getName(), inventory)
     notify(src, _('search_done'), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:checkId', function(target)
+RegisterNetEvent('eclipse-politie:server:checkId', function(target)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'id') then return end
@@ -275,11 +275,11 @@ RegisterNetEvent('mallorca-politie:server:checkId', function(target)
         data.height = tPlayer.variables.height or data.height
     end
 
-    TriggerClientEvent('mallorca-politie:client:showId', src, data)
+    TriggerClientEvent('eclipse-politie:client:showId', src, data)
     notify(src, _('id_shown', data.name), 'inform')
 end)
 
-RegisterNetEvent('mallorca-politie:server:fine', function(target, amount, reason)
+RegisterNetEvent('eclipse-politie:server:fine', function(target, amount, reason)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'fine') then
@@ -314,7 +314,7 @@ RegisterNetEvent('mallorca-politie:server:fine', function(target, amount, reason
     end
 
     MySQL.insert(
-        'INSERT INTO mallorca_politie_fines (identifier, player_name, officer, officer_name, amount, reason) VALUES (?, ?, ?, ?, ?, ?)',
+        'INSERT INTO eclipse_politie_fines (identifier, player_name, officer, officer_name, amount, reason) VALUES (?, ?, ?, ?, ?, ?)',
         { tPlayer.identifier, tPlayer.getName(), xPlayer.identifier, xPlayer.getName(), amount, reason }
     )
 
@@ -336,7 +336,7 @@ RegisterNetEvent('mallorca-politie:server:fine', function(target, amount, reason
     notify(target, _('billed_received', amount), 'error')
 end)
 
-RegisterNetEvent('mallorca-politie:server:checkPlate', function(plate)
+RegisterNetEvent('eclipse-politie:server:checkPlate', function(plate)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer then return end
@@ -354,7 +354,7 @@ RegisterNetEvent('mallorca-politie:server:checkPlate', function(plate)
     end)
 end)
 
-RegisterNetEvent('mallorca-politie:server:impound', function(props)
+RegisterNetEvent('eclipse-politie:server:impound', function(props)
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'impound') then return end
@@ -365,7 +365,7 @@ RegisterNetEvent('mallorca-politie:server:impound', function(props)
 
     MySQL.single('SELECT owner FROM owned_vehicles WHERE plate = ? LIMIT 1', { plate }, function(row)
         MySQL.insert(
-            'INSERT INTO mallorca_politie_impound (plate, owner, props, reason, officer, officer_name) VALUES (?, ?, ?, ?, ?, ?)',
+            'INSERT INTO eclipse_politie_impound (plate, owner, props, reason, officer, officer_name) VALUES (?, ?, ?, ?, ?, ?)',
             { plate, row and row.owner or nil, encoded, 'Inbeslagname politie', xPlayer.identifier, xPlayer.getName() }
         )
     end)
@@ -381,7 +381,7 @@ RegisterNetEvent('mallorca-politie:server:impound', function(props)
     notify(src, _('impounded'), 'success')
 end)
 
-RegisterNetEvent('mallorca-politie:server:getSocietyMoney', function()
+RegisterNetEvent('eclipse-politie:server:getSocietyMoney', function()
     local src = source
     local xPlayer = getPolicePlayer(src)
     if not xPlayer or not hasGrade(xPlayer, 'boss') then

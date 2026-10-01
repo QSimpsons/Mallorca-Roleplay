@@ -1,21 +1,21 @@
 ============================================================
- Mallorca Politie — INSTALLATIE
+ Eclipse Politie — INSTALLATIE
 ============================================================
 
 1) RESOURCE
-   - Kopieer de map "mallorca-politie" naar je server resources.
+   - Kopieer de map "eclipse-politie" naar je server resources.
    - Voeg toe in server.cfg:
-       ensure mallorca-politie
+       ensure eclipse-politie
 
 2) DATABASE
    - Open HeidiSQL / phpMyAdmin.
-   - Importeer: mallorca-politie/sql/install.sql
+   - Importeer: eclipse-politie/sql/install.sql
    - Dit maakt aan:
        * jobs: police + offpolice
        * 10 job_grades (aspirant → eerste hoofdcommissaris)
        * society_police (account / inventory / datastore)
        * items: handcuffs, radio, armor (als ESX items-tabel bestaat)
-       * tabellen: mallorca_politie_impound, mallorca_politie_fines
+       * tabellen: eclipse_politie_impound, eclipse_politie_fines
 
 3) BAAN GEVEN
    UPDATE users SET job = 'police', job_grade = 9
@@ -28,7 +28,7 @@
 
 5) HERSTART
    refresh
-   ensure mallorca-politie
+   ensure eclipse-politie
 
 ============================================================
  RANGEN
