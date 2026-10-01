@@ -1,5 +1,5 @@
 -- ═══════════════════════════════════════════════════════════════
--- Snelle Garage · ESX Legacy · MySQL / MariaDB
+-- Eclipse Garage · ESX Legacy · MySQL / MariaDB
 -- Eenmalig importeren in HeidiSQL of phpMyAdmin.
 -- owned_vehicles moet al bestaan (es_extended).
 -- ═══════════════════════════════════════════════════════════════
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `mallorca_impound` (
     KEY `owner` (`owner`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `snelle_garage_log` (
+CREATE TABLE IF NOT EXISTS `eclipse_garage_log` (
     `id` INT NOT NULL AUTO_INCREMENT,
     `identifier` VARCHAR(80) NOT NULL,
     `player_name` VARCHAR(64) DEFAULT NULL,

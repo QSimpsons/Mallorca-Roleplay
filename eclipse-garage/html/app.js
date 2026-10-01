@@ -1,6 +1,6 @@
 (function () {
   const isNui = typeof GetParentResourceName === 'function';
-  const resName = isNui ? GetParentResourceName() : 'snelle-garage';
+  const resName = isNui ? GetParentResourceName() : 'eclipse-garage';
   const app = document.getElementById('app');
   const listEl = document.getElementById('list');
   const chipsEl = document.getElementById('chips');

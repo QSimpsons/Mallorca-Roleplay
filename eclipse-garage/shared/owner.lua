@@ -1,18 +1,18 @@
-SnelleOwner = {}
+EclipseOwner = {}
 
-function SnelleOwner.bare(value)
+function EclipseOwner.bare(value)
     value = tostring(value or ''):lower()
     value = value:gsub('^char%d+:', '')
     value = value:gsub('^license2?:', '')
     return value
 end
 
-function SnelleOwner.same(owner, idents)
+function EclipseOwner.same(owner, idents)
     if type(owner) ~= 'string' or owner == '' or type(idents) ~= 'table' then
         return false
     end
 
-    local ownerBare = SnelleOwner.bare(owner)
+    local ownerBare = EclipseOwner.bare(owner)
     if ownerBare == '' then
         return false
     end
@@ -20,7 +20,7 @@ function SnelleOwner.same(owner, idents)
     for i = 1, #idents do
         local ident = idents[i]
         if type(ident) == 'string' and ident ~= '' then
-            if ident == owner or ident:lower() == owner:lower() or SnelleOwner.bare(ident) == ownerBare then
+            if ident == owner or ident:lower() == owner:lower() or EclipseOwner.bare(ident) == ownerBare then
                 return true
             end
         end
@@ -29,7 +29,7 @@ function SnelleOwner.same(owner, idents)
     return false
 end
 
-function SnelleOwner.unique(list)
+function EclipseOwner.unique(list)
     local seen = {}
     local out = {}
 

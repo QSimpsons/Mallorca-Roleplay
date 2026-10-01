@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-author 'Snelle'
+author 'Eclipse'
 description 'Garage en impound — parkeren, oproepen en voertuigen ophalen'
 version '1.0.0'
 

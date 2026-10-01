@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Lightweight checks for snelle-garage (no FiveM runtime)."""
+"""Lightweight checks for eclipse-garage (no FiveM runtime)."""
 from pathlib import Path
 import sys
 
@@ -24,7 +24,7 @@ for rel in required:
         errors.append(f'missing {rel}')
 
 sql = (ROOT / 'sql/install.sql').read_text(encoding='utf-8')
-for needle in ('mallorca_impound', 'snelle_garage_log', 'owned_vehicles', 'stored', 'parking', 'pound'):
+for needle in ('mallorca_impound', 'eclipse_garage_log', 'owned_vehicles', 'stored', 'parking', 'pound'):
     if needle not in sql:
         errors.append(f'sql missing {needle}')
 
@@ -41,10 +41,10 @@ for needle in ('Config.Garages', 'Config.Impounds', 'Config.NormalizePlate', 'im
 server = (ROOT / 'server/main.lua').read_text(encoding='utf-8')
 client = (ROOT / 'client/main.lua').read_text(encoding='utf-8')
 for needle in (
-    'snelle-garage:server:list',
-    'snelle-garage:server:spawn',
-    'snelle-garage:server:store',
-    'snelle-garage:server:staffImpound',
+    'eclipse-garage:server:list',
+    'eclipse-garage:server:spawn',
+    'eclipse-garage:server:store',
+    'eclipse-garage:server:staffImpound',
     'mallorca_impound',
     'owned_vehicles',
 ):
@@ -52,8 +52,8 @@ for needle in (
         errors.append(f'server missing {needle}')
 
 for needle in (
-    'snelle-garage:client:spawn',
-    'snelle-garage:client:stored',
+    'eclipse-garage:client:spawn',
+    'eclipse-garage:client:stored',
     'RegisterNUICallback',
     'CreateVehicle',
     'oproep',
@@ -62,7 +62,7 @@ for needle in (
         errors.append(f'client missing {needle}')
 
 html = (ROOT / 'html/index.html').read_text(encoding='utf-8')
-for needle in ('id="list"', 'id="search"', 'id="close"', 'Snelle Garage'):
+for needle in ('id="list"', 'id="search"', 'id="close"', 'Eclipse Garage'):
     if needle not in html:
         errors.append(f'html missing {needle}')
 
@@ -82,4 +82,4 @@ if errors:
         print(' -', err)
     sys.exit(1)
 
-print('OK snelle-garage files complete')
+print('OK eclipse-garage files complete')

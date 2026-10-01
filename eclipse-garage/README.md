@@ -1,4 +1,4 @@
-# Snelle Garage
+# Eclipse Garage
 
 Garage voor **ESX Legacy**. Je parkeert een voertuig, roept het weer op, of haalt het tegen betaling uit de impound.
 
@@ -6,14 +6,14 @@ Werkt samen met de inbeslagname van `mallorca-takel` (`mallorca_impound`). Zonde
 
 ## Installatie
 
-1. Zet de map `snelle-garage` in `resources`.
+1. Zet de map `eclipse-garage` in `resources`.
 2. Importeer `sql/install.sql` in je ESX-database (HeidiSQL of phpMyAdmin).
 3. Zet dit in `server.cfg`, **na** `oxmysql` en `es_extended`:
 
 ```cfg
 ensure oxmysql
 ensure es_extended
-ensure snelle-garage
+ensure eclipse-garage
 ```
 
 `ox_target` is optioneel. Zonder oogje werken de markers en de **E**-toets.
