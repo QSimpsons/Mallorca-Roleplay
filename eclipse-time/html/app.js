@@ -14,20 +14,21 @@
         snow: '<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3v18M6 6l12 12M18 6L6 18"/><path d="M12 7.5l1.4-1.2M12 7.5l-1.4-1.2M12 16.5l1.4 1.2M12 16.5l-1.4 1.2M8 9l-1.6-.2M8 9l.2-1.6M16 15l1.6.2M16 15l-.2 1.6"/></g>',
         blizzard: '<g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M8 3.5v11M4.8 6.2l6.4 6.4M11.2 6.2L4.8 12.6"/><path d="M14 6h6M13 10h7M14.5 14h5M15 18h3.5"/></g>',
         xmas: '<path d="M12 4l4 6h-2.2l3 4.5h-2.4L18 19H6l3.6-4.5H7.2L10.2 10H8l4-6z" fill="currentColor"/><rect x="10.5" y="19" width="3" height="2" fill="currentColor"/>',
-        halloween: '<path fill="currentColor" fill-rule="evenodd" d="M12 4.8c3.6 0 6.2 2.6 6.2 6.1 0 2.2-1 3.6-1.6 4.8-.4.8-.2 1.5.3 2.1H7.1c.5-.6.7-1.3.3-2.1C6.8 14.5 5.8 13.1 5.8 10.9c0-3.5 2.6-6.1 6.2-6.1zm-2.6 6.1c.55 0 .9.55.55 1.15l-.7 1.05h-1.15l.55-1.05c.2-.35.4-1.15.75-1.15zm4.7 0c.55 0 .9.55.55 1.15l-.7 1.05h-1.15l.55-1.05c.2-.35.4-1.15.75-1.15zM9.7 15c.65.75 1.4 1.05 2.3 1.05s1.65-.3 2.3-1.05l.75.6c-.9 1.05-1.95 1.5-3.05 1.5s-2.15-.45-3.05-1.5z"/>'
+        halloween: '<path fill="currentColor" fill-rule="evenodd" d="M12 6.4c2.9 0 5 2.3 5 5.3 0 2.6-1.9 5.3-5 5.3s-5-2.7-5-5.3c0-3 2.1-5.3 5-5.3zM9.7 10.2a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0zm3.6 0a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0z"/><path d="M8.7 7.4 7.5 4.4M15.3 7.4l1.2-3" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>'
     };
 
     var TOGGLE_ORDER = [
         'freeze',
-        'blackout',
-        'instantTime',
-        'dynamic',
         'h24',
+        'blackout',
+        'dynamic',
+        'instantTime',
         'instantWeather',
         'tsunami'
     ];
 
     var overlay = document.getElementById('overlay');
+    var sky = document.getElementById('sky');
     var timeLabel = document.getElementById('time-label');
     var slider = document.getElementById('time-slider');
     var weatherRoot = document.getElementById('weathers');
@@ -43,8 +44,8 @@
 
     function post(name, payload) {
         if (typeof GetParentResourceName !== 'function') {
-            window.__snelleActions = window.__snelleActions || [];
-            window.__snelleActions.push({ name: name, payload: payload });
+            window.__eclipseActions = window.__eclipseActions || [];
+            window.__eclipseActions.push({ name: name, payload: payload });
             return;
         }
 
@@ -68,11 +69,10 @@
     }
 
     function updateTimeLabel() {
-        var parts = window.SnelleTime.fromMinutes(slider.value);
-        timeLabel.textContent = window.SnelleTime.formatTime(parts.hour, parts.minute, flags.h24 === true);
-        var max = Number(slider.max) || 1439;
-        var fill = (Number(slider.value) / max) * 100;
-        slider.style.setProperty('--fill', fill + '%');
+        var parts = window.EclipseTime.fromMinutes(slider.value);
+        timeLabel.textContent = window.EclipseTime.formatTime(parts.hour, parts.minute, flags.h24 === true);
+        var night = parts.hour < 6 || parts.hour >= 20;
+        sky.classList.toggle('is-night', night);
     }
 
     function setFlag(key, value) {
@@ -109,7 +109,7 @@
             button.setAttribute('data-weather', weather.id);
             button.title = weather.label || weather.id;
             button.setAttribute('aria-label', weather.label || weather.id);
-            button.innerHTML = iconSvg(weather.icon);
+            button.innerHTML = '<span class="mini"><span class="knob"></span></span>' + iconSvg(weather.icon);
             button.addEventListener('click', function (event) {
                 selectWeather(event.currentTarget.getAttribute('data-weather'));
             });
@@ -139,14 +139,14 @@
                 setFlag(name, !flags[name]);
             });
 
-            row.appendChild(label);
             row.appendChild(button);
+            row.appendChild(label);
             toggleRoot.appendChild(row);
         }
     }
 
     function readPayload() {
-        var parts = window.SnelleTime.fromMinutes(slider.value);
+        var parts = window.EclipseTime.fromMinutes(slider.value);
         return {
             hour: parts.hour,
             minute: parts.minute,
@@ -174,7 +174,7 @@
         var minute = Number(state.minute);
         if (!isFinite(hour)) hour = 14;
         if (!isFinite(minute)) minute = 0;
-        slider.value = String(window.SnelleTime.toMinutes(hour, minute));
+        slider.value = String(window.EclipseTime.toMinutes(hour, minute));
 
         setFlag('freeze', state.freeze);
         setFlag('blackout', state.blackout);

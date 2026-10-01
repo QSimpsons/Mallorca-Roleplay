@@ -22,7 +22,7 @@ function GetPlayerName()
 end
 
 function GetCurrentResourceName()
-    return 'snelle-time'
+    return 'eclipse-time'
 end
 
 function LoadResourceFile()
@@ -66,8 +66,8 @@ function exports(name, handler)
     exported[name] = handler
 end
 
-dofile('snelle-time/config.lua')
-dofile('snelle-time/server/main.lua')
+dofile('eclipse-time/config.lua')
+dofile('eclipse-time/server/main.lua')
 
 local function assertEq(actual, expected, label)
     if actual ~= expected then
@@ -102,29 +102,29 @@ end
 
 source = 7
 allowAce = false
-events['snelle-time:apply'](payload(), false)
+events['eclipse-time:apply'](payload(), false)
 assertEq(exported.GetState().weather, 'EXTRASUNNY', 'zonder rechten blijft het weer')
-assertEq(clientEvents[#clientEvents].name, 'snelle-time:notify', 'weigering meldt')
+assertEq(clientEvents[#clientEvents].name, 'eclipse-time:notify', 'weigering meldt')
 
 allowAce = true
 clientEvents = {}
 now = now + 400
-events['snelle-time:apply'](payload({ weather = 'METEOR' }), false)
+events['eclipse-time:apply'](payload({ weather = 'METEOR' }), false)
 assertEq(exported.GetState().weather, 'EXTRASUNNY', 'ongeldig weer wordt geweigerd')
 assertEq(clientEvents[#clientEvents].args[1], Config.Locale.invalid, 'ongeldige melding')
 
 now = now + 400
-events['snelle-time:apply'](payload({ hour = 24 }), false)
+events['eclipse-time:apply'](payload({ hour = 24 }), false)
 assertEq(exported.GetState().hour, 14, 'uur 24 wordt geweigerd')
 assertEq(clientEvents[#clientEvents].args[1], Config.Locale.invalid, 'uur buiten bereik')
 
 now = now + 400
-events['snelle-time:apply'](payload({ freeze = 'ja' }), false)
+events['eclipse-time:apply'](payload({ freeze = 'ja' }), false)
 assertEq(exported.GetState().freeze, true, 'geen boolean wordt geweigerd')
 
 clientEvents = {}
 now = now + 400
-events['snelle-time:apply'](payload(), false)
+events['eclipse-time:apply'](payload(), false)
 state = exported.GetState()
 assertEq(state.hour, 8, 'uur toegepast')
 assertEq(state.minute, 30, 'minuut toegepast')
@@ -133,19 +133,19 @@ assertEq(state.freeze, false, 'freeze uit')
 assertEq(state.blackout, true, 'blackout aan')
 assertEq(state.tsunami, true, 'tsunami aan')
 assertEq(state.instantWeather, false, 'geleidelijke weerwisseling')
-assertEq(clientEvents[1].name, 'snelle-time:state', 'staat naar clients')
+assertEq(clientEvents[1].name, 'eclipse-time:state', 'staat naar clients')
 assertEq(clientEvents[1].target, -1, 'broadcast')
 assertEq(clientEvents[1].args[2].smoothTime, false, 'directe tijd springt')
 assertEq(clientEvents[1].args[2].applyWeather, true, 'weer wordt gezet')
 
 now = now + 50
 local before = #clientEvents
-events['snelle-time:apply'](payload({ hour = 9 }), false)
+events['eclipse-time:apply'](payload({ hour = 9 }), false)
 assertEq(#clientEvents, before, 'te snelle tweede wijziging wordt genegeerd')
 assertEq(exported.GetState().hour, 8, 'uur blijft na rate limit')
 
 now = now + 400
-events['snelle-time:apply'](payload({
+events['eclipse-time:apply'](payload({
     hour = 1,
     minute = 0,
     weather = 'CLOUDS',
@@ -158,7 +158,7 @@ assertEq(state.weather, 'CLOUDS', 'opslaan past het weer toe')
 assertEq(savedFile, '{"ok":true}', 'bestand geschreven')
 local foundSmooth = false
 for i = 1, #clientEvents do
-    if clientEvents[i].name == 'snelle-time:state' and clientEvents[i].args[2].smoothTime == true then
+    if clientEvents[i].name == 'eclipse-time:state' and clientEvents[i].args[2].smoothTime == true then
         foundSmooth = true
     end
 end
@@ -166,13 +166,13 @@ assertEq(foundSmooth, true, 'uitgestelde tijdswissel')
 
 now = now + 400
 clientEvents = {}
-events['snelle-time:requestOpen']()
-assertEq(clientEvents[1].name, 'snelle-time:open', 'menu opent')
+events['eclipse-time:requestOpen']()
+assertEq(clientEvents[1].name, 'eclipse-time:open', 'menu opent')
 assertEq(clientEvents[1].args[1].hour, 1, 'menu toont de servertijd')
 
 now = now + 100
 local openCount = #clientEvents
-events['snelle-time:requestOpen']()
+events['eclipse-time:requestOpen']()
 assertEq(#clientEvents, openCount, 'dubbele open wordt gedempt')
 
 commands.time(0)

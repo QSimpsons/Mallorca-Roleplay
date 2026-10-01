@@ -1,0 +1,272 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body.preview {
+    background: #6f8794;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.panel {
+    width: 900px;
+    background: #3a3a3a;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    user-select: none;
+    color: #fff;
+}
+
+.sky {
+    height: 168px;
+    position: relative;
+    overflow: hidden;
+    background: #b7e6fb;
+}
+
+.sky svg {
+    display: block;
+    width: 100%;
+    height: 168px;
+}
+
+.sky-night {
+    display: none;
+}
+
+.sky.is-night {
+    background: #101c45;
+}
+
+.sky.is-night .sky-day {
+    display: none;
+}
+
+.sky.is-night .sky-night {
+    display: block;
+}
+
+.body {
+    padding: 14px 26px 16px;
+}
+
+.time-label {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 500;
+    color: #c8c8c8;
+    letter-spacing: 0.4px;
+    margin-bottom: 10px;
+}
+
+.time-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 18px;
+    background: transparent;
+    outline: none;
+    margin: 0 0 16px;
+}
+
+.time-slider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #d5d5d5;
+}
+
+.time-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: #2f7cf6;
+    border: 0;
+    cursor: pointer;
+}
+
+.time-slider::-moz-range-track {
+    height: 8px;
+    border-radius: 999px;
+    background: #d5d5d5;
+    border: 0;
+}
+
+.time-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #2f7cf6;
+    border: 0;
+    cursor: pointer;
+}
+
+.weathers {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    row-gap: 12px;
+    margin: 6px 0 18px;
+}
+
+.weather {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+}
+
+.weather svg {
+    width: 26px;
+    height: 26px;
+    display: block;
+}
+
+.mini {
+    width: 32px;
+    height: 16px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #c8c8c8;
+    position: relative;
+}
+
+.mini .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.weather.is-selected .mini {
+    background: #2f7cf6;
+}
+
+.weather.is-selected .mini .knob {
+    left: 18px;
+}
+
+.toggles {
+    display: grid;
+    grid-template-columns: max-content max-content max-content max-content;
+    justify-content: space-between;
+    column-gap: 28px;
+    row-gap: 12px;
+}
+
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toggle-label {
+    font-size: 15px;
+    color: #f2f2f2;
+    white-space: nowrap;
+}
+
+.switch {
+    width: 36px;
+    height: 18px;
+    flex: 0 0 auto;
+    border: 0;
+    border-radius: 999px;
+    background: #c8c8c8;
+    position: relative;
+    cursor: pointer;
+    padding: 0;
+}
+
+.switch .knob {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.switch.on {
+    background: #2f7cf6;
+}
+
+.switch.on .knob {
+    left: 20px;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 18px;
+}
+
+.btn {
+    border: 0;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1;
+    padding: 7px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.btn.save {
+    background: #2f7cf6;
+}
+
+.btn.change {
+    background: #2ea44f;
+}
+
+.btn.close {
+    background: #8d8d8d;
+}
+
+.btn:hover {
+    filter: brightness(1.06);
+}
+
+.toast {
+    height: 0;
+    overflow: hidden;
+    text-align: right;
+    font-size: 12px;
+    color: #d1d5db;
+    opacity: 0;
+}
+
+.toast.show {
+    height: auto;
+    margin-top: 8px;
+    opacity: 1;
+}

@@ -96,7 +96,7 @@ local function sanitize(data, loose)
 end
 
 local function broadcast(target, opts)
-    TriggerClientEvent('snelle-time:state', target or -1, publicState(), opts or {})
+    TriggerClientEvent('eclipse-time:state', target or -1, publicState(), opts or {})
 end
 
 local function persist()
@@ -116,13 +116,13 @@ local function loadSaved()
 
     local ok, decoded = pcall(json.decode, raw)
     if not ok then
-        print('[snelle-time] data/settings.json is ongeldig, standaardwaarden worden gebruikt.')
+        print('[eclipse-time] data/settings.json is ongeldig, standaardwaarden worden gebruikt.')
         return
     end
 
     local clean = sanitize(decoded, true)
     if not clean then
-        print('[snelle-time] Opgeslagen instellingen zijn onvolledig, standaardwaarden worden gebruikt.')
+        print('[eclipse-time] Opgeslagen instellingen zijn onvolledig, standaardwaarden worden gebruikt.')
         return
     end
 
@@ -185,7 +185,7 @@ CreateThread(function()
                 state.minute = 0
                 state.hour = (state.hour + 1) % 24
             end
-            TriggerClientEvent('snelle-time:tick', -1, state.hour, state.minute, false)
+            TriggerClientEvent('eclipse-time:tick', -1, state.hour, state.minute, false)
         end
     end
 end)
@@ -211,7 +211,7 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent('snelle-time:requestSync', function()
+RegisterNetEvent('eclipse-time:requestSync', function()
     broadcast(source, {
         initial = true,
         smoothTime = false,
@@ -231,21 +231,21 @@ local function openFor(src)
     lastOpen[src] = now
 
     if not isAllowed(src) then
-        TriggerClientEvent('snelle-time:notify', src, Config.Locale.denied)
+        TriggerClientEvent('eclipse-time:notify', src, Config.Locale.denied)
         return
     end
 
-    TriggerClientEvent('snelle-time:open', src, publicState(), Config.Weathers, Config.Locale)
+    TriggerClientEvent('eclipse-time:open', src, publicState(), Config.Weathers, Config.Locale)
 end
 
-RegisterNetEvent('snelle-time:requestOpen', function()
+RegisterNetEvent('eclipse-time:requestOpen', function()
     openFor(source)
 end)
 
-RegisterNetEvent('snelle-time:apply', function(data, shouldSave)
+RegisterNetEvent('eclipse-time:apply', function(data, shouldSave)
     local src = source
     if not isAllowed(src) then
-        TriggerClientEvent('snelle-time:notify', src, Config.Locale.denied)
+        TriggerClientEvent('eclipse-time:notify', src, Config.Locale.denied)
         return
     end
 
@@ -255,7 +255,7 @@ RegisterNetEvent('snelle-time:apply', function(data, shouldSave)
 
     local clean = sanitize(data, false)
     if not clean then
-        TriggerClientEvent('snelle-time:notify', src, Config.Locale.invalid)
+        TriggerClientEvent('eclipse-time:notify', src, Config.Locale.invalid)
         return
     end
 
@@ -284,7 +284,7 @@ RegisterNetEvent('snelle-time:apply', function(data, shouldSave)
     })
 
     local name = GetPlayerName(src) or 'onbekend'
-    print(('[snelle-time] %s (%s) zette %02d:%02d, weer %s%s'):format(
+    print(('[eclipse-time] %s (%s) zette %02d:%02d, weer %s%s'):format(
         name,
         src,
         state.hour,
@@ -294,14 +294,14 @@ RegisterNetEvent('snelle-time:apply', function(data, shouldSave)
     ))
 
     if shouldSave == true and not saved then
-        TriggerClientEvent('snelle-time:notify', src, Config.Locale.saveFailed)
-        TriggerClientEvent('snelle-time:result', src, Config.Locale.saveFailed)
+        TriggerClientEvent('eclipse-time:notify', src, Config.Locale.saveFailed)
+        TriggerClientEvent('eclipse-time:result', src, Config.Locale.saveFailed)
         return
     end
 
     local message = shouldSave == true and Config.Locale.saved or Config.Locale.applied
-    TriggerClientEvent('snelle-time:notify', src, message)
-    TriggerClientEvent('snelle-time:result', src, message)
+    TriggerClientEvent('eclipse-time:notify', src, message)
+    TriggerClientEvent('eclipse-time:result', src, message)
 end)
 
 AddEventHandler('playerDropped', function()
@@ -320,7 +320,7 @@ end)
 
 RegisterCommand(Config.Command, function(src)
     if src == 0 then
-        print(('[snelle-time] Nu %02d:%02d, weer %s, freeze %s'):format(
+        print(('[eclipse-time] Nu %02d:%02d, weer %s, freeze %s'):format(
             state.hour,
             state.minute,
             state.weather,
@@ -336,7 +336,7 @@ exports('GetState', function()
     return publicState()
 end)
 
-print(('[snelle-time] Gestart op %02d:%02d met weer %s. Commando /%s'):format(
+print(('[eclipse-time] Gestart op %02d:%02d met weer %s. Commando /%s'):format(
     state.hour,
     state.minute,
     state.weather,

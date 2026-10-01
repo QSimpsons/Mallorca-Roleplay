@@ -130,14 +130,14 @@ local function closeMenu()
     SendNUIMessage({ action = 'close' })
 end
 
-RegisterNetEvent('snelle-time:state', function(newState, opts)
+RegisterNetEvent('eclipse-time:state', function(newState, opts)
     if type(newState) ~= 'table' or type(newState.hour) ~= 'number' or type(newState.minute) ~= 'number' then
         return
     end
     applyState(newState, opts)
 end)
 
-RegisterNetEvent('snelle-time:tick', function(hour, minute, frozen)
+RegisterNetEvent('eclipse-time:tick', function(hour, minute, frozen)
     if type(hour) ~= 'number' or type(minute) ~= 'number' then
         return
     end
@@ -151,7 +151,7 @@ RegisterNetEvent('snelle-time:tick', function(hour, minute, frozen)
     State.minute = math.max(0, math.min(59, math.floor(minute)))
 end)
 
-RegisterNetEvent('snelle-time:open', function(serverState, weathers, locale)
+RegisterNetEvent('eclipse-time:open', function(serverState, weathers, locale)
     menuOpen = true
     SetNuiFocus(true, true)
     SendNUIMessage({
@@ -162,11 +162,11 @@ RegisterNetEvent('snelle-time:open', function(serverState, weathers, locale)
     })
 end)
 
-RegisterNetEvent('snelle-time:notify', function(message)
+RegisterNetEvent('eclipse-time:notify', function(message)
     notify(message)
 end)
 
-RegisterNetEvent('snelle-time:result', function(message)
+RegisterNetEvent('eclipse-time:result', function(message)
     SendNUIMessage({
         action = 'toast',
         message = message
@@ -179,17 +179,17 @@ RegisterNUICallback('close', function(_, cb)
 end)
 
 RegisterNUICallback('change', function(data, cb)
-    TriggerServerEvent('snelle-time:apply', data, false)
+    TriggerServerEvent('eclipse-time:apply', data, false)
     cb({ ok = true })
 end)
 
 RegisterNUICallback('save', function(data, cb)
-    TriggerServerEvent('snelle-time:apply', data, true)
+    TriggerServerEvent('eclipse-time:apply', data, true)
     cb({ ok = true })
 end)
 
 RegisterCommand(Config.Command, function()
-    TriggerServerEvent('snelle-time:requestOpen')
+    TriggerServerEvent('eclipse-time:requestOpen')
 end, false)
 
 CreateThread(function()
@@ -246,7 +246,7 @@ AddEventHandler('onClientResourceStart', function(resource)
 
     CreateThread(function()
         Wait(1500)
-        TriggerServerEvent('snelle-time:requestSync')
+        TriggerServerEvent('eclipse-time:requestSync')
         pcall(function()
             TriggerEvent('chat:addSuggestion', '/' .. Config.Command, Config.Locale.suggestion)
         end)

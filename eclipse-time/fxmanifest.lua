@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 lua54 'yes'
 
-author 'Snelle'
+author 'Eclipse'
 description 'Pas de tijd en het weer aan met /time'
 version '1.0.0'
 

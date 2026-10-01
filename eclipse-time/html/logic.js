@@ -39,5 +39,5 @@
         module.exports = api;
     }
 
-    root.SnelleTime = api;
+    root.EclipseTime = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);

@@ -1,14 +1,14 @@
-# Snelle Time
+# Eclipse Time
 
 FiveM-menu om de tijd en het weer voor de hele server te zetten. Het commando is `/time`.
 
 ## Installatie
 
-1. Zet de map `snelle-time` in je `resources` folder.
+1. Zet de map `eclipse-time` in je `resources` folder.
 2. Zet in `server.cfg`:
 
 ```cfg
-ensure snelle-time
+ensure eclipse-time
 ```
 
 3. Geef jezelf rechten. Als admins nog geen algemene command-rechten hebben:
@@ -30,7 +30,7 @@ Typ `/time`. Het menu toont de huidige servertijd.
 
 | Knop / optie | Wat het doet |
 | --- | --- |
-| Slider | Tijdstip. Het label staat op 12 uur, of op 24 uur als `24 hr` aan staat. |
+| Slider | Tijdstip. Het label staat op 12 uur, of op 24 uur als `24 hr` aan staat. Overdag zie je zon en wolken, 's nachts de maan en sterren. |
 | Weericonen | Extra sunny, clear, neutral, smog, foggy, overcast, clouds, clearing, rain, thunder, light snow, snow, blizzard, christmas en halloween. |
 | Freeze time | De klok blijft stilstaan. |
 | Blackout | Stadverlichting uit. |
