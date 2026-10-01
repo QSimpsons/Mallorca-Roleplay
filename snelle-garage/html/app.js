@@ -78,13 +78,15 @@
 
   function actionFor(vehicle) {
     const mode = state.mode;
-    if (mode === 'impound' && (vehicle.state === 'impound' || vehicle.state === 'out')) {
+    if (vehicle.state === 'impound') {
+      return { label: 'Uit impound halen', enabled: !state.busy };
+    }
+    if (mode === 'impound' && vehicle.state === 'out') {
       return { label: 'Ophalen', enabled: !state.busy };
     }
     if ((mode === 'garage' || mode === 'call') && vehicle.state === 'garage' && vehicle.here !== false) {
       return { label: 'Oproepen', enabled: !state.busy };
     }
-    if (vehicle.state === 'impound') return { label: 'Staat in de impound', enabled: false };
     if (vehicle.state === 'out') return { label: 'Staat buiten', enabled: false };
     if (vehicle.here === false) return { label: 'Andere garage', enabled: false };
     return { label: 'Niet beschikbaar', enabled: false };
@@ -301,7 +303,7 @@
   function demoPayload(mode) {
     const titles = { garage: 'Garage Legion Square', impound: 'Impound Davis', call: 'Voertuig oproepen' };
     const subtitles = {
-      garage: 'Kies een voertuig om op te roepen',
+      garage: 'Kies een voertuig om op te roepen of uit de impound te halen',
       impound: 'Haal een voertuig gratis uit de impound',
       call: 'Het voertuig wordt bij je in de buurt gezet'
     };
@@ -328,9 +330,17 @@
     if (name === 'take') {
       const vehicle = state.vehicles.find(function (item) { return item.plate === body.plate; });
       if (!vehicle) return;
-      if (state.mode === 'impound') {
+      if (vehicle.state === 'impound' || state.mode === 'impound') {
         toast(vehicle.label + ' opgehaald uit de impound');
-        state.vehicles = state.vehicles.filter(function (item) { return item.plate !== vehicle.plate; });
+        if (state.mode === 'impound' && vehicle.state === 'impound') {
+          state.vehicles = state.vehicles.filter(function (item) { return item.plate !== vehicle.plate; });
+        } else if (vehicle.state === 'impound') {
+          vehicle.state = 'out';
+          vehicle.reason = 'Staat buiten';
+          vehicle.price = 0;
+        } else {
+          state.vehicles = state.vehicles.filter(function (item) { return item.plate !== vehicle.plate; });
+        }
       } else {
         vehicle.state = 'out';
         vehicle.reason = 'Staat buiten of is vermist';

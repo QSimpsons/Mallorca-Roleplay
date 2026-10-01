@@ -3,13 +3,13 @@
   --panel: #161c26;
   --card: #1d2531;
   --card-2: #232c3b;
-  --line: rgba(255, 186, 92, 0.18);
+  --line: rgba(96, 165, 250, 0.28);
   --text: #f6f3ec;
   --muted: #9aa6b8;
-  --accent: #ff8a1a;
-  --accent-2: #ffc14d;
+  --accent: #3b82f6;
+  --accent-2: #93c5fd;
   --ok: #3dd68c;
-  --warn: #ffc14d;
+  --warn: #7dd3fc;
   --danger: #ff5d5d;
   --shadow: 0 24px 70px rgba(0, 0, 0, 0.45);
 }
@@ -29,8 +29,8 @@ button, input { font: inherit; color: inherit; }
 
 body.demo-mode {
   background:
-    radial-gradient(ellipse at 50% -10%, rgba(255, 138, 26, 0.2), transparent 46%),
-    linear-gradient(180deg, #1a140e 0%, #0c0f14 100%);
+    radial-gradient(ellipse at 50% -10%, rgba(59, 130, 246, 0.22), transparent 46%),
+    linear-gradient(180deg, #101820 0%, #0c0f14 100%);
 }
 
 .sr {
@@ -64,7 +64,7 @@ body.demo-mode {
   gap: 10px;
   padding: 16px 18px 12px;
   background:
-    radial-gradient(80% 50% at 100% 0%, rgba(255, 138, 26, 0.16), transparent 50%),
+    radial-gradient(80% 50% at 100% 0%, rgba(59, 130, 246, 0.18), transparent 50%),
     linear-gradient(180deg, #1c2430 0%, var(--bg) 100%);
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -77,7 +77,7 @@ body.demo-mode {
   position: absolute;
   inset: 0 0 auto 0;
   height: 3px;
-  background: linear-gradient(90deg, #e85d04, var(--accent) 40%, var(--accent-2) 50%, var(--accent) 60%, #e85d04);
+  background: linear-gradient(90deg, #1d4ed8, var(--accent) 40%, var(--accent-2) 50%, var(--accent) 60%, #1d4ed8);
 }
 
 .top, .intro, .toolbar, .stats, footer {
@@ -128,8 +128,8 @@ h1 {
 .ghost:hover, .chip:hover, .action:hover { border-color: var(--line); }
 
 .action {
-  background: linear-gradient(180deg, #ff9a33, #ef6c00);
-  color: #1a1008;
+  background: linear-gradient(180deg, #60a5fa, #1d4ed8);
+  color: #f8fbff;
   font-weight: 700;
 }
 
@@ -159,14 +159,14 @@ h1 {
   outline: none;
 }
 
-.search input:focus { border-color: rgba(255, 138, 26, 0.7); }
+.search input:focus { border-color: rgba(96, 165, 250, 0.85); }
 
 .chips { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .chip.active {
-  background: rgba(255, 138, 26, 0.16);
+  background: rgba(59, 130, 246, 0.18);
   color: var(--accent-2);
-  border-color: rgba(255, 138, 26, 0.4);
+  border-color: rgba(96, 165, 250, 0.55);
 }
 
 .stats { justify-content: flex-start; }
@@ -221,7 +221,7 @@ h1 {
 }
 
 .badge.garage { background: rgba(61, 214, 140, 0.15); color: var(--ok); }
-.badge.out { background: rgba(255, 193, 77, 0.15); color: var(--warn); }
+.badge.out { background: rgba(125, 211, 252, 0.15); color: var(--warn); }
 .badge.impound { background: rgba(255, 93, 93, 0.15); color: var(--danger); }
 
 .plate {
@@ -249,7 +249,7 @@ h1 {
 .meters { display: grid; gap: 3px; }
 .meter span { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
 .bar { height: 5px; border-radius: 99px; background: #0e131b; overflow: hidden; }
-.bar i { display: block; height: 100%; background: linear-gradient(90deg, #ef6c00, #ffc14d); }
+.bar i { display: block; height: 100%; background: linear-gradient(90deg, #1d4ed8, #93c5fd); }
 
 .empty, .loading {
   grid-column: 1 / -1;
@@ -275,8 +275,8 @@ footer { font-size: 13px; }
 .demo.hidden { display: none; }
 
 .demo button {
-  background: #1b140e;
-  border: 1px solid rgba(255, 193, 77, 0.35);
+  background: #101820;
+  border: 1px solid rgba(96, 165, 250, 0.45);
   border-radius: 999px;
   padding: 8px 12px;
   cursor: pointer;
@@ -292,8 +292,8 @@ footer { font-size: 13px; }
 }
 
 .toast {
-  background: #1b140e;
-  border: 1px solid rgba(255, 138, 26, 0.4);
+  background: #101820;
+  border: 1px solid rgba(96, 165, 250, 0.45);
   border-radius: 12px;
   padding: 12px 14px;
   max-width: 320px;

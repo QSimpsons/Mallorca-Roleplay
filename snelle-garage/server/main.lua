@@ -613,7 +613,7 @@ local function sendList(src, payload, cbToken)
                 end
             end
             local cash, bank = moneySnapshot(xPlayer)
-            local subtitle = 'Kies een voertuig om op te roepen'
+            local subtitle = 'Kies een voertuig om op te roepen of uit de impound te halen'
             if mode == 'impound' then
                 subtitle = 'Haal een voertuig gratis uit de impound'
             elseif mode == 'call' then
@@ -869,23 +869,23 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
 
             if mode == 'garage' or mode == 'call' then
                 if state == 'impound' then
-                    deny(Config.Text.impounded)
-                    return
-                end
-                if state ~= 'garage' then
+                    price = 0
+                    action = 'impound'
+                elseif state == 'garage' then
+                    if mode == 'garage' and not Config.ShareGarages then
+                        local parking = row.parking
+                        if parking and parking ~= '' and parking ~= location.id then
+                            deny(Config.Text.otherGarage)
+                            return
+                        end
+                    end
+                    if mode == 'call' then
+                        price = tonumber(Config.Call.price) or Config.Prices.call or 0
+                        action = 'call'
+                    end
+                else
                     deny(Config.Text.alreadyOut)
                     return
-                end
-                if mode == 'garage' and not Config.ShareGarages then
-                    local parking = row.parking
-                    if parking and parking ~= '' and parking ~= location.id then
-                        deny(Config.Text.otherGarage)
-                        return
-                    end
-                end
-                if mode == 'call' then
-                    price = tonumber(Config.Call.price) or Config.Prices.call or 0
-                    action = 'call'
                 end
             elseif mode == 'impound' then
                 if state == 'impound' then
@@ -952,7 +952,8 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
                             z = tonumber(coords.z),
                             w = tonumber(coords.w) or 0.0
                         },
-                        mode = mode
+                        mode = mode,
+                        released = action == 'impound' or action == 'recover'
                     })
                     SetTimeout(25000, function()
                         if pending[token] then

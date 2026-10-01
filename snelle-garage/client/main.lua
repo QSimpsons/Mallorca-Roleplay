@@ -420,10 +420,10 @@ RegisterNetEvent('snelle-garage:client:spawn', function(data)
             return
         end
         TriggerServerEvent('snelle-garage:server:spawned', data.token, NetworkGetNetworkIdFromEntity(veh))
-        if data.mode == 'call' then
-            notify(Config.Text.called)
-        elseif data.mode == 'impound' then
+        if data.released or data.mode == 'impound' then
             notify(Config.Text.recovered)
+        elseif data.mode == 'call' then
+            notify(Config.Text.called)
         else
             notify(Config.Text.spawned)
         end

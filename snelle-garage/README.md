@@ -1,6 +1,6 @@
 # Eclipse Garage
 
-Garage voor **ESX Legacy**. Je parkeert een voertuig, roept het weer op, of haalt het tegen betaling uit de impound.
+Garage voor **ESX Legacy**. Je parkeert een voertuig, roept het weer op, of haalt het gratis uit de impound via hetzelfde menu.
 
 Werkt samen met de inbeslagname van `mallorca-takel` (`mallorca_impound`). Zonder dat script kun je voertuigen nog steeds in beslag nemen met `/inbeslagnemen`.
 
@@ -25,13 +25,13 @@ ensure snelle-garage
 | Garage openen | Marker of oogje, **E**, of `/garage` als je erbij staat |
 | Parkeren | Rijd als bestuurder op de marker en druk **E** |
 | Voertuig oproepen bij de garage | Kies **Oproepen** |
-| Voertuig naar je toe roepen | **F7** of `/oproep` (alleen auto's die in de garage staan) |
-| Impound | Marker bij Davis, Sandy, de haven of LSIA, of `/impound` |
+| Voertuig naar je toe roepen | **F7** of `/oproep` |
+| Uit de impound halen | In het garagemenu op **Uit impound halen**. Ook bij de impound-marker of `/impound` |
 | In beslag nemen | Politie, takel, ANWB of monteur: `/inbeslagnemen [reden]` |
 
 Toetsen aanpassen: FiveM → Settings → Key Bindings → FiveM.
 
-Een voertuig uit de impound halen is gratis, ook als het door de takel in beslag is genomen. Een voertuig dat buiten staat of weg is, zet je daar ook gratis weer neer.
+Een voertuig uit de impound haal je gratis in het garagemenu. Het wordt uit de impound gehaald en bij die garage neergezet, ook als de takel het in beslag nam. Een voertuig dat buiten staat of weg is, zet je bij de impound ook gratis weer neer.
 
 Boten en vliegtuigen haal je op bij hun eigen garage of impound. `/oproep` zet alleen auto's bij je neer.
 
