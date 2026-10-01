@@ -92,6 +92,7 @@ Config.Text = {
     recovered = 'Voertuig opgehaald uit de impound.',
     noMoney = 'Je hebt niet genoeg geld bij je of op de bank.',
     notOwner = 'Dit voertuig is niet van jou.',
+    spawnedVehicle = 'Alleen het voertuig dat je uit de garage hebt gehaald, kun je parkeren.',
     alreadyOut = 'Dit voertuig staat al buiten. Haal het op bij de impound.',
     impounded = 'Dit voertuig staat in de impound.',
     notHere = 'Je staat niet bij een garage. Gebruik /oproep om een voertuig bij je te roepen.',

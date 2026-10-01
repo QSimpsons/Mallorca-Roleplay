@@ -230,6 +230,27 @@ local function netEntity(netId)
     return 0
 end
 
+local function entityNetId(ent)
+    if not ent or ent == 0 then
+        return 0
+    end
+    local ok, netId = pcall(NetworkGetNetworkIdFromEntity, ent)
+    if ok and type(netId) == 'number' then
+        return netId
+    end
+    return 0
+end
+
+local function fromThisGarage(plateKey, veh)
+    local ridingNet = entityNetId(veh)
+    local track = spawned[plateKey]
+    local trackedNet = track and (tonumber(track.netId) or 0) or 0
+    if trackedNet ~= 0 and ridingNet == trackedNet and netEntity(trackedNet) ~= 0 then
+        return true, ridingNet
+    end
+    return false, ridingNet
+end
+
 local function actionAllowed(src)
     local now = os.clock()
     if lastAction[src] and (now - lastAction[src]) < 0.8 then
@@ -980,10 +1001,15 @@ RegisterNetEvent('snelle-garage:server:spawned', function(token, netId)
         return
     end
     clearPending(token)
-    spawned[ticket.plateKey] = {
-        src = src,
-        netId = tonumber(netId) or 0
-    }
+    local resolvedNet = tonumber(netId) or 0
+    local spawnedEnt = netEntity(resolvedNet)
+    local spawnedPlate = plateOfEntity(spawnedEnt)
+    if not spawnedPlate or Config.NormalizePlate(spawnedPlate) == ticket.plateKey then
+        spawned[ticket.plateKey] = {
+            src = src,
+            netId = resolvedNet
+        }
+    end
     if (ticket.society or 0) > 0 then
         addSociety(ticket.society)
     end
@@ -1105,6 +1131,12 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                 notify(src, Config.Text.plateMismatch)
                 return
             end
+            local known, ridingNet = fromThisGarage(plateKey, veh)
+            if not known then
+                busy[plateKey] = nil
+                notify(src, Config.Text.spawnedVehicle)
+                return
+            end
             if next(incoming) == nil then
                 incoming = current
             end
@@ -1129,7 +1161,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                 logAction(xPlayer.identifier, playerName(xPlayer, src), 'store', row.plate, location.id, 0)
                 TriggerClientEvent('snelle-garage:client:stored', src, {
                     plate = row.plate,
-                    netId = tonumber(payload.netId) or 0
+                    netId = ridingNet
                 })
             end)
         end)

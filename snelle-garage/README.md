@@ -23,7 +23,7 @@ ensure snelle-garage
 | Actie | Hoe |
 | --- | --- |
 | Garage openen | Marker of oogje, **E**, of `/garage` als je erbij staat |
-| Parkeren | Rijd als bestuurder op de marker en druk **E** |
+| Parkeren | Rijd als bestuurder op de marker en druk **E**. Alleen het voertuig dat uit de garage of impound komt |
 | Voertuig oproepen bij de garage | Kies **Oproepen** |
 | Voertuig naar je toe roepen | **F7** of `/oproep` |
 | Uit de impound halen | In het garagemenu op **Uit impound halen**. Ook bij de impound-marker of `/impound` |
@@ -32,6 +32,8 @@ ensure snelle-garage
 Toetsen aanpassen: FiveM → Settings → Key Bindings → FiveM.
 
 Een voertuig uit de impound haal je gratis in het garagemenu. Het wordt uit de impound gehaald en bij die garage neergezet, ook als de takel het in beslag nam. Een voertuig dat buiten staat of weg is, zet je bij de impound ook gratis weer neer.
+
+Een auto die je met een menu of commando spawnt, komt niet in de garage. Parkeren lukt alleen met het voertuig dat je hebt opgeroepen of uit de impound hebt gehaald.
 
 Boten en vliegtuigen haal je op bij hun eigen garage of impound. `/oproep` zet alleen auto's bij je neer.
 

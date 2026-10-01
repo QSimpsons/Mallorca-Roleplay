@@ -47,6 +47,8 @@ for needle in (
     'snelle-garage:server:staffImpound',
     'mallorca_impound',
     'owned_vehicles',
+    'fromThisGarage',
+    'spawnedVehicle',
 ):
     if needle not in server:
         errors.append(f'server missing {needle}')
