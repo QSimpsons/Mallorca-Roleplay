@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tijd en weer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="overlay" class="overlay hidden">
+        <div class="panel" role="dialog" aria-label="Tijd en weer">
+            <div class="sky" aria-hidden="true">
+                <svg viewBox="0 0 520 132" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#7ec8f0"/>
+                            <stop offset="100%" stop-color="#d7f3ff"/>
+                        </linearGradient>
+                    </defs>
+                    <rect width="520" height="132" fill="url(#sky)"/>
+                    <circle cx="260" cy="46" r="28" fill="#ffe27a" opacity="0.45"/>
+                    <circle cx="260" cy="46" r="16" fill="#ffd34d"/>
+                    <g fill="#ffffff">
+                        <ellipse cx="78" cy="58" rx="34" ry="16"/>
+                        <ellipse cx="104" cy="50" rx="22" ry="16"/>
+                        <ellipse cx="54" cy="56" rx="16" ry="12"/>
+                        <ellipse cx="168" cy="78" rx="40" ry="18"/>
+                        <ellipse cx="198" cy="70" rx="24" ry="16"/>
+                        <ellipse cx="142" cy="74" rx="18" ry="13"/>
+                        <ellipse cx="330" cy="36" rx="28" ry="13"/>
+                        <ellipse cx="354" cy="30" rx="16" ry="12"/>
+                        <ellipse cx="430" cy="64" rx="36" ry="16"/>
+                        <ellipse cx="458" cy="56" rx="20" ry="14"/>
+                        <ellipse cx="404" cy="62" rx="16" ry="11"/>
+                        <ellipse cx="300" cy="96" rx="30" ry="13"/>
+                        <ellipse cx="326" cy="90" rx="16" ry="11"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="body">
+                <div id="time-label" class="time-label">2:00 PM</div>
+                <input id="time-slider" class="time-slider" type="range" min="0" max="1439" value="840" aria-label="Tijd">
+                <div id="weathers" class="weathers"></div>
+                <div id="toggles" class="toggles"></div>
+                <div class="actions">
+                    <button type="button" id="btn-save" class="btn save">Save Settings</button>
+                    <button type="button" id="btn-change" class="btn change">Change</button>
+                    <button type="button" id="btn-close" class="btn close">Close</button>
+                </div>
+                <div id="toast" class="toast" role="status"></div>
+            </div>
+        </div>
+    </div>
+    <script src="logic.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
