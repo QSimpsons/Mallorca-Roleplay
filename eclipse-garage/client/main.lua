@@ -327,7 +327,7 @@ local function requestOpen(mode, location)
         title = location and location.label or 'Voertuig oproepen',
         subtitle = 'Voertuigen laden...'
     })
-    TriggerServerEvent('snelle-garage:server:list', {
+    TriggerServerEvent('eclipse-garage:server:list', {
         mode = mode,
         locationId = ui.locationId,
         token = ui.token
@@ -357,7 +357,7 @@ local function storeVehicle(location)
     end
     storing = true
     notify(Config.Text.storing)
-    TriggerServerEvent('snelle-garage:server:store', {
+    TriggerServerEvent('eclipse-garage:server:store', {
         plate = props.plate,
         props = props,
         locationId = location.id,
@@ -374,7 +374,7 @@ local function staffImpound(entity, reason)
         return
     end
     local props = getProps(entity)
-    TriggerServerEvent('snelle-garage:server:staffImpound', {
+    TriggerServerEvent('eclipse-garage:server:staffImpound', {
         plate = props.plate,
         props = props,
         reason = reason or 'In beslag genomen',
@@ -392,20 +392,20 @@ local function isStaffJob()
     return Config.ImpoundJobs and Config.ImpoundJobs[string.lower(job)] == true
 end
 
-RegisterNetEvent('snelle-garage:client:notify', function(msg)
+RegisterNetEvent('eclipse-garage:client:notify', function(msg)
     notify(msg)
 end)
 
-RegisterNetEvent('snelle-garage:client:close', function()
+RegisterNetEvent('eclipse-garage:client:close', function()
     closeUi()
 end)
 
-RegisterNetEvent('snelle-garage:client:idle', function()
+RegisterNetEvent('eclipse-garage:client:idle', function()
     taking = false
     SendNUIMessage({ action = 'idle' })
 end)
 
-RegisterNetEvent('snelle-garage:client:open', function(data)
+RegisterNetEvent('eclipse-garage:client:open', function(data)
     if not data or data.token ~= ui.token or not ui.open then
         return
     end
@@ -424,7 +424,7 @@ RegisterNetEvent('snelle-garage:client:open', function(data)
     })
 end)
 
-RegisterNetEvent('snelle-garage:client:spawn', function(data)
+RegisterNetEvent('eclipse-garage:client:spawn', function(data)
     taking = false
     closeUi()
     if type(data) ~= 'table' or type(data.token) ~= 'string' then
@@ -433,11 +433,11 @@ RegisterNetEvent('snelle-garage:client:spawn', function(data)
     CreateThread(function()
         local veh = spawnVehicle(data)
         if not veh then
-            TriggerServerEvent('snelle-garage:server:spawnFailed', data.token)
+            TriggerServerEvent('eclipse-garage:server:spawnFailed', data.token)
             notify(Config.Text.modelFail)
             return
         end
-        TriggerServerEvent('snelle-garage:server:spawned', data.token, NetworkGetNetworkIdFromEntity(veh))
+        TriggerServerEvent('eclipse-garage:server:spawned', data.token, NetworkGetNetworkIdFromEntity(veh))
         if data.mode == 'call' then
             notify(Config.Text.called)
         elseif data.mode == 'impound' then
@@ -449,7 +449,7 @@ RegisterNetEvent('snelle-garage:client:spawn', function(data)
     end)
 end)
 
-RegisterNetEvent('snelle-garage:client:stored', function(data)
+RegisterNetEvent('eclipse-garage:client:stored', function(data)
     data = data or {}
     storing = false
     local veh = 0
@@ -496,7 +496,7 @@ RegisterNUICallback('refresh', function(_, cb)
         title = location and location.label or 'Voertuig oproepen',
         subtitle = 'Voertuigen laden...'
     })
-    TriggerServerEvent('snelle-garage:server:list', {
+    TriggerServerEvent('eclipse-garage:server:list', {
         mode = ui.mode,
         locationId = ui.locationId,
         token = ui.token
@@ -531,7 +531,7 @@ RegisterNUICallback('take', function(data, cb)
             return
         end
     end
-    TriggerServerEvent('snelle-garage:server:spawn', {
+    TriggerServerEvent('eclipse-garage:server:spawn', {
         plate = plate,
         mode = ui.mode,
         locationId = ui.locationId,
@@ -745,7 +745,7 @@ local function setupTarget()
                 debug = false,
                 options = {
                     {
-                        name = 'snelle_garage_' .. garage.id,
+                        name = 'eclipse_garage_' .. garage.id,
                         icon = 'fa-solid fa-warehouse',
                         label = 'Garage openen',
                         distance = 2.5,
@@ -770,7 +770,7 @@ local function setupTarget()
                 debug = false,
                 options = {
                     {
-                        name = 'snelle_impound_' .. impound.id,
+                        name = 'eclipse_impound_' .. impound.id,
                         icon = 'fa-solid fa-truck-ramp-box',
                         label = 'Impound openen',
                         distance = 2.5,
@@ -786,7 +786,7 @@ local function setupTarget()
         end
         exports.ox_target:addGlobalVehicle({
             {
-                name = 'snelle_staff_impound',
+                name = 'eclipse_staff_impound',
                 icon = 'fa-solid fa-warehouse',
                 label = 'In beslag nemen',
                 distance = 3.0,

@@ -1,15 +1,15 @@
-Snelle Garage — installatie
+Eclipse Garage — installatie
 ===========================
 
-1. Map `snelle-garage` in je resources-folder.
+1. Map `eclipse-garage` in je resources-folder.
 2. Voer `sql/install.sql` uit op de ESX-database.
 3. In server.cfg, na oxmysql en es_extended:
 
    ensure oxmysql
    ensure es_extended
-   ensure snelle-garage
+   ensure eclipse-garage
 
-4. Herstart de server, of: restart snelle-garage
+4. Herstart de server, of: restart eclipse-garage
 
 In-game
 -------

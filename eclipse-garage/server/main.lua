@@ -14,7 +14,7 @@ local lastCall = {}
 
 local function debugPrint(...)
     if Config.Debug then
-        print('^3[snelle-garage]^7', ...)
+        print('^3[eclipse-garage]^7', ...)
     end
 end
 
@@ -82,7 +82,7 @@ local function getPlayer(src)
 end
 
 local function notify(src, msg)
-    TriggerClientEvent('snelle-garage:client:notify', src, msg)
+    TriggerClientEvent('eclipse-garage:client:notify', src, msg)
 end
 
 local function playerName(xPlayer, src)
@@ -300,7 +300,7 @@ end
 
 local function logAction(ident, name, action, plate, location, amount)
     dbExecute(
-        [[INSERT INTO snelle_garage_log (identifier, player_name, action, plate, location, amount)
+        [[INSERT INTO eclipse_garage_log (identifier, player_name, action, plate, location, amount)
           VALUES (?, ?, ?, ?, ?, ?)]],
         { ident or '', name or '', action or '', plate or '', location or '', math.floor(tonumber(amount) or 0) }
     )
@@ -379,7 +379,7 @@ local function ensureSchema(done)
         KEY `plate` (`plate`),
         KEY `owner` (`owner`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4]], {}, function()
-        dbFetch([[CREATE TABLE IF NOT EXISTS `snelle_garage_log` (
+        dbFetch([[CREATE TABLE IF NOT EXISTS `eclipse_garage_log` (
             `id` INT NOT NULL AUTO_INCREMENT,
             `identifier` VARCHAR(80) NOT NULL,
             `player_name` VARCHAR(64) DEFAULT NULL,
@@ -401,7 +401,7 @@ local function ensureSchema(done)
                         columnExists(name, function(now)
                             schema[name] = now
                             if not now then
-                                print(('^1[snelle-garage]^7 Kolom owned_vehicles.%s ontbreekt.'):format(name))
+                                print(('^1[eclipse-garage]^7 Kolom owned_vehicles.%s ontbreekt.'):format(name))
                             end
                             nextStep()
                         end)
@@ -436,19 +436,19 @@ local function playerIdents(src, xPlayer)
         local ident = GetPlayerIdentifier(src, i)
         list[#list + 1] = ident
         if type(ident) == 'string' then
-            local bare = SnelleOwner.bare(ident)
+            local bare = EclipseOwner.bare(ident)
             if bare ~= '' and bare ~= ident:lower() then
                 list[#list + 1] = bare
             end
         end
     end
     if xPlayer and type(xPlayer.identifier) == 'string' then
-        local bare = SnelleOwner.bare(xPlayer.identifier)
+        local bare = EclipseOwner.bare(xPlayer.identifier)
         if bare ~= '' then
             list[#list + 1] = bare
         end
     end
-    return SnelleOwner.unique(list)
+    return EclipseOwner.unique(list)
 end
 
 local function fetchOwned(ident, cb)
@@ -613,20 +613,20 @@ local function sendList(src, payload, cbToken)
         location = Config.FindGarage(payload.locationId)
         if not location or not nearLocation(src, location, Config.ServerDistance + 6.0) then
             notify(src, Config.Text.notHere)
-            TriggerClientEvent('snelle-garage:client:close', src)
+            TriggerClientEvent('eclipse-garage:client:close', src)
             return
         end
     elseif mode == 'impound' then
         location = Config.FindImpound(payload.locationId)
         if not location or not nearLocation(src, location, Config.ServerDistance + 6.0) then
             notify(src, Config.Text.notImpound)
-            TriggerClientEvent('snelle-garage:client:close', src)
+            TriggerClientEvent('eclipse-garage:client:close', src)
             return
         end
     elseif mode == 'call' then
         if not Config.Call.enabled then
             notify(src, Config.Text.callOff)
-            TriggerClientEvent('snelle-garage:client:close', src)
+            TriggerClientEvent('eclipse-garage:client:close', src)
             return
         end
     else
@@ -638,13 +638,13 @@ local function sendList(src, payload, cbToken)
     fetchOwnedMany(idents, function(rows)
         if rows == nil then
             notify(src, Config.Text.dbDown)
-            TriggerClientEvent('snelle-garage:client:close', src)
+            TriggerClientEvent('eclipse-garage:client:close', src)
             return
         end
         fetchImpounds(ident, function(impoundRows)
             if impoundRows == nil then
                 notify(src, Config.Text.dbDown)
-                TriggerClientEvent('snelle-garage:client:close', src)
+                TriggerClientEvent('eclipse-garage:client:close', src)
                 return
             end
             local map = indexImpounds(impoundRows)
@@ -666,7 +666,7 @@ local function sendList(src, payload, cbToken)
             elseif mode == 'call' then
                 subtitle = 'Het voertuig wordt bij je in de buurt gezet'
             end
-            TriggerClientEvent('snelle-garage:client:open', src, {
+            TriggerClientEvent('eclipse-garage:client:open', src, {
                 token = cbToken,
                 mode = mode,
                 title = location and location.label or 'Voertuig oproepen',
@@ -735,7 +735,7 @@ local function revertTicket(token, tell)
             }
         )
     end
-    refund(ticket.src, ticket.amount, ticket.account, 'snelle-garage-refund')
+    refund(ticket.src, ticket.amount, ticket.account, 'eclipse-garage-refund')
     if tell then
         notify(ticket.src, tell)
     end
@@ -777,27 +777,27 @@ local function deleteImpound(plateKey, cb)
     )
 end
 
-RegisterNetEvent('snelle-garage:server:list', function(payload)
+RegisterNetEvent('eclipse-garage:server:list', function(payload)
     local src = source
     if not ready then
         notify(src, Config.Text.dbDown)
-        TriggerClientEvent('snelle-garage:client:close', src)
+        TriggerClientEvent('eclipse-garage:client:close', src)
         return
     end
     payload = payload or {}
     sendList(src, payload, payload.token)
 end)
 
-RegisterNetEvent('snelle-garage:server:spawn', function(payload)
+RegisterNetEvent('eclipse-garage:server:spawn', function(payload)
     local src = source
     if not ready then
         notify(src, Config.Text.dbDown)
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
         return
     end
     if not actionAllowed(src) then
         notify(src, Config.Text.tooFast)
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
         return
     end
 
@@ -806,7 +806,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
     local plateKey = Config.NormalizePlate(payload.plate)
     local coords = payload.coords
     if plateKey == '' or not validCoords(coords) then
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
         return
     end
 
@@ -819,7 +819,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
     if mode == 'call' then
         if not Config.Call.enabled then
             notify(src, Config.Text.callOff)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
         local pcoords, ped = playerCoords(src)
@@ -828,43 +828,43 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
         end
         if vecDist(pcoords, coords) > (Config.Call.maxDistance or 35.0) then
             notify(src, Config.Text.notHere)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
         local current = pedVehicle(ped)
         if current ~= 0 then
             notify(src, Config.Text.inVehicleCall)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
         local waited = os.time() - (lastCall[src] or 0)
         if waited < (Config.Call.cooldown or 20) then
             notify(src, Config.Text.cooldown)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
     elseif mode == 'garage' then
         location = Config.FindGarage(payload.locationId)
         if not location or not nearLocation(src, location) or not nearSpawn(location, coords) then
             notify(src, Config.Text.notHere)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
     elseif mode == 'impound' then
         location = Config.FindImpound(payload.locationId)
         if not location or not nearLocation(src, location) or not nearSpawn(location, coords) then
             notify(src, Config.Text.notImpound)
-            TriggerClientEvent('snelle-garage:client:idle', src)
+            TriggerClientEvent('eclipse-garage:client:idle', src)
             return
         end
     else
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
         return
     end
 
     if busy[plateKey] then
         notify(src, Config.Text.busy)
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
         return
     end
     busy[plateKey] = src
@@ -878,7 +878,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
     local function deny(msg)
         unlock()
         notify(src, msg)
-        TriggerClientEvent('snelle-garage:client:idle', src)
+        TriggerClientEvent('eclipse-garage:client:idle', src)
     end
 
     fetchPlate(plateKey, function(row, failed)
@@ -886,7 +886,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
             deny(Config.Text.dbDown)
             return
         end
-        if not row or not SnelleOwner.same(row.owner, playerIdents(src, xPlayer)) then
+        if not row or not EclipseOwner.same(row.owner, playerIdents(src, xPlayer)) then
             deny(Config.Text.notOwner)
             return
         end
@@ -947,7 +947,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
                 end
             end
 
-            local paid, account, amount = charge(xPlayer, price, 'snelle-garage-' .. action)
+            local paid, account, amount = charge(xPlayer, price, 'eclipse-garage-' .. action)
             if not paid then
                 deny(Config.Text.noMoney)
                 return
@@ -955,7 +955,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
 
             markOut(plateKey, function(ok)
                 if not ok then
-                    refund(src, amount, account, 'snelle-garage-refund')
+                    refund(src, amount, account, 'eclipse-garage-refund')
                     deny(Config.Text.dbDown)
                     return
                 end
@@ -989,7 +989,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
                     if mode == 'call' then
                         lastCall[src] = os.time()
                     end
-                    TriggerClientEvent('snelle-garage:client:spawn', src, {
+                    TriggerClientEvent('eclipse-garage:client:spawn', src, {
                         token = token,
                         plate = row.plate,
                         props = props,
@@ -1004,7 +1004,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
                     SetTimeout(25000, function()
                         if pending[token] then
                             revertTicket(token, Config.Text.modelFail)
-                            TriggerClientEvent('snelle-garage:client:idle', src)
+                            TriggerClientEvent('eclipse-garage:client:idle', src)
                         end
                     end)
                 end
@@ -1019,7 +1019,7 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
     end)
 end)
 
-RegisterNetEvent('snelle-garage:server:spawned', function(token, netId)
+RegisterNetEvent('eclipse-garage:server:spawned', function(token, netId)
     local src = source
     local ticket = pending[token]
     if not ticket or ticket.src ~= src then
@@ -1036,7 +1036,7 @@ RegisterNetEvent('snelle-garage:server:spawned', function(token, netId)
     logAction(ticket.ident, ticket.name, ticket.action, ticket.plate, ticket.location, ticket.amount)
 end)
 
-RegisterNetEvent('snelle-garage:server:spawnFailed', function(token)
+RegisterNetEvent('eclipse-garage:server:spawnFailed', function(token)
     local src = source
     local ticket = pending[token]
     if not ticket or ticket.src ~= src then
@@ -1068,7 +1068,7 @@ local function saveStored(plateKey, propsJson, parking, cb)
     )
 end
 
-RegisterNetEvent('snelle-garage:server:store', function(payload)
+RegisterNetEvent('eclipse-garage:server:store', function(payload)
     local src = source
     if not ready then
         notify(src, Config.Text.dbDown)
@@ -1135,7 +1135,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
         release()
         spawned[plateKey] = nil
         logAction(xPlayer.identifier, playerName(xPlayer, src), 'store', plate, location.id, 0)
-        TriggerClientEvent('snelle-garage:client:stored', src, {
+        TriggerClientEvent('eclipse-garage:client:stored', src, {
             plate = plate,
             netId = tonumber(payload.netId) or 0,
             message = message
@@ -1199,7 +1199,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
             claim(incoming)
             return
         end
-        if not SnelleOwner.same(row.owner, idents) then
+        if not EclipseOwner.same(row.owner, idents) then
             release()
             notify(src, Config.Text.notOwner)
             return
@@ -1333,7 +1333,7 @@ local function impoundOwned(src, xPlayer, row, props, reason, onDone)
     )
 end
 
-RegisterNetEvent('snelle-garage:server:staffImpound', function(payload)
+RegisterNetEvent('eclipse-garage:server:staffImpound', function(payload)
     local src = source
     if not ready then
         notify(src, Config.Text.dbDown)
@@ -1389,7 +1389,7 @@ RegisterNetEvent('snelle-garage:server:staffImpound', function(payload)
         if not row then
             busy[plateKey] = nil
             notify(src, Config.Text.staffNpc)
-            TriggerClientEvent('snelle-garage:client:stored', src, {
+            TriggerClientEvent('eclipse-garage:client:stored', src, {
                 plate = payload.plate,
                 netId = netId,
                 quiet = true
@@ -1405,7 +1405,7 @@ RegisterNetEvent('snelle-garage:server:staffImpound', function(payload)
             if not ok then
                 return
             end
-            TriggerClientEvent('snelle-garage:client:stored', src, {
+            TriggerClientEvent('eclipse-garage:client:stored', src, {
                 plate = row.plate,
                 netId = netId,
                 quiet = true
@@ -1438,7 +1438,7 @@ CreateThread(function()
         Wait(500)
     end
     if not dbReady() then
-        print('^1[snelle-garage]^7 oxmysql niet gevonden. Zet ensure oxmysql vóór snelle-garage.')
+        print('^1[eclipse-garage]^7 oxmysql niet gevonden. Zet ensure oxmysql vóór eclipse-garage.')
         return
     end
     while not ESX and tries < 40 do
@@ -1448,6 +1448,6 @@ CreateThread(function()
     end
     ensureSchema(function()
         ready = true
-        print('^2[snelle-garage]^7 Garage en impound gestart.')
+        print('^2[eclipse-garage]^7 Garage en impound gestart.')
     end)
 end)
