@@ -2,7 +2,7 @@ local existingVehiclesCache = {}
 local VEHICLE_ENTITY_TYPE = 2
 
 esrp_lib.callback.register("vx_garage:getExistingVehicles", function()
-    return existingVehiclesCache
+    return { ok = true, vehicles = existingVehiclesCache }
 end)
 
 esrp_lib.callback.register("vx_garage:returnFromImpound", function(playerId, plate)

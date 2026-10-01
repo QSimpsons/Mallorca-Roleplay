@@ -2,6 +2,21 @@ local spawnedVehicles = {}
 local isGarageOpen = false
 local isPlayerInVehicle = false
 
+print('^2[eclipse-garage]^7 client geladen')
+
+local function listFromCallback(value)
+	if type(value) ~= 'table' then
+		return {}
+	end
+	if value.ok == true then
+		if type(value.vehicles) == 'table' then
+			return value.vehicles
+		end
+		return {}
+	end
+	return value
+end
+
 ---@param garage Garage
 local function spawnVehicle(garage, vehicle)
 	local spawnPointIndex = math.random(1, #garage.spawnPoints)
@@ -50,10 +65,8 @@ local currentVehicles = {}
 ---@param garage Garage
 local function openGarage(garage)
     currentGarage = garage
-    local vehicles = esrp_lib.callback.await("vx_garage:getOwnedVehicles", false, garage.type) or {}
-    local existingVehicles = esrp_lib.callback.await("vx_garage:getExistingVehicles", false) or {}
-    if type(vehicles) ~= 'table' then vehicles = {} end
-    if type(existingVehicles) ~= 'table' then existingVehicles = {} end
+    local vehicles = listFromCallback(esrp_lib.callback.await("vx_garage:getOwnedVehicles", false, garage.type))
+    local existingVehicles = listFromCallback(esrp_lib.callback.await("vx_garage:getExistingVehicles", false))
     currentVehicles = vehicles
 
     local uiVehicles = {}

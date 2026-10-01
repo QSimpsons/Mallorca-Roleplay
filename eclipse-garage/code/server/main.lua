@@ -8,7 +8,7 @@ end
 esrp_lib.callback.register("vx_garage:getOwnedVehicles", function(source, vehicleType)
     local identifier = functions.ownerId(source)
     if not identifier then
-        return {}
+        return { ok = true, vehicles = {} }
     end
     local ok, vehicles = pcall(function()
         return MySQL.query.await([[
@@ -17,14 +17,15 @@ esrp_lib.callback.register("vx_garage:getOwnedVehicles", function(source, vehicl
         ]], { identifier, vehicleType or 'car' })
     end)
     if not ok or type(vehicles) ~= 'table' then
-        return {}
+        print(('^1[eclipse-garage]^7 Voertuigen laden mislukt: %s'):format(tostring(vehicles)))
+        return { ok = true, vehicles = {} }
     end
     for i = 1, #vehicles do
         if vehicles[i].favorite == nil then
             vehicles[i].favorite = 0
         end
     end
-    return vehicles
+    return { ok = true, vehicles = vehicles }
 end)
 
 esrp_lib.callback.register("vx_garage:vehicleSpawned", function(source, netId)
