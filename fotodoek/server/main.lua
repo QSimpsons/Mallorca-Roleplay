@@ -32,7 +32,7 @@ local function saveSaved()
 end
 
 local function hasAce(src)
-    return IsPlayerAceAllowed(src, Config.AcePermission) or IsPlayerAceAllowed(src, 'command')
+    return IsPlayerAceAllowed(src, Config.AcePermission)
 end
 
 local function hasEsxGroup(src)
