@@ -15,10 +15,18 @@ Config.Brand = {
 -- Formaat van één doek (meter)
 Config.Breedte = 4.2
 Config.Hoogte = 2.35
--- Ruimte tussen doek en grond (onderkant van de stof)
-Config.GrondOffset = 0.15
+-- Ruimte tussen doek en grond (onderkant van de stof). Laag houden zodat
+-- het wanddoek aansluit op het vloerdoek.
+Config.GrondOffset = 0.02
 -- Hoe ver het frame uitsteekt t.o.v. het doek
 Config.FrameDikte = 0.06
+
+-- Vloerdoek: zelfde print ligt vóór het frame op de grond (seamless backdrop)
+Config.VloerDoek = true
+-- Hoe diep het vloerdoek naar voren loopt (meter)
+Config.VloerDiepte = 2.8
+-- Licht boven de grond zodat z-fighting met het asfalt/tegelwerk meevalt
+Config.VloerHoogte = 0.018
 
 -- Render-afstand: doek tekenen als je dichterbij bent
 Config.RenderAfstand = 80.0

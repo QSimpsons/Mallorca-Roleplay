@@ -63,6 +63,29 @@ local function headingToRight(heading)
     return vector3(math.cos(rad), math.sin(rad), 0.0)
 end
 
+local function drawTexturedQuad(p1, p2, p3, p4, r, g, b, a)
+    DrawSpritePoly(
+        p1.x, p1.y, p1.z,
+        p2.x, p2.y, p2.z,
+        p3.x, p3.y, p3.z,
+        r, g, b, a,
+        txdName, txnName,
+        0.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        1.0, 1.0, 0.0
+    )
+    DrawSpritePoly(
+        p1.x, p1.y, p1.z,
+        p3.x, p3.y, p3.z,
+        p4.x, p4.y, p4.z,
+        r, g, b, a,
+        txdName, txnName,
+        0.0, 0.0, 0.0,
+        1.0, 1.0, 0.0,
+        0.0, 1.0, 0.0
+    )
+end
+
 --- Tekent een textured quad (het doek) rechtop in de wereld.
 local function drawCloth(center, heading, width, height)
     local right = headingToRight(heading) * (width * 0.5)
@@ -74,48 +97,49 @@ local function drawCloth(center, heading, width, height)
     local tr = center + right + up
 
     -- Voorkant
-    DrawSpritePoly(
-        tl.x, tl.y, tl.z,
-        tr.x, tr.y, tr.z,
-        br.x, br.y, br.z,
-        255, 255, 255, 255,
-        txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        1.0, 1.0, 0.0
-    )
-    DrawSpritePoly(
-        tl.x, tl.y, tl.z,
-        br.x, br.y, br.z,
-        bl.x, bl.y, bl.z,
-        255, 255, 255, 255,
-        txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 0.0,
-        0.0, 1.0, 0.0
-    )
+    drawTexturedQuad(tl, tr, br, bl, 255, 255, 255, 255)
 
     -- Achterkant (donkerder, zodat je niet doorheen kijkt)
-    DrawSpritePoly(
-        tr.x, tr.y, tr.z,
-        tl.x, tl.y, tl.z,
-        bl.x, bl.y, bl.z,
-        30, 40, 70, 255,
-        txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        1.0, 1.0, 0.0
+    drawTexturedQuad(tr, tl, bl, br, 30, 40, 70, 255)
+end
+
+--- Vloerdoek: zelfde print ligt plat vóór het frame op de grond.
+local function drawFloorCloth(base, heading, width, depth)
+    if not Config.VloerDoek or depth <= 0.05 then
+        return
+    end
+
+    local right = headingToRight(heading)
+    local forward = headingToForward(heading)
+    local half = width * 0.5
+    local z = base.z + (Config.VloerHoogte or 0.018)
+
+    -- Voorkant van het frame = +forward (kant waar je op de foto staat)
+    local backLeft = vector3(
+        base.x + right.x * (-half),
+        base.y + right.y * (-half),
+        z
     )
-    DrawSpritePoly(
-        tr.x, tr.y, tr.z,
-        bl.x, bl.y, bl.z,
-        br.x, br.y, br.z,
-        30, 40, 70, 255,
-        txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 0.0,
-        0.0, 1.0, 0.0
+    local backRight = vector3(
+        base.x + right.x * half,
+        base.y + right.y * half,
+        z
     )
+    local frontLeft = vector3(
+        backLeft.x + forward.x * depth,
+        backLeft.y + forward.y * depth,
+        z
+    )
+    local frontRight = vector3(
+        backRight.x + forward.x * depth,
+        backRight.y + forward.y * depth,
+        z
+    )
+
+    -- Bovenkant (zichtbaar vanaf boven / schuin)
+    drawTexturedQuad(backLeft, backRight, frontRight, frontLeft, 255, 255, 255, 255)
+    -- Onderkant (anti z-fighting / doorzicht)
+    drawTexturedQuad(backRight, backLeft, frontLeft, frontRight, 40, 55, 90, 220)
 end
 
 local function drawSolidQuad(a, b, c, d, r, g, bl, achan)
@@ -354,6 +378,9 @@ CreateThread(function()
                     sleep = 0
                     local width = entry.breedte or Config.Breedte
                     local height = entry.hoogte or Config.Hoogte
+                    local floorDepth = entry.vloerDiepte or Config.VloerDiepte
+
+                    drawFloorCloth(entry.coords, entry.heading, width, floorDepth)
                     drawFrame(entry.coords, entry.heading, width, height)
                     drawCloth(clothCenter(entry), entry.heading, width, height)
 

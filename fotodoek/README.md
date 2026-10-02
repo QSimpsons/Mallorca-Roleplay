@@ -3,6 +3,7 @@
 Branded step-and-repeat fotodoek voor events en foto’s — zelfde soort backdrop als op RP-servers, met **Eclipse ROLEPLAY**-look (aanpasbaar).
 
 Geen custom props nodig: het doek is een DUI-textuur op een metalen frame.
+Het print loopt door als **vloerdoek** vóór het frame, zodat je op het doek staat voor de foto.
 
 ## Download
 
@@ -24,6 +25,19 @@ add_ace group.admin fotodoek.manage allow
 ```
 
 3. (Optioneel) pas merk, kleur en vaste locaties aan in `config.lua`.
+
+## Vloerdoek
+
+Standaard aan. Zelfde print ligt plat op de grond vóór het frame.
+
+```lua
+Config.VloerDoek = true
+Config.VloerDiepte = 2.8   -- meter naar voren
+Config.VloerHoogte = 0.018 -- licht boven de grond
+Config.GrondOffset = 0.02  -- wanddoek bijna tot op de grond
+```
+
+Zet `Config.VloerDoek = false` als je alleen het staande doek wilt.
 
 ## Commando’s
 
