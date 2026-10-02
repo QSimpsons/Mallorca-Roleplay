@@ -72,10 +72,7 @@ vx.addCommand("givevehicle", {
 
    local properties = clientCallbacks.getVehicleProperties(args.playerId, args.model, licensePlate)
    if not properties then
-      return vx.notify(source, {
-         title = "Fout!",
-         message = "Kon geen voertuig properties ophalen!"
-      })
+      return notifySender(source, "error", ("Ongeldig voertuigmodel: %s"):format(args.model))
    end
    local identifier = vx.player.getIdentifier(args.playerId, false, SharedConfig.identifier)
    local playerName = GetPlayerName(args.playerId)
