@@ -6,7 +6,7 @@ author 'Vex Shop'
 description 'Vex shop | https://discord.gg/T3qfgUHKHr'
 version "0.0.0"
 
-ui_page "code/web/dist/index.html"
+ui_page "html/index.html"
 
 server_scripts {
 	"@oxmysql/lib/MySQL.lua",
@@ -29,9 +29,7 @@ shared_scripts {
 
 files {
 	"locales/*",
-	"code/web/dist/index.html",
-	"code/web/dist/assets/index-98d4fbd0.js",
-	"code/web/dist/assets/index-46ccc3c8.css"
+	"html/index.html"
 }
 
 escrow_ignore {
