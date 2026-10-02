@@ -1,0 +1,37 @@
+fx_version 'adamant'
+
+game 'gta5'
+description 'Allows players to customise their character\'s appearance'
+version '1.15.4'
+lua54 'yes'
+
+shared_scripts {
+	'@esx_lib/imports.lua',
+	'@es_extended/locale.lua',
+	'locales/*.lua',
+	'@es_extended/imports.lua',
+	'config.lua',
+}
+
+server_scripts {
+	'@oxmysql/lib/MySQL.lua',
+	'server/main.lua'
+}
+
+client_scripts {
+	'client/main.lua',
+	'client/skinchanger.lua',
+	'client/clothing.lua',
+	'client/modules/*.lua'
+}
+
+ui_page 'web/dist/index.html'
+
+files {
+	'web/dist/**/*'
+}
+
+dependencies {
+	'es_extended',
+	'skinchanger'
+}
