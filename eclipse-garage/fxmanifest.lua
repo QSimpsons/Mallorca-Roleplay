@@ -29,11 +29,9 @@ shared_scripts {
 
 files {
 	"locales/*",
-}
-
-files {
 	"code/web/dist/index.html",
-	"code/web/dist/**/*"
+	"code/web/dist/assets/index-98d4fbd0.js",
+	"code/web/dist/assets/index-46ccc3c8.css"
 }
 
 escrow_ignore {
