@@ -4,9 +4,18 @@ Branded step-and-repeat fotodoek voor events en foto’s — zelfde soort backdr
 
 Geen custom props nodig: het doek is een DUI-textuur op een metalen frame.
 
+## Download
+
+**Zip (klaar om te installeren):**  
+https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/fotodoek-backdrop-b3f6/downloads/fotodoek.zip
+
+Of in de repo: [`downloads/fotodoek.zip`](../downloads/fotodoek.zip)
+
+Pak uit in je `resources`-map → map `fotodoek` → `ensure fotodoek` in `server.cfg`.
+
 ## Installatie
 
-1. Zet de map `fotodoek` in je `resources` folder.
+1. Download/unzip `fotodoek.zip` naar je `resources` folder.
 2. In `server.cfg`:
 
 ```
