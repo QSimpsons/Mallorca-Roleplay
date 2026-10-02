@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Garage</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    #app {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel {
+      width: 560px;
+      max-height: 78vh;
+      min-height: 420px;
+      padding: 18px;
+      border-radius: 22px;
+      background: hsl(20, 14%, 8%);
+      border: 1px solid hsl(20, 15%, 20%);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+    }
+    .head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      color: hsl(33, 20%, 96%);
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .head span {
+      color: hsl(30, 10%, 65%);
+      font-size: 12px;
+    }
+    #list {
+      overflow: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-right: 4px;
+    }
+    #list::-webkit-scrollbar { width: 0; }
+    .empty {
+      color: hsl(30, 10%, 65%);
+      text-align: center;
+      padding: 48px 12px;
+    }
+    .card {
+      width: 100%;
+      text-align: left;
+      border: 1px solid hsl(20, 15%, 20%);
+      background: hsl(20, 15%, 12%);
+      color: inherit;
+      border-radius: 18px;
+      padding: 16px;
+      cursor: pointer;
+    }
+    .card:hover { border-color: hsl(30, 10%, 40%); }
+    .top, .meta, .stats, .actions {
+      display: flex;
+      align-items: center;
+    }
+    .top { justify-content: space-between; gap: 12px; }
+    .name {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .name strong {
+      color: hsl(33, 20%, 96%);
+      font-size: 16px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .badge {
+      flex: none;
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .badge.in {
+      color: hsl(24.6, 95%, 63%);
+      background: hsla(24.6, 95%, 53%, 0.18);
+      border: 1px solid hsla(24.6, 95%, 53%, 0.35);
+    }
+    .badge.out {
+      color: hsl(30, 10%, 70%);
+      background: hsl(20, 15%, 16%);
+      border: 1px solid hsl(20, 15%, 24%);
+    }
+    .plate {
+      margin: 6px 0 0;
+      color: hsl(30, 10%, 65%);
+      font-family: Consolas, monospace;
+      font-size: 14px;
+    }
+    .meta {
+      margin-top: 8px;
+      gap: 6px;
+      color: hsl(30, 10%, 65%);
+      font-size: 12px;
+    }
+    .stats {
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 4px;
+      color: hsl(24.6, 95%, 63%);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .actions {
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .actions button, .head button {
+      border: 1px solid hsl(20, 15%, 24%);
+      background: hsl(20, 15%, 16%);
+      color: hsl(33, 20%, 96%);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .actions button.on {
+      color: hsl(24.6, 95%, 63%);
+      border-color: hsla(24.6, 95%, 53%, 0.45);
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="panel">
+      <div class="head">
+        <h1>Garage</h1>
+        <span>ESC om te sluiten</span>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var vehicles = [];
+      var app = document.getElementById("app");
+      var list = document.getElementById("list");
+
+      function resourceName() {
+        if (typeof GetParentResourceName === "function") {
+          return GetParentResourceName();
+        }
+        return "eclipse-garage";
+      }
+
+      function post(name, body) {
+        var payload = JSON.stringify(body || {});
+        fetch("https://" + resourceName() + "/" + name, {
+          method: "POST",
+          headers: { "Content-Type": "application/json; charset=UTF-8" },
+          body: payload
+        }).catch(function () {});
+      }
+
+      function isInGarage(vehicle) {
+        return vehicle.inGarage === true || vehicle.inGarage === 1;
+      }
+
+      function badgeText(vehicle) {
+        return isInGarage(vehicle) ? "In Garage" : "Weg";
+      }
+
+      function sortVehicles(items) {
+        return items.slice().sort(function (a, b) {
+          var af = a.favorite ? 1 : 0;
+          var bf = b.favorite ? 1 : 0;
+          if (af !== bf) return bf - af;
+          var an = String(a.name || "");
+          var bn = String(b.name || "");
+          if (an < bn) return -1;
+          if (an > bn) return 1;
+          return 0;
+        });
+      }
+
+      function add(parent, tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined && text !== null) node.textContent = text;
+        parent.appendChild(node);
+        return node;
+      }
+
+      function render() {
+        while (list.firstChild) list.removeChild(list.firstChild);
+        if (!vehicles.length) {
+          add(list, "div", "empty", "Geen voertuigen in deze garage.");
+          return;
+        }
+
+        sortVehicles(vehicles).forEach(function (vehicle) {
+          var card = add(list, "div", "card");
+          var top = add(card, "div", "top");
+          var name = add(top, "div", "name");
+          add(name, "strong", null, vehicle.name || "Onbekend");
+          add(name, "span", isInGarage(vehicle) ? "badge in" : "badge out", badgeText(vehicle));
+          var stats = add(top, "div", "stats");
+          add(stats, "span", null, "Brandstof " + (vehicle.fuel != null ? vehicle.fuel : 100) + "%");
+          add(stats, "span", null, "Schade " + (vehicle.damage != null ? vehicle.damage : 0) + "%");
+          add(card, "p", "plate", vehicle.plate || "");
+          add(card, "div", "meta", vehicle.location || "");
+
+          var actions = add(card, "div", "actions");
+          var favorite = add(actions, "button", vehicle.favorite ? "on" : "", vehicle.favorite ? "Favoriet" : "Maak favoriet");
+          favorite.type = "button";
+          favorite.addEventListener("click", function (event) {
+            event.stopPropagation();
+            post("toggleFavorite", {
+              plate: vehicle.plate,
+              favorite: !vehicle.favorite
+            });
+          });
+
+          var rename = add(actions, "button", "", "Naam wijzigen");
+          rename.type = "button";
+          rename.addEventListener("click", function (event) {
+            event.stopPropagation();
+            var next = window.prompt("Nieuwe naam", vehicle.name || "");
+            if (!next) return;
+            post("renameVehicle", { plate: vehicle.plate, name: next });
+          });
+
+          card.addEventListener("click", function () {
+            if (isInGarage(vehicle)) {
+              post("spawnVehicle", { plate: vehicle.plate });
+            } else {
+              post("returnVehicle", { plate: vehicle.plate });
+            }
+            app.style.display = "none";
+          });
+        });
+      }
+
+      function show(data) {
+        data = data || {};
+        if (!data.show) {
+          app.style.display = "none";
+          return;
+        }
+        vehicles = Array.isArray(data.vehicle) ? data.vehicle : [];
+        render();
+        app.style.display = "flex";
+      }
+
+      window.addEventListener("message", function (event) {
+        var msg = event.data || {};
+        if (!msg.action || String(msg.action).toLowerCase() !== "showmenu") return;
+        show(msg.data || {});
+      });
+
+      window.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+        if (app.style.display === "none") return;
+        app.style.display = "none";
+        post("hide", {});
+      });
+
+      if (typeof GetParentResourceName !== "function" && /preview=1/.test(String(location.search))) {
+        show({
+          show: true,
+          vehicle: [
+            { name: "NEON", plate: "151034EZ", location: "Tequila bar Garage", inGarage: true, fuel: 100, damage: 0, favorite: true },
+            { name: "cwavpolitie", plate: "60RZ4U20", location: "Tequila bar Garage", inGarage: true, fuel: 100, damage: 0, favorite: false },
+            { name: "PROTOTIPO", plate: "CUS 065", location: "In Beslag", inGarage: false, fuel: 100, damage: 0, favorite: false }
+          ]
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
