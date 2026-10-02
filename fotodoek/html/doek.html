@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fotodoek</title>
+  <link rel="stylesheet" href="doek.css" />
+</head>
+<body>
+  <div id="doek" class="doek" aria-hidden="true"></div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const brand = {
+      title: params.get('title') || 'ECLIPSE',
+      subtitle: params.get('subtitle') || 'ROLEPLAY',
+      background: params.get('bg') || '#0b2f7a',
+      accent: params.get('accent') || '#3b82f6',
+      textColor: params.get('color') || '#ffffff',
+      logo: params.get('logo') || 'img/logo.jpg'
+    };
+
+    const root = document.getElementById('doek');
+    root.style.setProperty('--bg', brand.background);
+    root.style.setProperty('--accent', brand.accent);
+    root.style.setProperty('--text', brand.textColor);
+
+    // Step-and-repeat: logo met tekst ernaast, verspringende rijen
+    const rows = 5;
+    const cols = 3;
+
+    for (let r = 0; r < rows; r++) {
+      const row = document.createElement('div');
+      row.className = 'row' + (r % 2 === 1 ? ' offset' : '');
+
+      for (let c = 0; c < cols; c++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+
+        if (brand.logo) {
+          const img = document.createElement('img');
+          img.className = 'logo';
+          img.src = brand.logo;
+          img.alt = '';
+          cell.appendChild(img);
+        }
+
+        const text = document.createElement('div');
+        text.className = 'brand-text';
+        text.innerHTML =
+          '<span class="title">' + escapeHtml(brand.title) + '</span>' +
+          '<span class="subtitle">' + escapeHtml(brand.subtitle) + '</span>';
+        cell.appendChild(text);
+
+        row.appendChild(cell);
+      }
+
+      root.appendChild(row);
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  </script>
+</body>
+</html>
