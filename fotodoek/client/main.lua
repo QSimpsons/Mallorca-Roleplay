@@ -63,16 +63,23 @@ local function headingToRight(heading)
     return vector3(math.cos(rad), math.sin(rad), 0.0)
 end
 
-local function drawTexturedQuad(p1, p2, p3, p4, r, g, b, a)
+--- Tekent een textured quad.
+--- flipH: spiegel U horizontaal (nodig zodat tekst leesbaar is vanaf de fotokant)
+local function drawTexturedQuad(p1, p2, p3, p4, r, g, b, a, flipH)
+    local u0, u1 = 0.0, 1.0
+    if flipH then
+        u0, u1 = 1.0, 0.0
+    end
+
     DrawSpritePoly(
         p1.x, p1.y, p1.z,
         p2.x, p2.y, p2.z,
         p3.x, p3.y, p3.z,
         r, g, b, a,
         txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 0.0, 0.0,
-        1.0, 1.0, 0.0
+        u0, 0.0, 0.0,
+        u1, 0.0, 0.0,
+        u1, 1.0, 0.0
     )
     DrawSpritePoly(
         p1.x, p1.y, p1.z,
@@ -80,9 +87,9 @@ local function drawTexturedQuad(p1, p2, p3, p4, r, g, b, a)
         p4.x, p4.y, p4.z,
         r, g, b, a,
         txdName, txnName,
-        0.0, 0.0, 0.0,
-        1.0, 1.0, 0.0,
-        0.0, 1.0, 0.0
+        u0, 0.0, 0.0,
+        u1, 1.0, 0.0,
+        u0, 1.0, 0.0
     )
 end
 
@@ -96,11 +103,11 @@ local function drawCloth(center, heading, width, height)
     local tl = center - right + up
     local tr = center + right + up
 
-    -- Voorkant
-    drawTexturedQuad(tl, tr, br, bl, 255, 255, 255, 255)
+    -- Voorkant: U gespiegeld zodat ECLIPSE ROLEPLAY leesbaar is vanaf de foto-kant
+    drawTexturedQuad(tl, tr, br, bl, 255, 255, 255, 255, true)
 
     -- Achterkant (donkerder, zodat je niet doorheen kijkt)
-    drawTexturedQuad(tr, tl, bl, br, 30, 40, 70, 255)
+    drawTexturedQuad(tr, tl, bl, br, 30, 40, 70, 255, false)
 end
 
 --- Vloerdoek: zelfde print ligt plat vóór het frame op de grond.
@@ -136,10 +143,10 @@ local function drawFloorCloth(base, heading, width, depth)
         z
     )
 
-    -- Bovenkant (zichtbaar vanaf boven / schuin)
-    drawTexturedQuad(backLeft, backRight, frontRight, frontLeft, 255, 255, 255, 255)
+    -- Bovenkant: zelfde spiegeling als wanddoek (leesbaar vanaf foto-kant)
+    drawTexturedQuad(backLeft, backRight, frontRight, frontLeft, 255, 255, 255, 255, true)
     -- Onderkant (anti z-fighting / doorzicht)
-    drawTexturedQuad(backRight, backLeft, frontLeft, frontRight, 40, 55, 90, 220)
+    drawTexturedQuad(backRight, backLeft, frontLeft, frontRight, 40, 55, 90, 220, false)
 end
 
 local function drawSolidQuad(a, b, c, d, r, g, bl, achan)
