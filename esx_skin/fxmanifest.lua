@@ -2,7 +2,7 @@ fx_version 'adamant'
 
 game 'gta5'
 description 'Allows players to customise their character\'s appearance'
-version '1.15.3'
+version '1.15.4'
 lua54 'yes'
 
 shared_scripts {
@@ -21,6 +21,7 @@ server_scripts {
 client_scripts {
 	'client/main.lua',
 	'client/skinchanger.lua',
+	'client/clothing.lua',
 	'client/modules/*.lua'
 }
 

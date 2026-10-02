@@ -230,12 +230,15 @@ function Menu:Submit(data)
         current = current,
         elements = self.elements
     }
+    local skin = self:CollectSkin()
+    local submitCb = self.submitCb
 
     self:Close()
-
-    if self.submitCb then
-        self.submitCb(payload, createMenuHandle())
-    end
+    self:Persist(skin, function()
+        if submitCb then
+            submitCb(payload, createMenuHandle())
+        end
+    end)
 end
 
 function Menu:Cancel(data)
@@ -252,7 +255,9 @@ function Menu:Cancel(data)
     self:Close()
 
     if Skin.Last then
-        Skinchanger:LoadSkin(Skin.Last)
+        local previous = Clothing.copy(Skin.Last)
+        Skinchanger:LoadSkin(previous)
+        self:ApplyWornClothes(previous)
     end
 
     if self.cancelCb then
@@ -275,12 +280,97 @@ function Menu:RebuildAfterModelChange(activeName)
     end)
 end
 
+function Menu:CollectSkin()
+    return Clothing.compose(Skinchanger:GetSkin(), self.elements)
+end
+
+function Menu:ApplyWornClothes(skin)
+    local ped = PlayerPedId()
+
+    for i = 1, #Clothing.slots do
+        local slot = Clothing.slots[i]
+        if skin[slot.drawable] ~= nil then
+            local texture = Clothing.apply(ped, slot, skin[slot.drawable], skin[slot.texture] or 0)
+            skin[slot.texture] = texture
+
+            local textureElement = self:GetElement(slot.texture)
+            if textureElement then
+                textureElement.value = texture
+                textureElement.max = Clothing.textureMax(ped, slot, skin[slot.drawable])
+            end
+        end
+    end
+end
+
+function Menu:CommitComponent(name, value, skin)
+    skin[name] = value
+    Skinchanger:Change(name, value)
+
+    local slot = Clothing.byName[name]
+    if not slot or skin[slot.drawable] == nil then
+        return
+    end
+
+    local ped = PlayerPedId()
+    local texture = Clothing.apply(ped, slot, skin[slot.drawable], skin[slot.texture] or 0)
+    local maxTexture = Clothing.textureMax(ped, slot, skin[slot.drawable])
+    skin[slot.texture] = texture
+
+    if skin[slot.texture] ~= value or name ~= slot.texture then
+        Skinchanger:Change(slot.texture, texture)
+    end
+
+    local textureElement = self:GetElement(slot.texture)
+    if textureElement then
+        textureElement.value = texture
+        textureElement.max = maxTexture
+    end
+end
+
+function Menu:Persist(skin, done)
+    self:ApplyWornClothes(skin)
+    Skinchanger:LoadSkin(Clothing.copy(skin))
+    self:ApplyWornClothes(skin)
+    Skin.Last = Clothing.copy(skin)
+
+    local finished = false
+    local function finish()
+        if finished then
+            return
+        end
+
+        finished = true
+        if done then
+            done()
+        end
+    end
+
+    TriggerServerEvent("esx_skin:save", skin)
+
+    local invoked = xLib and xLib.callback and pcall(function()
+        xLib.callback("esx_skin:saveSkin", false, function()
+            finish()
+        end, skin)
+    end)
+
+    if not invoked then
+        finish()
+        return
+    end
+
+    SetTimeout(1500, finish)
+end
+
 function Menu:UpdateTextureLimits(changedName, skin)
+    if Clothing.byName[changedName] then
+        return
+    end
+
     for i = 1, #self.elements, 1 do
         local element = self.elements[i]
 
         if element.textureof == changedName then
-            local component = self.components[i]
+            local component = self:FindComponent(element.name)
 
             if component and ESX.IsFunctionReference(component.max) then
                 element.max = safeMax(component.max(PlayerPedId(), skin))
@@ -293,10 +383,23 @@ function Menu:UpdateTextureLimits(changedName, skin)
             end
 
             element.value = current
-            Skinchanger:Change(element.name, element.value)
-            skin[element.name] = element.value
+            self:CommitComponent(element.name, element.value, skin)
         end
     end
+end
+
+function Menu:FindComponent(name)
+    if not name or not self.components then
+        return nil
+    end
+
+    for i = 1, #self.components do
+        if self.components[i].name == name then
+            return self.components[i]
+        end
+    end
+
+    return nil
 end
 
 function Menu:Focus(data)
@@ -327,12 +430,8 @@ function Menu:Apply(values)
             if element then
                 local normalized = wrapValue(value, element.min or 0, element.max or 0)
                 element.value = normalized
-
-                if skin[name] ~= normalized then
-                    Skinchanger:Change(name, normalized)
-                    skin[name] = normalized
-                    changedNames[#changedNames + 1] = name
-                end
+                self:CommitComponent(name, normalized, skin)
+                changedNames[#changedNames + 1] = name
             end
         end
     end
@@ -377,15 +476,12 @@ function Menu:Change(data)
     self:Focus({ name = name })
 
     local skin = Skinchanger:GetSkin()
-    if skin[name] ~= value then
-        Skinchanger:Change(name, value)
-        skin[name] = value
+    self:CommitComponent(name, value, skin)
 
-        if name == "sex" then
-            self:RebuildAfterModelChange(name)
-        elseif not element.textureof then
-            self:UpdateTextureLimits(name, skin)
-        end
+    if name == "sex" then
+        self:RebuildAfterModelChange(name)
+    elseif not element.textureof then
+        self:UpdateTextureLimits(name, skin)
     end
 
     self:Refresh(name)
@@ -396,7 +492,7 @@ function Menu:Reset()
         return
     end
 
-    Skinchanger:LoadSkin(Skin.Last, function()
+    Skinchanger:LoadSkin(Clothing.copy(Skin.Last), function()
         self.components, self.maxValues = Skinchanger:GetData()
         if self.restricted then
             self.components = self:Restrict()
@@ -443,7 +539,7 @@ function Menu:Open(submit, cancel, restrict)
     self.saveable = false
     self.creating = false
     self.focusIndex = 1
-    Skin.Last = Skinchanger:GetSkin()
+    Skin.Last = Clothing.copy(Skinchanger:GetSkin())
 
     self.components, self.maxValues = Skinchanger:GetData()
     if restrict then
@@ -468,14 +564,9 @@ function Menu:Open(submit, cancel, restrict)
 end
 
 function Menu:Saveable(submitCb, cancelCb, restrict, creating)
-    Skin.Last = Skinchanger:GetSkin()
-
     self:Open(function(data, menu)
         menu.close()
         Camera:Destroy()
-
-        local skin = Skinchanger:GetSkin()
-        TriggerServerEvent("esx_skin:save", skin)
 
         if submitCb ~= nil then
             submitCb(data, menu)

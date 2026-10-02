@@ -15,13 +15,59 @@ local function decodeSkin(value)
     return decoded
 end
 
-RegisterNetEvent("esx_skin:save", function(skin)
-    if not skin or type(skin) ~= "table" then
+local function sanitizeSkinValue(value)
+    if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then
+        return nil
+    end
+
+    if value < -100000 or value > 100000 then
+        return nil
+    end
+
+    return math.floor(value + 0.5)
+end
+
+local function persistSkin(identifier, skin, done)
+    MySQL.query("SELECT skin FROM users WHERE identifier = @identifier", {
+        ["@identifier"] = identifier,
+    }, function(users)
+        local current = decodeSkin(users and users[1] and users[1].skin) or {}
+
+        for key, value in pairs(skin) do
+            local sanitized = type(key) == "string" and #key <= 64 and sanitizeSkinValue(value) or nil
+            if sanitized ~= nil then
+                current[key] = sanitized
+            end
+        end
+
+        MySQL.update("UPDATE users SET skin = @skin WHERE identifier = @identifier", {
+            ["@skin"] = json.encode(current),
+            ["@identifier"] = identifier,
+        }, function()
+            if done then
+                done(current)
+            end
+        end)
+    end)
+end
+
+local function savePlayerSkin(playerSource, skin, done)
+    if type(skin) ~= "table" then
+        if done then
+            done(false)
+        end
         return
     end
-    local xPlayer = ESX.Player(source)
 
-    if not ESX.GetConfig().CustomInventory then
+    local xPlayer = ESX.Player(playerSource)
+    if not xPlayer then
+        if done then
+            done(false)
+        end
+        return
+    end
+
+    if skin.bags_1 ~= nil and not ESX.GetConfig().CustomInventory then
         local defaultMaxWeight = ESX.GetConfig().MaxWeight
         local backpackModifier = Config.BackpackWeight[skin.bags_1]
 
@@ -32,10 +78,27 @@ RegisterNetEvent("esx_skin:save", function(skin)
         end
     end
 
-    MySQL.update("UPDATE users SET skin = @skin WHERE identifier = @identifier", {
-        ["@skin"] = json.encode(skin),
-        ["@identifier"] = xPlayer.getIdentifier(),
-    })
+    pcall(function()
+        if xPlayer.set then
+            xPlayer.set("skin", skin)
+        end
+    end)
+
+    persistSkin(xPlayer.getIdentifier(), skin, function()
+        if done then
+            done(true)
+        end
+    end)
+end
+
+RegisterNetEvent("esx_skin:save", function(skin)
+    savePlayerSkin(source, skin)
+end)
+
+xLib.callback.registerCompat("esx_skin:saveSkin", function(source, cb, skin)
+    savePlayerSkin(source, skin, function(saved)
+        cb(saved == true)
+    end)
 end)
 
 RegisterNetEvent("esx_skin:setWeight", function(skin)
