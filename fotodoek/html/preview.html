@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fotodoek preview — Eclipse RP</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.25rem;
+      padding: 2rem;
+      background: #0f172a;
+      color: #e2e8f0;
+      font-family: "Segoe UI", sans-serif;
+    }
+    h1 { font-size: 1.15rem; font-weight: 600; letter-spacing: 0.04em; }
+    .stage {
+      position: relative;
+      width: min(920px, 94vw);
+      aspect-ratio: 16 / 9;
+      background: #020617;
+      border-radius: 4px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      overflow: hidden;
+    }
+    /* Metalen frame */
+    .pole {
+      position: absolute;
+      top: 4%;
+      bottom: 6%;
+      width: 10px;
+      background: linear-gradient(90deg, #111, #2a2a2e 40%, #111);
+      border-radius: 2px;
+      z-index: 2;
+    }
+    .pole.left { left: 1.5%; }
+    .pole.right { right: 1.5%; }
+    .bar {
+      position: absolute;
+      top: 3.2%;
+      left: 1.2%;
+      right: 1.2%;
+      height: 12px;
+      background: linear-gradient(180deg, #1a1a1e, #0a0a0c);
+      border-radius: 2px;
+      z-index: 3;
+    }
+    .foot {
+      position: absolute;
+      bottom: 4%;
+      width: 36px;
+      height: 10px;
+      background: #151518;
+      border-radius: 2px;
+      z-index: 2;
+    }
+    .foot.left { left: 0.4%; }
+    .foot.right { right: 0.4%; }
+    iframe {
+      position: absolute;
+      inset: 5% 3% 7% 3%;
+      width: auto;
+      height: auto;
+      border: 0;
+      border-radius: 1px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+    p { font-size: 0.9rem; opacity: 0.7; max-width: 40rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <h1>FOTODOEK PREVIEW — ECLIPSE ROLEPLAY</h1>
+  <div class="stage">
+    <div class="bar"></div>
+    <div class="pole left"></div>
+    <div class="pole right"></div>
+    <div class="foot left"></div>
+    <div class="foot right"></div>
+    <iframe
+      title="doek"
+      src="doek.html?title=ECLIPSE&subtitle=ROLEPLAY&bg=%230b2f7a&accent=%233b82f6&color=%23ffffff&logo=img/logo.jpg"
+    ></iframe>
+  </div>
+  <p>In-game: <code>/doek</code> plaatst dit frame op je positie. Logo en kleuren pas je aan in <code>config.lua</code>.</p>
+</body>
+</html>
