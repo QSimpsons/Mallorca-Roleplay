@@ -11,6 +11,7 @@ required = [
     'fxmanifest.lua',
     'config.lua',
     'locations.lua',
+    'shared/owner.lua',
     'client/main.lua',
     'server/main.lua',
     'sql/install.sql',
@@ -31,7 +32,7 @@ for needle in ('mallorca_impound', 'snelle_garage_log', 'owned_vehicles', 'store
         errors.append(f'sql missing {needle}')
 
 manifest = (ROOT / 'fxmanifest.lua').read_text(encoding='utf-8')
-for needle in ("ui_page 'html/index.html'", 'client/main.lua', 'server/main.lua', 'config.lua', 'locations.lua', 'es_extended'):
+for needle in ("ui_page 'html/index.html'", 'client/main.lua', 'server/main.lua', 'config.lua', 'locations.lua', 'shared/owner.lua', 'es_extended'):
     if needle not in manifest:
         errors.append(f'manifest missing {needle}')
 
@@ -95,6 +96,9 @@ for needle in (
     'storePurchases',
     'esx_vehicleshop:setVehicleOwnedPlayerId',
     'spawnedVehicle',
+    'SnelleOwner.same',
+    'ownedByPlayer',
+    'fetchOwnedMany',
 ):
     if needle not in server:
         errors.append(f'server missing {needle}')

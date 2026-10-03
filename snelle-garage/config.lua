@@ -105,6 +105,7 @@ Config.Text = {
     recovered = 'Voertuig opgehaald uit de impound.',
     noMoney = 'Je hebt niet genoeg geld bij je of op de bank.',
     notOwner = 'Alleen een gekocht voertuig kun je in de garage zetten.',
+    storedNew = 'Aankoop herkend. Voertuig geparkeerd.',
     spawnedVehicle = 'Dit voertuig staat al in de garage. Een gespawnde kopie kun je niet parkeren.',
     alreadyOut = 'Dit voertuig staat al buiten. Haal het op bij de impound.',
     impounded = 'Dit voertuig staat in de impound.',

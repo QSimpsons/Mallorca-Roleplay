@@ -447,7 +447,7 @@ RegisterNetEvent('snelle-garage:client:stored', function(data)
         end
     end
     if not data.quiet then
-        notify(Config.Text.parked)
+        notify(data.message or Config.Text.parked)
     end
 end)
 
@@ -720,7 +720,7 @@ CreateThread(function()
             if driving and parkLoc and parkDist <= (Config.StoreDistance or 8.0) then
                 sleep = 0
                 help(Config.Text.store)
-                if IsControlJustReleased(0, 38) then
+                if IsControlJustReleased(0, 38) or IsDisabledControlJustReleased(0, 38) then
                     storeVehicle(parkLoc)
                 end
             elseif not driving then
@@ -728,13 +728,13 @@ CreateThread(function()
                 if useImpound and impDist <= (Config.InteractDistance or 2.5) then
                     sleep = 0
                     help(Config.Text.openImpound)
-                    if IsControlJustReleased(0, 38) then
+                    if IsControlJustReleased(0, 38) or IsDisabledControlJustReleased(0, 38) then
                         requestOpen('impound', impLoc)
                     end
                 elseif openLoc and openDist <= (Config.InteractDistance or 2.5) then
                     sleep = 0
                     help(Config.Text.openGarage)
-                    if IsControlJustReleased(0, 38) then
+                    if IsControlJustReleased(0, 38) or IsDisabledControlJustReleased(0, 38) then
                         requestOpen('garage', openLoc)
                     end
                 end

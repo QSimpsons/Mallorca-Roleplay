@@ -10,7 +10,8 @@ ui_page 'html/index.html'
 
 shared_scripts {
     'config.lua',
-    'locations.lua'
+    'locations.lua',
+    'shared/owner.lua'
 }
 
 client_scripts {
