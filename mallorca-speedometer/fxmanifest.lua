@@ -5,21 +5,13 @@ lua54 'yes'
 name 'mallorca-speedometer'
 author 'Mallorca'
 description 'Voertuig speedometer HUD'
-version '1.4.0'
+version '1.4.1'
 
 ui_page 'html/index.html'
 
-shared_scripts {
-    'config.lua'
-}
-
-client_scripts {
-    'client/main.lua'
-}
-
-server_scripts {
-    'server/main.lua'
-}
+shared_script 'config.lua'
+client_script 'client.lua'
+server_script 'server.lua'
 
 files {
     'html/index.html',
