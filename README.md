@@ -3,7 +3,7 @@
 ## Resources
 
 `esrp_lib` is de Vertex-library. Die zet de API in de globals `vx` en `esrp_lib`.
-`ocean_garage` is de garage en impound en praat alleen via die API.
+`ocean_garage` is de garage en impound voor ESX Legacy 1.15.2. `owned_vehicles.pound` blijft de impound-locatie, `stored` en `parking` blijven van ESX.
 
 Startvolgorde in `server.cfg`:
 

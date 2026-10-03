@@ -44,7 +44,12 @@ local function spawnVehicle(garage, vehicle)
 	})
 
 	local ped = PlayerPedId()
-	vx.callback.await("vx_garage:vehicleSpawned", false, VehToNet(ownedVehicle))
+	local spawned = vx.callback.await("vx_garage:vehicleSpawned", false, VehToNet(ownedVehicle), vehicle.plate)
+	if not spawned then
+		DeleteEntity(ownedVehicle)
+		vx.notify({ type = "error", message = locale("something_went_wrong") })
+		return
+	end
 
 	functions.createCam()
 	SetVehicleHasBeenOwnedByPlayer(ownedVehicle, true)
@@ -71,9 +76,17 @@ local function openGarage(garage)
 
     local uiVehicles = {}
 
+    local function plateKey(plate)
+        if type(plate) ~= 'string' then
+            return ''
+        end
+        return ((plate:gsub('^%s*(.-)%s*$', '%1')):upper():gsub('%s+', ''))
+    end
+
     local function isExistingVehicle(plate)
+        local key = plateKey(plate)
         for _, existingVehicle in pairs(existingVehicles) do
-            if existingVehicle.plate == plate then
+            if plateKey(existingVehicle.plate) == key then
                 return true
             end
         end
