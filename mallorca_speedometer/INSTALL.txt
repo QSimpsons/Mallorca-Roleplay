@@ -1,0 +1,31 @@
+INSTALLATIE
+===========
+
+Belangrijk: de map moet ZO eruitzien:
+
+mallorca-speedometer/
+  fxmanifest.lua
+  config.lua
+  client.lua
+  server.lua
+  html/
+    index.html
+    style.css
+    app.js
+  sql/
+    install.sql
+
+1. Zet die hele map in resources
+2. Voer sql/install.sql eenmalig uit
+3. In server.cfg:
+
+ensure oxmysql
+ensure mallorca-speedometer
+
+4. restart of:
+ensure mallorca-speedometer
+
+Als je errors krijgt over ontbrekende bestanden:
+- staat client.lua in dezelfde map als fxmanifest.lua?
+- staat html/index.html in mallorca-speedometer/html/ ?
+- heet de map precies mallorca-speedometer ?
