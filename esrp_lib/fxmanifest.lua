@@ -5,6 +5,9 @@ lua54 "yes"
 author "Vertex Scripts"
 version "3.1.1"
 
+-- Scripts that still include @vx_lib/init.lua keep working after the rename to esrp_lib.
+provide "vx_lib"
+
 ui_page "web/dist/index.html"
 
 server_scripts {
