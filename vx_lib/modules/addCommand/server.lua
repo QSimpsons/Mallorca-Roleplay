@@ -29,7 +29,10 @@ SetTimeout(1000, function()
    TriggerClientEvent('chat:addSuggestions', -1, registeredCommands)
 end)
 
-AddEventHandler('playerJoining', function(source)
+-- playerJoining's first argument is oldId (temp connecting id), not the real player id.
+-- Shadowing `source` with that arg causes TRIGGER_CLIENT_EVENT_INTERNAL warnings
+-- ("client X is not the same as the target 65536"). Use the global `source` instead.
+AddEventHandler('playerJoining', function()
    TriggerClientEvent('chat:addSuggestions', source, registeredCommands)
 end)
 
