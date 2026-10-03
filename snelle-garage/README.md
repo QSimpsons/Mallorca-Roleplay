@@ -8,7 +8,7 @@ Werkt samen met de inbeslagname van `mallorca-takel` (`mallorca_impound`). Zonde
 
 ## Installatie
 
-1. Zet de map `snelle-garage` in `resources`.
+1. Pak `snelle-garage.zip` uit in `resources` (de map `snelle-garage` staat daarin).
 2. Importeer `sql/install.sql` in je ESX-database (HeidiSQL of phpMyAdmin).
 3. Zet dit in `server.cfg`, **na** `oxmysql` en `es_extended`:
 
