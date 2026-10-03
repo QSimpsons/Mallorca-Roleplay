@@ -1,0 +1,23 @@
+{
+  "unknown": "Onbekend",
+  "error": "Fout",
+  "impound": "Impound",
+  "vehicle_already_out": "Je voertuig is al uit de garage!",
+  "return_vehicle": "Voertuig terughalen",
+  "get_vehicle_out_of_garage": "Haal je voertuig uit de impound",
+  "vehicle_impounded": "Dit voertuig staat in beslag.",
+  "something_went_wrong": "Er is iets fout gegaan!",
+  "returned_vehicle": "Je voertuig staat terug in je garage!",
+  "get_vehicle": "Voertuig ophalen",
+  "get_vehicle_description": "Haal je voertuig op",
+  "change_name": "Naam veranderen",
+  "change_name_description": "Verander de naam van je voertuig",
+  "vehicle_name": "Voertuig naam",
+  "invalid_vehicle": "Ongeldig Voertuig",
+  "license_plate": "Kenteken",
+  "garage": "Garage",
+  "press_to_open_garage": "Druk op [E] om de garage te openen",
+  "press_to_return_vehicle": "Druk op [E] om je voertuig weg te zetten",
+  "not_your_vehicle": "Deze auto is niet van jou!",
+  "must_be_in_driver_seat": "Je moet in de bestuurdersstoel zitten om je voertuig weg te zetten"
+}
