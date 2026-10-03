@@ -271,6 +271,44 @@ local function actionAllowed(src)
     return true
 end
 
+local busyAt = {}
+local busyGen = {}
+
+local function tryLockPlate(src, plateKey)
+    local now = os.clock()
+    local holder = busy[plateKey]
+    if holder then
+        local age = now - (busyAt[plateKey] or now)
+        if holder == src and age < 2.0 then
+            return false, 'same'
+        end
+        if holder ~= src and age < 4.0 then
+            return false, 'other'
+        end
+    end
+    local gen = (busyGen[plateKey] or 0) + 1
+    busyGen[plateKey] = gen
+    busy[plateKey] = src
+    busyAt[plateKey] = now
+    SetTimeout(5000, function()
+        if busyGen[plateKey] == gen then
+            busy[plateKey] = nil
+            busyAt[plateKey] = nil
+        end
+    end)
+    return true, gen
+end
+
+local function unlockPlate(src, plateKey, gen)
+    if gen and busyGen[plateKey] ~= gen then
+        return
+    end
+    if busy[plateKey] == src or busy[plateKey] == nil then
+        busy[plateKey] = nil
+        busyAt[plateKey] = nil
+    end
+end
+
 local function charge(xPlayer, amount, reason)
     amount = math.floor(tonumber(amount) or 0)
     if amount <= 0 then
@@ -929,17 +967,17 @@ RegisterNetEvent('snelle-garage:server:spawn', function(payload)
         return
     end
 
-    if busy[plateKey] then
-        notify(src, Config.Text.busy)
+    local locked, gen = tryLockPlate(src, plateKey)
+    if not locked then
+        if gen ~= 'same' then
+            notify(src, Config.Text.busy)
+        end
         TriggerClientEvent('snelle-garage:client:idle', src)
         return
     end
-    busy[plateKey] = src
 
     local function unlock()
-        if busy[plateKey] == src then
-            busy[plateKey] = nil
-        end
+        unlockPlate(src, plateKey, gen)
     end
 
     local function deny(msg)
@@ -1183,11 +1221,13 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
         return
     end
 
-    if busy[plateKey] then
-        notify(src, Config.Text.busy)
+    local locked, gen = tryLockPlate(src, plateKey)
+    if not locked then
+        if gen ~= 'same' then
+            notify(src, Config.Text.busy)
+        end
         return
     end
-    busy[plateKey] = src
 
     local idents = playerIdents(src, xPlayer)
     local displayPlate = tostring(payload.plate or ''):upper():gsub('^%s+', ''):gsub('%s+$', '')
@@ -1196,9 +1236,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
     end
 
     local function release()
-        if busy[plateKey] == src then
-            busy[plateKey] = nil
-        end
+        unlockPlate(src, plateKey, gen)
     end
 
     local function claim(props)
@@ -1258,6 +1296,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
     end
 
     fetchPlate(plateKey, function(row, failed)
+        local okCall, errCall = pcall(function()
         if failed then
             release()
             notify(src, Config.Text.dbDown)
@@ -1349,6 +1388,12 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                 })
             end)
         end)
+        end)
+        if not okCall then
+            release()
+            print(('^1[snelle-garage]^7 Parkeren mislukt: %s'):format(errCall))
+            notify(src, Config.Text.dbDown)
+        end
     end)
 end)
 

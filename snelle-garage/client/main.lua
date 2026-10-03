@@ -6,6 +6,7 @@ local ui = {
     token = 0
 }
 local taking = false
+local storing = false
 
 local function loadESX()
     if ESX then
@@ -335,12 +336,16 @@ local function requestOpen(mode, location)
 end
 
 local function storeVehicle(location)
+    if storing then
+        return
+    end
     local ped = PlayerPedId()
     local veh = GetVehiclePedIsIn(ped, false)
     if veh == 0 or GetPedInVehicleSeat(veh, -1) ~= ped then
         notify(Config.Text.notDriver)
         return
     end
+    storing = true
     local props = getProps(veh)
     TriggerServerEvent('snelle-garage:server:store', {
         plate = props.plate,
@@ -348,6 +353,9 @@ local function storeVehicle(location)
         locationId = location.id,
         netId = NetworkGetNetworkIdFromEntity(veh)
     })
+    SetTimeout(2000, function()
+        storing = false
+    end)
 end
 
 local function staffImpound(entity, reason)
@@ -375,6 +383,7 @@ local function isStaffJob()
 end
 
 RegisterNetEvent('snelle-garage:client:notify', function(msg)
+    storing = false
     notify(msg)
 end)
 
@@ -432,6 +441,7 @@ RegisterNetEvent('snelle-garage:client:spawn', function(data)
 end)
 
 RegisterNetEvent('snelle-garage:client:stored', function(data)
+    storing = false
     data = data or {}
     local veh = findVeh(data.netId, data.plate)
     if veh ~= 0 then
