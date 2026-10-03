@@ -110,7 +110,7 @@ local function openGarage(garage)
         if vehicle.pound == 1 or vehicle.pound == true then
             location = "In Beslag"
             inGarage = false
-        elseif isExistingVehicle(vehicle.plate) then
+        elseif isExistingVehicle(vehicle.plate) or vehicle.stored == 0 or vehicle.stored == false then
             location = "Buiten"
             inGarage = false
         else
