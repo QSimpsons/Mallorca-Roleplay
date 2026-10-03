@@ -1,106 +1,95 @@
---[[ Mallorca Speedometer - client ]]
+--[[
+    Mallorca Speedometer - client
+    Alleen voertuig-HUD. Geen externe downloads, geen obfuscation.
+]]
 
 local visible = false
 local leftOn = false
 local rightOn = false
 local hazardOn = false
-
 local currentPlate = nil
 local fuelReady = true
 local lastSaveAt = 0
 local lastFuelSaved = nil
 
-local function colorFor(value, greenAt, yellowAt)
-    if value >= greenAt then return 'green' end
-    if value >= yellowAt then return 'yellow' end
+local function statusColor(value, greenAt, yellowAt)
+    if value >= greenAt then
+        return 'green'
+    end
+    if value >= yellowAt then
+        return 'yellow'
+    end
     return 'red'
 end
 
-local function fuelColor(pct)
-    local g = (Config.Fuel and Config.Fuel.green) or 40
-    local y = (Config.Fuel and Config.Fuel.yellow) or 15
-    return colorFor(pct, g, y)
-end
-
-local function cleanPlate(plate)
-    if type(plate) ~= 'string' then return '' end
+local function normalizePlate(plate)
+    if type(plate) ~= 'string' then
+        return ''
+    end
     return (plate:gsub('^%s+', ''):gsub('%s+$', ''):upper())
 end
 
-local function plateOf(vehicle)
-    return cleanPlate(GetVehicleNumberPlateText(vehicle))
-end
-
-local function driverVehicle()
+local function getDriverVehicle()
     local ped = PlayerPedId()
-    if not IsPedInAnyVehicle(ped, false) then return 0 end
-    local veh = GetVehiclePedIsIn(ped, false)
-    if GetPedInVehicleSeat(veh, -1) ~= ped then return 0 end
-    return veh
+    if not IsPedInAnyVehicle(ped, false) then
+        return 0
+    end
+    local vehicle = GetVehiclePedIsIn(ped, false)
+    if GetPedInVehicleSeat(vehicle, -1) ~= ped then
+        return 0
+    end
+    return vehicle
 end
 
-local function externalFuel()
-    local cfg = Config.Fuel or {}
-    if type(cfg.Resource) == 'string' and cfg.Resource ~= '' and GetResourceState(cfg.Resource) == 'started' then
-        return cfg.Resource, cfg.Export or 'GetFuel'
-    end
-    local list = {
-        { 'LegacyFuel', 'GetFuel' },
-        { 'ox_fuel', 'GetFuel' },
-        { 'cdn-fuel', 'GetFuel' },
-        { 'qs-fuelstations', 'GetFuel' },
-        { 'lc_fuel', 'GetFuel' },
-        { 'ti_fuel', 'getFuel' },
-    }
-    for i = 1, #list do
-        if GetResourceState(list[i][1]) == 'started' then
-            return list[i][1], list[i][2]
-        end
-    end
-    return nil, nil
-end
-
-local function readFuel(vehicle)
-    local res, exp = externalFuel()
-    if res then
-        local ok, val = pcall(function() return exports[res][exp](vehicle) end)
-        if ok and type(val) == 'number' then
-            return math.max(0.0, math.min(100.0, val + 0.0))
-        end
-    end
-    local lvl = GetVehicleFuelLevel(vehicle)
-    if type(lvl) ~= 'number' then return 100.0 end
-    return math.max(0.0, math.min(100.0, lvl + 0.0))
-end
-
-local function writeFuel(vehicle, amount)
-    amount = math.max(0.0, math.min(100.0, amount + 0.0))
-    SetVehicleFuelLevel(vehicle, amount)
-    local res = externalFuel()
-    if res then
-        pcall(function()
-            if exports[res].SetFuel then
-                exports[res]:SetFuel(vehicle, amount)
-            end
+local function getFuel(vehicle)
+    -- Optioneel: vast fuel-script uit config
+    local resource = Config.Fuel and Config.Fuel.Resource or ''
+    if resource ~= '' and GetResourceState(resource) == 'started' then
+        local exportName = Config.Fuel.Export or 'GetFuel'
+        local ok, value = pcall(function()
+            return exports[resource][exportName](vehicle)
         end)
+        if ok and type(value) == 'number' then
+            return math.max(0.0, math.min(100.0, value))
+        end
     end
+
+    local level = GetVehicleFuelLevel(vehicle)
+    if type(level) ~= 'number' then
+        return 100.0
+    end
+    return math.max(0.0, math.min(100.0, level))
+end
+
+local function setFuel(vehicle, amount)
+    amount = math.max(0.0, math.min(100.0, amount))
+    SetVehicleFuelLevel(vehicle, amount)
 end
 
 local function saveFuel(vehicle, force)
-    if not Config.Fuel or not Config.Fuel.UseDatabase then return end
-    if externalFuel() then return end
-    if not vehicle or vehicle == 0 then return end
+    if not Config.Fuel or not Config.Fuel.UseDatabase then
+        return
+    end
+    if not vehicle or vehicle == 0 then
+        return
+    end
 
-    local plate = plateOf(vehicle)
-    if plate == '' then return end
+    local plate = normalizePlate(GetVehicleNumberPlateText(vehicle))
+    if plate == '' then
+        return
+    end
 
-    local fuel = readFuel(vehicle)
+    local fuel = getFuel(vehicle)
     local now = GetGameTimer()
-    local every = (Config.Fuel.SaveMs or 15000)
+    local interval = Config.Fuel.SaveMs or 15000
 
     if not force then
-        if (now - lastSaveAt) < every then return end
-        if lastFuelSaved and math.abs(lastFuelSaved - fuel) < 0.5 then return end
+        if (now - lastSaveAt) < interval then
+            return
+        end
+        if lastFuelSaved and math.abs(lastFuelSaved - fuel) < 0.5 then
+            return
+        end
     end
 
     lastSaveAt = now
@@ -108,13 +97,13 @@ local function saveFuel(vehicle, force)
     TriggerServerEvent('mallorca-speedometer:server:saveFuel', plate, fuel)
 end
 
-local function loadFuel(vehicle)
-    if not Config.Fuel or not Config.Fuel.UseDatabase or externalFuel() then
+local function requestFuel(vehicle)
+    if not Config.Fuel or not Config.Fuel.UseDatabase then
         fuelReady = true
         return
     end
 
-    local plate = plateOf(vehicle)
+    local plate = normalizePlate(GetVehicleNumberPlateText(vehicle))
     if plate == '' then
         fuelReady = true
         return
@@ -124,7 +113,6 @@ local function loadFuel(vehicle)
     fuelReady = false
     TriggerServerEvent('mallorca-speedometer:server:getFuel', plate)
 
-    -- Fallback als SQL niet antwoordt
     Citizen.SetTimeout(1500, function()
         if currentPlate == plate and not fuelReady then
             fuelReady = true
@@ -133,17 +121,22 @@ local function loadFuel(vehicle)
 end
 
 RegisterNetEvent('mallorca-speedometer:client:setFuel', function(plate, fuel)
-    plate = cleanPlate(plate)
-    if currentPlate ~= plate then return end
-    local veh = driverVehicle()
-    if veh ~= 0 then
-        writeFuel(veh, tonumber(fuel) or 100.0)
+    plate = normalizePlate(plate)
+    if currentPlate ~= plate then
+        return
+    end
+
+    local vehicle = getDriverVehicle()
+    if vehicle ~= 0 then
+        setFuel(vehicle, tonumber(fuel) or 100.0)
     end
     fuelReady = true
 end)
 
-local function setIndicators(vehicle)
-    if vehicle == 0 then return end
+local function applyIndicators(vehicle)
+    if vehicle == 0 then
+        return
+    end
     if hazardOn then
         SetVehicleIndicatorLights(vehicle, 0, true)
         SetVehicleIndicatorLights(vehicle, 1, true)
@@ -153,37 +146,38 @@ local function setIndicators(vehicle)
     end
 end
 
-local function hide()
-    if not visible then return end
+local function hideHud()
+    if not visible then
+        return
+    end
     visible = false
     SendNUIMessage({ action = 'hide' })
 end
 
-local function show(data)
+local function showHud(data)
     visible = true
     SendNUIMessage({ action = 'update', data = data })
 end
 
-local function handbrakeOn(vehicle)
-    local ok, hb = pcall(function() return GetVehicleHandbrake(vehicle) end)
-    if ok and hb then return true end
+local function isHandbrakeOn(vehicle)
+    if GetVehicleHandbrake(vehicle) then
+        return true
+    end
     return IsControlPressed(0, 76)
 end
 
-local function lightsOn(vehicle)
-    local on, high = 0, 0
-    local ok = pcall(function()
-        local _, a, b = GetVehicleLightsState(vehicle)
-        on, high = a, b
-    end)
-    if not ok then return false end
-    return on == 1 or high == 1 or on == true or high == true
+local function areLightsOn(vehicle)
+    local _, lightsOn, highbeams = GetVehicleLightsState(vehicle)
+    return lightsOn == 1 or highbeams == 1
 end
 
-local function burnFuel(vehicle, dt)
-    if not Config.Fuel or Config.Fuel.Consume == false then return end
-    if externalFuel() then return end
-    if not GetIsVehicleEngineRunning(vehicle) then return end
+local function consumeFuel(vehicle, dt)
+    if not Config.Fuel or Config.Fuel.Consume == false then
+        return
+    end
+    if not GetIsVehicleEngineRunning(vehicle) then
+        return
+    end
 
     local speed = GetEntitySpeed(vehicle) * 3.6
     local use = (Config.Fuel.IdleDrain or 0.01) * dt
@@ -191,10 +185,10 @@ local function burnFuel(vehicle, dt)
         use = use + ((Config.Fuel.DriveDrain or 0.035) + speed * (Config.Fuel.SpeedDrain or 0.00025)) * dt
     end
 
-    local fuel = readFuel(vehicle)
+    local fuel = getFuel(vehicle)
     local nextFuel = math.max(0.0, fuel - use)
-    if math.abs(nextFuel - fuel) > 0.0001 then
-        writeFuel(vehicle, nextFuel)
+    if nextFuel ~= fuel then
+        setFuel(vehicle, nextFuel)
     end
     if nextFuel <= 0.0 then
         SetVehicleEngineOn(vehicle, false, true, true)
@@ -202,64 +196,62 @@ local function burnFuel(vehicle, dt)
 end
 
 CreateThread(function()
-    local wasIn = false
-    local lastVeh = 0
+    local wasInVehicle = false
+    local lastVehicle = 0
     local lastTick = GetGameTimer()
 
     while true do
-        local veh = driverVehicle()
+        local vehicle = getDriverVehicle()
         local now = GetGameTimer()
         local dt = math.max(0.0, (now - lastTick) / 1000.0)
         lastTick = now
 
-        if veh == 0 then
-            if wasIn and lastVeh ~= 0 then
-                saveFuel(lastVeh, true)
+        if vehicle == 0 then
+            if wasInVehicle and lastVehicle ~= 0 then
+                saveFuel(lastVehicle, true)
             end
-            wasIn = false
-            lastVeh = 0
+            wasInVehicle = false
+            lastVehicle = 0
             currentPlate = nil
             fuelReady = true
-            leftOn, rightOn, hazardOn = false, false, false
-            hide()
+            leftOn = false
+            rightOn = false
+            hazardOn = false
+            hideHud()
             Wait(400)
         elseif Config.HideInPauseMenu and IsPauseMenuActive() then
-            hide()
+            hideHud()
             Wait(200)
         else
-            if (not wasIn) or lastVeh ~= veh then
-                loadFuel(veh)
+            if (not wasInVehicle) or lastVehicle ~= vehicle then
+                requestFuel(vehicle)
             end
-            wasIn = true
-            lastVeh = veh
+            wasInVehicle = true
+            lastVehicle = vehicle
 
             if fuelReady then
-                burnFuel(veh, dt)
-                saveFuel(veh, false)
+                consumeFuel(vehicle, dt)
+                saveFuel(vehicle, false)
             end
 
-            local speedRaw = GetEntitySpeed(veh)
-            local speed = Config.UseKmh and (speedRaw * 3.6) or (speedRaw * 2.236936)
-            local engineHp = GetVehicleEngineHealth(veh)
-            local bodyHp = GetVehicleBodyHealth(veh)
-            local fuel = readFuel(veh)
+            local speed = GetEntitySpeed(vehicle) * (Config.UseKmh and 3.6 or 2.236936)
+            local engineHealth = GetVehicleEngineHealth(vehicle)
+            local bodyHealth = GetVehicleBodyHealth(vehicle)
+            local fuel = getFuel(vehicle)
 
-            show({
+            showHud({
                 speed = math.floor(speed + 0.5),
-                maxSpeed = Config.MaxSpeed or 1300,
+                maxSpeed = Config.MaxSpeed or 280,
                 unit = Config.UseKmh and 'km/h' or 'mph',
-                engine = colorFor(engineHp, Config.Engine.green, Config.Engine.yellow),
-                engineHealth = math.floor(math.max(0.0, math.min(1000.0, engineHp)) / 10.0),
-                damage = colorFor(bodyHp, Config.Body.green, Config.Body.yellow),
-                bodyHealth = math.floor(math.max(0.0, math.min(1000.0, bodyHp)) / 10.0),
+                engine = statusColor(engineHealth, Config.Engine.green, Config.Engine.yellow),
+                damage = statusColor(bodyHealth, Config.Body.green, Config.Body.yellow),
                 fuel = math.floor(fuel + 0.5),
-                fuelState = fuelColor(fuel),
+                fuelState = statusColor(fuel, Config.Fuel.green or 40, Config.Fuel.yellow or 15),
                 left = hazardOn or leftOn,
                 right = hazardOn or rightOn,
                 hazard = hazardOn,
-                handbrake = handbrakeOn(veh),
-                lights = lightsOn(veh),
-                engineOn = GetIsVehicleEngineRunning(veh)
+                handbrake = isHandbrakeOn(vehicle),
+                lights = areLightsOn(vehicle)
             })
 
             Wait(Config.TickMs or 50)
@@ -269,29 +261,32 @@ end)
 
 if Config.EnableIndicatorKeys then
     RegisterCommand('ms_left_indicator', function()
-        local veh = driverVehicle()
-        if veh == 0 then return end
+        local vehicle = getDriverVehicle()
+        if vehicle == 0 then return end
         hazardOn = false
         leftOn = not leftOn
         if leftOn then rightOn = false end
-        setIndicators(veh)
+        applyIndicators(vehicle)
     end, false)
 
     RegisterCommand('ms_right_indicator', function()
-        local veh = driverVehicle()
-        if veh == 0 then return end
+        local vehicle = getDriverVehicle()
+        if vehicle == 0 then return end
         hazardOn = false
         rightOn = not rightOn
         if rightOn then leftOn = false end
-        setIndicators(veh)
+        applyIndicators(vehicle)
     end, false)
 
     RegisterCommand('ms_hazard', function()
-        local veh = driverVehicle()
-        if veh == 0 then return end
+        local vehicle = getDriverVehicle()
+        if vehicle == 0 then return end
         hazardOn = not hazardOn
-        if hazardOn then leftOn, rightOn = false, false end
-        setIndicators(veh)
+        if hazardOn then
+            leftOn = false
+            rightOn = false
+        end
+        applyIndicators(vehicle)
     end, false)
 
     RegisterKeyMapping('ms_left_indicator', 'Knipperlicht links', 'keyboard', Config.Keys.left)
