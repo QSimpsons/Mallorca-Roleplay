@@ -1,15 +1,9 @@
-snelle-fatbike — alles-in-één
-=============================
+snelle-fatbike
+==============
 
-1. Zet DEZE map (snelle-fatbike) direct in resources.
-   Juiste pad: resources/snelle-fatbike/fxmanifest.lua
-   (niet: resources/snelle-fatbike/snelle-fatbike/...)
+1. Map snelle-fatbike in resources zetten.
+2. server.cfg: ensure snelle-fatbike
+3. Server herstarten.
+4. /fatbike
 
-2. server.cfg — alleen dit:
-
-   ensure snelle-fatbike
-
-3. Herstart de server.
-4. In-game: /fatbike (toets G)
-
-Streamfiles staan in stream/ (snellefat.yft/.ytd).
+Geen snellefat_hi.yft meer (voorkomt RAGE >100MB crash).

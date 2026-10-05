@@ -1,7 +1,6 @@
-Stream-bestanden staan al in de map stream/:
+Alleen deze streamfiles:
 
   snellefat.yft
-  snellefat_hi.yft
   snellefat.ytd
 
-Geen extra download nodig.
+Geen snellefat_hi.yft (die gaf ERR_STR_FAILURE_3 / >100MB).

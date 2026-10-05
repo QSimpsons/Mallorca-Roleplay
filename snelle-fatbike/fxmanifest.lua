@@ -5,7 +5,7 @@ lua54 'yes'
 name 'snelle-fatbike'
 author 'Snelle'
 description 'Fatbike spawn/opbergen + licht streammodel snellefat'
-version '1.3.0'
+version '1.3.1'
 
 shared_script 'config.lua'
 client_script 'client.lua'

@@ -4,10 +4,10 @@
 
 [`snelle-fatbike.zip`](https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/snelle-ebike-script-d905/snelle-fatbike.zip)
 
-1. Verwijder oude `snelle-fatbike` map
-2. Pak zip uit → `resources/snelle-fatbike/fxmanifest.lua`
-3. `ensure snelle-fatbike` (haal `snelle-ebike` weg)
-4. Server **volledig** herstarten
-5. `/fatbike`
+1. Oude `snelle-fatbike` map **helemaal** weg
+2. FiveM-cache legen (client) + server-cache legen
+3. Zip uitpakken → `resources/snelle-fatbike/fxmanifest.lua`
+4. `ensure snelle-fatbike`
+5. Server herstarten → `/fatbike`
 
-Licht streammodel (~3 MB) om join-timeouts te voorkomen.
+Geen `snellefat_hi.yft` meer (fix voor ERR_STR_FAILURE_3 >100MB).
