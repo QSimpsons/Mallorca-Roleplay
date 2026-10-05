@@ -4,8 +4,8 @@ lua54 'yes'
 
 name 'snelle-fatbike'
 author 'Snelle'
-description 'Fatbike spawn/opbergen + streammodel snellefat'
-version '1.2.0'
+description 'Fatbike spawn/opbergen + licht streammodel snellefat'
+version '1.3.0'
 
 shared_script 'config.lua'
 client_script 'client.lua'
@@ -15,10 +15,8 @@ files {
     'data/vehicles.meta',
     'data/handling.meta',
     'data/carvariations.meta',
-    'data/carcols.meta',
 }
 
 data_file 'HANDLING_FILE' 'data/handling.meta'
 data_file 'VEHICLE_METADATA_FILE' 'data/vehicles.meta'
-data_file 'CARCOLS_FILE' 'data/carcols.meta'
 data_file 'VEHICLE_VARIATION_FILE' 'data/carvariations.meta'

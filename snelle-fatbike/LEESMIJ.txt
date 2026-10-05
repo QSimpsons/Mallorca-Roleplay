@@ -1,20 +1,16 @@
-BELANGRIJK
-==========
-De map snelle-fatbike moet ZO in resources staan:
+BELANGRIJK — timeout fix
+========================
 
-  resources/
-    snelle-fatbike/
-      fxmanifest.lua   ← dit bestand MOET hier staan
-      client.lua
-      server.lua
-      config.lua
-      data/
-      stream/
-        snellefat.yft
-        snellefat.ytd
-        snellefat_hi.yft
+1. Verwijder de OUDE snelle-fatbike map helemaal.
+2. Pak snelle-fatbike.zip opnieuw uit.
+3. Zet zo neer: resources/snelle-fatbike/fxmanifest.lua
+4. server.cfg:
 
-In server.cfg:
-  ensure snelle-fatbike
+   ensure snelle-fatbike
 
-Commando: /fatbike
+   (haal ensure snelle-ebike weg als die er nog staat)
+
+5. Herstart de server volledig (niet alleen refresh).
+6. /fatbike in-game
+
+Dit pack is expres licht (~3 MB stream) zodat joinen niet timed out.
