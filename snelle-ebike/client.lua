@@ -270,7 +270,7 @@ local function spawnBike()
         return
     end
 
-    local hash, modelName, usedFallback = resolveModel()
+    local hash, _, usedFallback = resolveModel()
     if not hash then
         notify(Config.Messages.modelMissing, 'error')
         TriggerServerEvent('snelle-ebike:server:spawnFailed')
@@ -384,7 +384,7 @@ CreateThread(function()
                     drawBatteryHud()
                     -- Houd fatbike-banden breed na sync
                     if Config.Appearance and Config.Appearance.enabled and Config.Appearance.wheelWidth then
-                        if type(SetVehicleWheelWidth) == 'function' then
+                        if SetVehicleWheelWidth then
                             SetVehicleWheelWidth(entity, Config.Appearance.wheelWidth + 0.0)
                         end
                     end
