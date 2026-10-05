@@ -1,0 +1,31 @@
+E-bike (Super73-stijl) — snelle-ebike
+======================================
+
+1. Zet de map snelle-ebike in je resources-map.
+2. Zet in server.cfg:
+
+   ensure snelle-ebike
+
+3. Model
+   Standaard gebruikt het script de vanilla e-bike "inductor".
+   Heb je de fatbike uit de screenshot (oranje zadel)?
+   - Installeer eerst je vehicle-pack (stream + meta).
+   - Zet in config.lua bij Config.Model de spawnnaam uit vehicles.meta.
+
+4. Optioneel: inventory-item (ESX / QBCore)
+   - Zet Config.UseItem = true
+   - ESX: voer sql/item.sql uit (of voeg item "ebike" handmatig toe)
+   - QBCore: voeg item "ebike" toe aan qb-core/shared/items.lua
+   Gebruik daarna het item of /ebike om te spawnen / op te bergen.
+
+Gebruik
+-------
+/ebike     zet de e-bike uit of berg hem op
+Standaard toets: G (aanpasbaar in config / FiveM keybinds)
+
+Exports
+-------
+  Client: exports['snelle-ebike']:spawnBike()
+  Client: exports['snelle-ebike']:storeBike()
+  Client: exports['snelle-ebike']:getBike()
+  Server: exports['snelle-ebike']:hasBikeOut(source)
