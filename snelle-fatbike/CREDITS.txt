@@ -1,0 +1,11 @@
+Streammodel credits
+===================
+
+Lichtgewicht model gebaseerd op "Gomez Motorized Pedalbike"
+van JBeenz / v1r (gratis, FiveM-ready).
+
+Origineel: https://www.gta5-mods.com/vehicles/gomez-motorized-pedalbike-add-on
+CFX: https://forum.cfx.re/t/release-gomez-motorized-pedalbike-by-jbeenz-fivem-ready/1689742
+
+Hernoemd naar spawncode: snellefat
+Kleuren (zwart/oranje) worden door het script gezet.

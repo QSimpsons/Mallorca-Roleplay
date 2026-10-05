@@ -1,0 +1,9 @@
+snelle-fatbike
+==============
+
+1. Map snelle-fatbike in resources zetten.
+2. server.cfg: ensure snelle-fatbike
+3. Server herstarten.
+4. /fatbike
+
+Geen snellefat_hi.yft meer (voorkomt RAGE >100MB crash).

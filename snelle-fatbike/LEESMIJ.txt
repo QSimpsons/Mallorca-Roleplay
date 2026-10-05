@@ -1,0 +1,21 @@
+FIX: ERR_STR_FAILURE_3 / snellefat_hi te groot
+==============================================
+
+1. Stop de server.
+2. Verwijder resources/snelle-fatbike HELEMAAL.
+3. Verwijder ook server-cache als die er is, bijv.:
+   - cache/
+   - server-cache/
+   - server-cache-priv/
+4. Pak snelle-fatbike.zip opnieuw uit.
+5. Controleer dat dit BESTAAT:
+     resources/snelle-fatbike/fxmanifest.lua
+   en dat dit NIET bestaat:
+     resources/snelle-fatbike/stream/snellefat_hi.yft
+6. server.cfg:
+     ensure snelle-fatbike
+7. Start server opnieuw.
+8. Op je PC: FiveM cache legen
+   (FiveM → Settings → Clear cache) of map
+   %localappdata%/FiveM/FiveM.app/data/cache wissen.
+9. Opnieuw joinen → /fatbike

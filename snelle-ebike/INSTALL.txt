@@ -1,0 +1,7 @@
+LET OP: gebruik nu de alles-in-één resource snelle-fatbike.
+
+Zet alleen snelle-fatbike in resources en:
+
+  ensure snelle-fatbike
+
+Deze map (snelle-ebike) is niet meer nodig.

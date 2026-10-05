@@ -1,0 +1,6 @@
+Alleen deze streamfiles:
+
+  snellefat.yft
+  snellefat.ytd
+
+Geen snellefat_hi.yft (die gaf ERR_STR_FAILURE_3 / >100MB).
