@@ -1,10 +1,15 @@
 fx_version 'cerulean'
 game 'gta5'
+lua54 'yes'
 
 name 'snelle-fatbike'
 author 'Snelle'
-description 'Fatbike streammodel (elektrisch) — spawncode snellefat'
-version '1.1.0'
+description 'Fatbike spawn/opbergen + streammodel snellefat'
+version '1.2.0'
+
+shared_script 'config.lua'
+client_script 'client.lua'
+server_script 'server.lua'
 
 files {
     'data/vehicles.meta',

@@ -1,0 +1,20 @@
+BELANGRIJK
+==========
+De map snelle-fatbike moet ZO in resources staan:
+
+  resources/
+    snelle-fatbike/
+      fxmanifest.lua   ← dit bestand MOET hier staan
+      client.lua
+      server.lua
+      config.lua
+      data/
+      stream/
+        snellefat.yft
+        snellefat.ytd
+        snellefat_hi.yft
+
+In server.cfg:
+  ensure snelle-fatbike
+
+Commando: /fatbike

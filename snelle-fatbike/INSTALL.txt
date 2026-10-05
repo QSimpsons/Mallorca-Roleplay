@@ -1,14 +1,15 @@
-snelle-fatbike — voertuigstream (INCLUSIEF model)
-=================================================
+snelle-fatbike — alles-in-één
+=============================
 
-Spawncode: snellefat
+1. Zet DEZE map (snelle-fatbike) direct in resources.
+   Juiste pad: resources/snelle-fatbike/fxmanifest.lua
+   (niet: resources/snelle-fatbike/snelle-fatbike/...)
 
-1. Zet de map snelle-fatbike in resources
-2. server.cfg:
+2. server.cfg — alleen dit:
 
    ensure snelle-fatbike
-   ensure snelle-ebike
 
-3. /fatbike in-game
+3. Herstart de server.
+4. In-game: /fatbike (toets G)
 
-Modelcredits: zie CREDITS.txt
+Streamfiles staan in stream/ (snellefat.yft/.ytd).

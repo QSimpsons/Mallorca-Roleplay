@@ -1,16 +1,7 @@
-Fatbike — snelle-ebike + snelle-fatbike
-=======================================
+LET OP: gebruik nu de alles-in-één resource snelle-fatbike.
 
-1. Zet BEIDE mappen in resources: snelle-ebike en snelle-fatbike
-2. server.cfg:
+Zet alleen snelle-fatbike in resources en:
 
-   ensure snelle-fatbike
-   ensure snelle-ebike
+  ensure snelle-fatbike
 
-3. In-game: /fatbike (toets G)
-
-Het streammodel (snellefat.yft/.ytd) zit in snelle-fatbike/stream/.
-Config.Model staat standaard op 'snellefat'.
-Fallback zonder pack: inductor.
-
-Optioneel item: Config.UseItem = true + sql/item.sql
+Deze map (snelle-ebike) is niet meer nodig.
