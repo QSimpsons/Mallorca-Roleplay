@@ -340,18 +340,8 @@ local function toggleDuty(source)
     setDuty(source, duty[source] ~= true)
 end
 
-RegisterCommand(Config.Command, function(source, args)
-    args = type(args) == 'table' and args or {}
-    local choice = type(args[1]) == 'string' and args[1]:lower() or ''
-    if choice == '' then
-        toggleDuty(source)
-    elseif choice == 'aan' or choice == 'in' or choice == 'on' then
-        setDuty(source, true)
-    elseif choice == 'uit' or choice == 'off' then
-        setDuty(source, false)
-    else
-        notify(source, message('usage', 'Gebruik /staffzaak, /staffzaak aan of /staffzaak uit.'), 'error')
-    end
+RegisterCommand(Config.Command, function(source)
+    toggleDuty(source)
 end, false)
 
 AddEventHandler('playerDropped', function()
@@ -395,9 +385,3 @@ exports('getOnDuty', function()
     return list
 end)
 
-exports('setDuty', function(playerId, shouldBeOn)
-    if type(playerId) ~= 'number' then
-        return false
-    end
-    return setDuty(playerId, shouldBeOn == true)
-end)

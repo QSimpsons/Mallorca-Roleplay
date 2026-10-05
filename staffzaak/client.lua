@@ -186,9 +186,7 @@ local function tagCoords(ped, fallback)
 end
 
 local function addSuggestion()
-    TriggerEvent('chat:addSuggestion', '/' .. Config.Command, 'Ga in of uit staffdienst', {
-        { name = 'aan/uit', help = 'Leeg laten wisselt de dienst' },
-    })
+    TriggerEvent('chat:addSuggestion', '/' .. Config.Command, 'Ga in of uit staffdienst')
 end
 
 RegisterNetEvent('staffzaak:notify', function(message, kind)

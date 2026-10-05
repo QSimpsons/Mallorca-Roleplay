@@ -1,6 +1,6 @@
 Config = {}
 
--- Chatcommando zonder slash. /staffzaak wisselt, /staffzaak aan en /staffzaak uit dwingen een status.
+-- Enige commando, zonder slash. /staffzaak wisselt staffdienst.
 Config.Command = 'staffzaak'
 
 -- Seconden tussen twee wissels.
@@ -76,7 +76,6 @@ Config.Messages = {
     alreadyOff = 'Je bent niet in staffdienst.',
     noPermission = 'Je hebt geen toestemming om in staffdienst te gaan.',
     cooldown = 'Wacht even voordat je staffdienst opnieuw wisselt.',
-    usage = 'Gebruik /staffzaak, /staffzaak aan of /staffzaak uit.',
     staffJoined = '%s is in staffdienst gegaan.',
     staffLeft = '%s is uit staffdienst gegaan.',
 }

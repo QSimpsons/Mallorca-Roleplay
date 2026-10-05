@@ -18,9 +18,7 @@ Staffdienst met /staffzaak
 
 Gebruik
 -------
-/staffzaak       wisselt staffdienst aan of uit
-/staffzaak aan   gaat in staffdienst
-/staffzaak uit   gaat uit staffdienst
+/staffzaak    wisselt staffdienst aan of uit
 
 In dienst zie je STAFFDIENST bovenaan je scherm. Andere spelers zien STAFF
 boven je hoofd. Andere staff krijgen een melding.
