@@ -1,0 +1,33 @@
+Staffdienst met /staffzaak
+===========================
+
+1. Zet de map staffzaak in je resources-map.
+2. Zet dit in server.cfg:
+
+   ensure staffzaak
+
+3. Geef staff toestemming. Eén van deze manieren is genoeg:
+
+   Ace (aanbevolen, in server.cfg):
+   add_ace group.admin staffzaak.duty allow
+   add_ace group.mod staffzaak.duty allow
+
+   Admins die via txAdmin al `command` hebben, mogen het commando ook meteen.
+   ESX- en QBCore-groepen uit config.lua (admin, mod, helper, ...) werken ook.
+   Een losse license zet je in config.server.lua bij ServerConfig.AllowedLicenses.
+
+Gebruik
+-------
+/staffzaak    wisselt staffdienst aan of uit
+
+In dienst zie je STAFFDIENST bovenaan je scherm. Andere spelers zien STAFF
+boven je hoofd. Andere staff krijgen een melding.
+
+Andere scripts kunnen de dienst uitlezen:
+
+  Server: exports.staffzaak:isOnDuty(source)
+  Server: exports.staffzaak:getOnDuty()
+  Client: exports.staffzaak:isOnDuty()
+
+Discord-log: plak een webhook in config.server.lua bij ServerConfig.Webhook.
+Kleding: zet Config.UseOutfit op true en vul de drawable-nummers in config.lua.
