@@ -4,8 +4,8 @@ lua54 'yes'
 
 name 'snelle-ebike'
 author 'Snelle'
-description 'Elektrische fatbike spawn en opbergen (Super73-stijl)'
-version '1.0.0'
+description 'Fatbike spawn en opbergen (zwart/oranje Super73-stijl look)'
+version '1.1.0'
 
 shared_script 'config.lua'
 

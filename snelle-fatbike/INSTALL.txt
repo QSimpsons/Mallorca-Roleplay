@@ -1,0 +1,21 @@
+snelle-fatbike — voertuigstream
+===============================
+
+Deze resource levert de spawnnaam "snellefat".
+Zonder .yft/.ytd in de stream-map zie je het model niet.
+
+1. Download of koop een Super73-/fatbike FiveM-pack (de oranje-zadel
+   fiets uit je screenshot).
+2. Kopieer de .yft en .ytd naar snelle-fatbike/stream/
+3. Hernoem ze naar snellefat.yft en snellefat.ytd
+4. In server.cfg:
+
+   ensure snelle-fatbike
+   ensure snelle-ebike
+
+5. In snelle-ebike/config.lua:
+
+   Config.Model = 'snellefat'
+
+Zonder pack blijft /fatbike de vanilla e-bike gebruiken met zwart/oranje
+fatbike-kleuren en bredere banden.

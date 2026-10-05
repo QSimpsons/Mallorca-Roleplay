@@ -121,6 +121,53 @@ local function loadModel(model)
     return hash
 end
 
+local function resolveModel()
+    local primary = Config.Model
+    local hash = loadModel(primary)
+    if hash then
+        return hash, primary, false
+    end
+
+    local fallback = Config.FallbackModel or 'inductor'
+    if fallback ~= primary then
+        hash = loadModel(fallback)
+        if hash then
+            return hash, fallback, true
+        end
+    end
+
+    return nil, primary, false
+end
+
+local function applyFatbikeLook(vehicle)
+    local look = Config.Appearance
+    if not look or not look.enabled or not vehicle or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    SetVehicleModKit(vehicle, 0)
+
+    local primary = look.primary or {}
+    local secondary = look.secondary or {}
+    if primary.r and secondary.r then
+        -- Basisindex zwart/oranje, daarna exacte RGB
+        SetVehicleColours(vehicle, 0, 38)
+        SetVehicleCustomPrimaryColour(vehicle, primary.r or 0, primary.g or 0, primary.b or 0)
+        SetVehicleCustomSecondaryColour(vehicle, secondary.r or 0, secondary.g or 0, secondary.b or 0)
+    end
+
+    SetVehicleExtraColours(vehicle, look.pearlescent or 0, look.wheelColor or 0)
+
+    if look.wheelWidth and SetVehicleWheelWidth then
+        SetVehicleWheelWidth(vehicle, look.wheelWidth + 0.0)
+    end
+    if look.wheelSize and SetVehicleWheelSize then
+        SetVehicleWheelSize(vehicle, look.wheelSize + 0.0)
+    end
+
+    SetVehicleDirtLevel(vehicle, 0.0)
+end
+
 local function drawBatteryHud()
     if not Config.Battery.enabled then
         return
@@ -145,7 +192,7 @@ local function drawBatteryHud()
     SetTextOutline()
     SetTextCentre(true)
     BeginTextCommandDisplayText('STRING')
-    AddTextComponentSubstringPlayerName(('E-bike  %d%%'):format(pct))
+    AddTextComponentSubstringPlayerName(('Fatbike  %d%%'):format(pct))
     EndTextCommandDisplayText(0.5, 0.92)
 end
 
@@ -223,7 +270,7 @@ local function spawnBike()
         return
     end
 
-    local hash = loadModel(Config.Model)
+    local hash, modelName, usedFallback = resolveModel()
     if not hash then
         notify(Config.Messages.modelMissing, 'error')
         TriggerServerEvent('snelle-ebike:server:spawnFailed')
@@ -246,10 +293,11 @@ local function spawnBike()
     end
 
     SetVehicleOnGroundProperly(vehicle)
-    SetVehicleNumberPlateText(vehicle, string.sub(Config.Plate or 'SNELLE', 1, 8))
+    SetVehicleNumberPlateText(vehicle, string.sub(Config.Plate or 'FATBIKE', 1, 8))
     SetVehicleEngineOn(vehicle, true, true, false)
     SetVehicleHasBeenOwnedByPlayer(vehicle, true)
     SetEntityAsMissionEntity(vehicle, true, true)
+    applyFatbikeLook(vehicle)
     SetModelAsNoLongerNeeded(hash)
 
     bikeEntity = vehicle
@@ -263,7 +311,18 @@ local function spawnBike()
         TaskWarpPedIntoVehicle(ped, vehicle, -1)
     end
 
+    -- Kleuren/banden soms opnieuw zetten na warp (netwerk sync)
+    CreateThread(function()
+        Wait(150)
+        if DoesEntityExist(vehicle) then
+            applyFatbikeLook(vehicle)
+        end
+    end)
+
     TriggerServerEvent('snelle-ebike:server:spawned', bikeNetId)
+    if usedFallback then
+        notify(Config.Messages.usingFallback, 'info')
+    end
     notify(Config.Messages.spawned, 'success')
 end
 
@@ -291,10 +350,10 @@ RegisterCommand(Config.Command, function()
     toggleBike()
 end, false)
 
-TriggerEvent('chat:addSuggestion', '/' .. Config.Command, 'Zet je e-bike uit of berg hem op')
+TriggerEvent('chat:addSuggestion', '/' .. Config.Command, 'Zet je fatbike uit of berg hem op')
 
 if Config.StoreKey and Config.StoreKey ~= '' then
-    RegisterKeyMapping(Config.Command, 'E-bike spawn / opbergen', 'keyboard', Config.StoreKey)
+    RegisterKeyMapping(Config.Command, 'Fatbike spawn / opbergen', 'keyboard', Config.StoreKey)
 end
 
 -- ESX usable item fallback (sommige servers triggeren client-side)
@@ -323,6 +382,12 @@ CreateThread(function()
                         battery = math.max(0, battery - drain)
                     end
                     drawBatteryHud()
+                    -- Houd fatbike-banden breed na sync
+                    if Config.Appearance and Config.Appearance.enabled and Config.Appearance.wheelWidth then
+                        if type(SetVehicleWheelWidth) == 'function' then
+                            SetVehicleWheelWidth(entity, Config.Appearance.wheelWidth + 0.0)
+                        end
+                    end
                 end
             end
         end

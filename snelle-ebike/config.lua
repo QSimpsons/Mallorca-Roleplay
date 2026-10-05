@@ -1,16 +1,18 @@
 Config = {}
 
--- Spawnnaam van de fiets.
--- Standaard: inductor (vanilla GTA e-bike, werkt zonder extra pack).
--- Heb je de Super73/fatbike uit de screenshot? Zet hier de modelnaam
--- uit vehicles.meta van jouw vehicle-pack, bijvoorbeeld 'super73'.
+-- Spawnnaam van de fatbike.
+-- Standaard: inductor (vanilla GTA e-bike) mét zwart/oranje fatbike-look en brede banden.
+-- Exact Super73-model uit je screenshot? Zet hier de spawnnaam van jouw pack,
+-- of gebruik 'snellefat' + de snelle-fatbike resource met jouw .yft/.ytd.
 Config.Model = 'inductor'
 
--- Commando zonder slash. /ebike spawnt of bergt op.
-Config.Command = 'ebike'
+-- Fallback als Config.Model niet geladen kan worden.
+Config.FallbackModel = 'inductor'
+
+-- Commando zonder slash. /fatbike spawnt of bergt op.
+Config.Command = 'fatbike'
 
 -- Toets om dichtbij op te bergen (nil = alleen via commando/item).
--- Controleer in GTA Settings → Key Bindings → FiveM.
 Config.StoreKey = 'G'
 
 -- Max afstand (meter) om een geplaatste fiets op te bergen.
@@ -20,59 +22,71 @@ Config.StoreDistance = 3.0
 Config.WarpIntoBike = true
 
 -- Kenteken op de plaat (max 8 tekens).
-Config.Plate = 'SNELLE'
+Config.Plate = 'FATBIKE'
 
 -- Seconden tussen twee spawns / opbergen.
 Config.Cooldown = 3
 
--- true: ESX-item gebruiken. false: iedereen mag /ebike.
+-- true: ESX/QB-item gebruiken. false: iedereen mag /fatbike.
 Config.UseItem = false
-
--- Itemnaam in de database (alleen als UseItem = true).
 Config.ItemName = 'ebike'
-
--- Item verwijderen bij spawn en teruggeven bij opbergen.
 Config.ConsumeItem = true
 
 -- Framework: 'auto', 'esx', 'qb', 'standalone'
 Config.Framework = 'auto'
 
--- Blip op de kaart zolang jouw fiets bestaat.
 Config.ShowBlip = true
 Config.Blip = {
     sprite = 226,
     color = 47,
     scale = 0.7,
-    label = 'E-bike',
+    label = 'Fatbike',
 }
 
--- Batterij-HUD (visueel, geen echte motoruitschakeling).
+-- Uiterlijk: zwart frame + oranje zadel (zoals je screenshot).
+-- Werkt het best op vanilla inductor; custom packs hebben vaak eigen kleuren.
+Config.Appearance = {
+    enabled = true,
+    -- RGB frame (matzwart)
+    primary = { r = 18, g = 18, b = 20 },
+    -- RGB zadel / accent (fel oranje)
+    secondary = { r = 232, g = 92, b = 28 },
+    pearlescent = 0,
+    wheelColor = 0,
+    -- Bredere banden = meer "fatbike"-look (0.2–1.0, nil = niet wijzigen)
+    wheelWidth = 0.55,
+    wheelSize = 0.85,
+}
+
 Config.Battery = {
     enabled = true,
     startPercent = 100,
-    -- Percentage per minuut rijden.
     drainPerMinute = 2.5,
-    -- Minimum om te mogen rijden (0 = altijd).
     minToDrive = 0,
 }
 
 Config.Messages = {
-    spawned = 'E-bike uitgezet.',
-    stored = 'E-bike opgeborgen.',
-    alreadyOut = 'Je hebt al een e-bike buiten. Ga dichterbij en berg hem eerst op.',
-    tooFar = 'Je bent te ver van je e-bike.',
-    noBike = 'Je hebt geen e-bike buiten staan.',
-    cooldown = 'Wacht even voordat je de e-bike opnieuw gebruikt.',
-    modelMissing = 'Fietsmodel niet geladen. Controleer Config.Model of je vehicle-pack.',
-    noItem = 'Je hebt geen e-bike bij je.',
+    spawned = 'Fatbike uitgezet.',
+    stored = 'Fatbike opgeborgen.',
+    alreadyOut = 'Je hebt al een fatbike buiten. Ga dichterbij en berg hem eerst op.',
+    tooFar = 'Je bent te ver van je fatbike.',
+    noBike = 'Je hebt geen fatbike buiten staan.',
+    cooldown = 'Wacht even voordat je de fatbike opnieuw gebruikt.',
+    modelMissing = 'Fatbike-model niet geladen. Zet snelle-fatbike aan of controleer Config.Model.',
+    noItem = 'Je hebt geen fatbike bij je.',
     inVehicle = 'Stap eerst uit je huidige voertuig.',
     dead = 'Je kunt dit nu niet doen.',
+    usingFallback = 'Custom fatbike niet gevonden — vanilla e-bike met fatbike-kleuren gebruikt.',
 }
 
 if type(Config.Command) ~= 'string' or not Config.Command:match('^[%w_-]+$') then
-    Config.Command = 'ebike'
+    Config.Command = 'fatbike'
 end
 
 if type(Config.Model) ~= 'string' or Config.Model == '' then
     Config.Model = 'inductor'
+end
+
+if type(Config.FallbackModel) ~= 'string' or Config.FallbackModel == '' then
+    Config.FallbackModel = 'inductor'
 end

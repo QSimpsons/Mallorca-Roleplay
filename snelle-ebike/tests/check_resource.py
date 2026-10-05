@@ -37,6 +37,8 @@ def main() -> int:
     server = read("server.lua")
     manifest = read("fxmanifest.lua")
 
+    if "Config.Appearance" not in config:
+        errors.append("config mist Config.Appearance")
     if "Config.Model" not in config:
         errors.append("config mist Config.Model")
     if "inductor" not in config:
@@ -74,7 +76,7 @@ def main() -> int:
 
     print("OK: snelle-ebike resource checks passed")
     print(f"  model default: inductor")
-    print(f"  command: /ebike")
+    print(f"  command: /fatbike")
     print(f"  files: {len(REQUIRED)} required present")
     return 0
 

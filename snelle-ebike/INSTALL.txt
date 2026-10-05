@@ -1,27 +1,33 @@
-E-bike (Super73-stijl) — snelle-ebike
+Fatbike (Super73-stijl) — snelle-ebike
 ======================================
 
-1. Zet de map snelle-ebike in je resources-map.
+1. Zet snelle-ebike (en optioneel snelle-fatbike) in je resources-map.
 2. Zet in server.cfg:
 
+   ensure snelle-fatbike
    ensure snelle-ebike
 
-3. Model
-   Standaard gebruikt het script de vanilla e-bike "inductor".
-   Heb je de fatbike uit de screenshot (oranje zadel)?
-   - Installeer eerst je vehicle-pack (stream + meta).
-   - Zet in config.lua bij Config.Model de spawnnaam uit vehicles.meta.
+   (snelle-fatbike alleen nodig als je een custom .yft/.ytd hebt)
 
-4. Optioneel: inventory-item (ESX / QBCore)
-   - Zet Config.UseItem = true
-   - ESX: voer sql/item.sql uit (of voeg item "ebike" handmatig toe)
-   - QBCore: voeg item "ebike" toe aan qb-core/shared/items.lua
-   Gebruik daarna het item of /ebike om te spawnen / op te bergen.
+3. Uiterlijk
+   Standaard spawnt /fatbike de vanilla e-bike "inductor" met:
+   - matzwart frame
+   - oranje zadel/accent (zoals je screenshot)
+   - bredere fatbike-banden
+
+   Exact het Super73-model uit je screenshot?
+   - Zet je pack-bestanden in snelle-fatbike/stream/ als snellefat.yft + snellefat.ytd
+   - Zet in config.lua: Config.Model = 'snellefat'
+
+4. Optioneel inventory-item (ESX / QBCore)
+   - Config.UseItem = true
+   - ESX: sql/item.sql
+   - QBCore / ox_inventory: zie sql/items_examples.lua
 
 Gebruik
 -------
-/ebike     zet de e-bike uit of berg hem op
-Standaard toets: G (aanpasbaar in config / FiveM keybinds)
+/fatbike   zet de fatbike uit of berg hem op
+Toets: G (aanpasbaar)
 
 Exports
 -------

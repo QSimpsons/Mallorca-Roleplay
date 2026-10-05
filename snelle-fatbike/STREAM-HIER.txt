@@ -1,0 +1,17 @@
+Zet hier je fatbike-modelbestanden neer:
+
+  snellefat.yft
+  snellefat.ytd
+  snellefat_hi.yft   (optioneel)
+
+Bestandsnamen moeten exact snellefat heten (zelfde als in vehicles.meta).
+
+Heb je een Super73-/fatbike-pack met een andere naam (bijv. super73.yft)?
+Hernoem de bestanden naar snellefat.* OF zet in snelle-ebike/config.lua:
+
+  Config.Model = 'jouw_spawnnaam'
+
+Daarna in server.cfg (vóór snelle-ebike):
+
+  ensure snelle-fatbike
+  ensure snelle-ebike
