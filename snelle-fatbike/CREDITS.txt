@@ -1,0 +1,13 @@
+Streammodel credits
+===================
+
+Het 3D-model in stream/ is gebaseerd op het gratis vrijgegeven
+"Surron Light Bee S Electric Bike" van DaltonS (GTA5-Mods).
+
+Origineel: https://www.gta5-mods.com/vehicles/light-bee-s-electric-bike
+Auteur: DaltonS — vrijgegeven als free / FiveM ready.
+
+Hernoemd naar spawncode: snellefat
+Alleen bedoeld voor gebruik op jouw FiveM-server.
+
+Kleuren in-game worden door snelle-ebike gezet (zwart/oranje fatbike-look).

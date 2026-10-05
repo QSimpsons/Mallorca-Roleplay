@@ -1,10 +1,9 @@
 Config = {}
 
 -- Spawnnaam van de fatbike.
--- Standaard: inductor (vanilla GTA e-bike) mét zwart/oranje fatbike-look en brede banden.
--- Exact Super73-model uit je screenshot? Zet hier de spawnnaam van jouw pack,
--- of gebruik 'snellefat' + de snelle-fatbike resource met jouw .yft/.ytd.
-Config.Model = 'inductor'
+-- Standaard: snellefat (streamfiles in snelle-fatbike/stream/).
+-- Fallback: inductor als de stream-resource niet draait.
+Config.Model = 'snellefat'
 
 -- Fallback als Config.Model niet geladen kan worden.
 Config.FallbackModel = 'inductor'
@@ -84,7 +83,7 @@ if type(Config.Command) ~= 'string' or not Config.Command:match('^[%w_-]+$') the
 end
 
 if type(Config.Model) ~= 'string' or Config.Model == '' then
-    Config.Model = 'inductor'
+    Config.Model = 'snellefat'
 end
 
 if type(Config.FallbackModel) ~= 'string' or Config.FallbackModel == '' then

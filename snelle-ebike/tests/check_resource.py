@@ -41,8 +41,8 @@ def main() -> int:
         errors.append("config mist Config.Appearance")
     if "Config.Model" not in config:
         errors.append("config mist Config.Model")
-    if "inductor" not in config:
-        errors.append("config mist standaardmodel inductor")
+    if "snellefat" not in config and "inductor" not in config:
+        errors.append("config mist modelnaam")
     if "Config.Command" not in config:
         errors.append("config mist Config.Command")
 
@@ -75,7 +75,7 @@ def main() -> int:
         return 1
 
     print("OK: snelle-ebike resource checks passed")
-    print(f"  model default: inductor")
+    print(f"  model default: snellefat (fallback inductor)")
     print(f"  command: /fatbike")
     print(f"  files: {len(REQUIRED)} required present")
     return 0

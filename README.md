@@ -2,9 +2,9 @@
 
 ## Resources
 
-- `snelle-ebike` — fatbike spawn/opbergen (`/fatbike`), zwart/oranje fatbike-look
-- `snelle-fatbike` — optionele voertuigstream voor custom Super73-model (`snellefat`)
+- `snelle-ebike` — fatbike spawn/opbergen (`/fatbike`)
+- `snelle-fatbike` — streammodel `snellefat` (`.yft`/`.ytd` inbegrepen)
 
 ## Download
 
-Pakket (beide resources + LEESMIJ): [`snelle-fatbike-pack.zip`](https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/snelle-ebike-script-d905/snelle-fatbike-pack.zip)
+[`snelle-fatbike-pack.zip`](https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/snelle-ebike-script-d905/snelle-fatbike-pack.zip)

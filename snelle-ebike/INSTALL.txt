@@ -1,37 +1,16 @@
-Fatbike (Super73-stijl) — snelle-ebike
-======================================
+Fatbike — snelle-ebike + snelle-fatbike
+=======================================
 
-1. Zet snelle-ebike (en optioneel snelle-fatbike) in je resources-map.
-2. Zet in server.cfg:
+1. Zet BEIDE mappen in resources: snelle-ebike en snelle-fatbike
+2. server.cfg:
 
    ensure snelle-fatbike
    ensure snelle-ebike
 
-   (snelle-fatbike alleen nodig als je een custom .yft/.ytd hebt)
+3. In-game: /fatbike (toets G)
 
-3. Uiterlijk
-   Standaard spawnt /fatbike de vanilla e-bike "inductor" met:
-   - matzwart frame
-   - oranje zadel/accent (zoals je screenshot)
-   - bredere fatbike-banden
+Het streammodel (snellefat.yft/.ytd) zit in snelle-fatbike/stream/.
+Config.Model staat standaard op 'snellefat'.
+Fallback zonder pack: inductor.
 
-   Exact het Super73-model uit je screenshot?
-   - Zet je pack-bestanden in snelle-fatbike/stream/ als snellefat.yft + snellefat.ytd
-   - Zet in config.lua: Config.Model = 'snellefat'
-
-4. Optioneel inventory-item (ESX / QBCore)
-   - Config.UseItem = true
-   - ESX: sql/item.sql
-   - QBCore / ox_inventory: zie sql/items_examples.lua
-
-Gebruik
--------
-/fatbike   zet de fatbike uit of berg hem op
-Toets: G (aanpasbaar)
-
-Exports
--------
-  Client: exports['snelle-ebike']:spawnBike()
-  Client: exports['snelle-ebike']:storeBike()
-  Client: exports['snelle-ebike']:getBike()
-  Server: exports['snelle-ebike']:hasBikeOut(source)
+Optioneel item: Config.UseItem = true + sql/item.sql
