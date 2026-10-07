@@ -37,7 +37,21 @@ for needle in ("ui_page 'html/index.html'", 'client/main.lua', 'server/main.lua'
         errors.append(f'manifest missing {needle}')
 
 config = (ROOT / 'config.lua').read_text(encoding='utf-8')
-for needle in ('Config.Garages', 'Config.Impounds', 'Config.NormalizePlate', 'impound_davis', 'oproep', 'airplane'):
+for needle in (
+    'Config.Garages',
+    'Config.Impounds',
+    'Config.NormalizePlate',
+    "label = 'Impound'",
+    'impound_davis',
+    'impound_sandy',
+    'impound_boten',
+    'impound_lsia',
+    'vector4(401.28, -1632.77, 29.29, 230.0)',
+    'vector4(-780.20, -1425.40, -0.30, 140.0)',
+    'vector4(-1271.50, -3380.20, 13.94, 330.0)',
+    'oproep',
+    'airplane',
+):
     if needle not in config:
         errors.append(f'config missing {needle}')
 
