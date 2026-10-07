@@ -280,6 +280,7 @@ end
 local function deployLocal(vehicle)
     local model = joaat(Config.AirbagModel)
     if not loadModel(model) then
+        Damage.pumpSoon(vehicle)
         return
     end
 
@@ -299,6 +300,7 @@ local function deployLocal(vehicle)
 
     if #entries == 0 then
         SetModelAsNoLongerNeeded(model)
+        Damage.pumpSoon(vehicle)
         return
     end
 
@@ -342,6 +344,7 @@ local function deployLocal(vehicle)
 
     inflate(vehicle, entries)
     SetModelAsNoLongerNeeded(model)
+    Damage.pumpSoon(vehicle)
 end
 
 RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
@@ -378,6 +381,7 @@ RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
     noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
 
     if NetworkGetEntityOwner(vehicle) ~= PlayerId() then
+        Damage.pumpSoon(vehicle)
         return
     end
 
@@ -388,13 +392,16 @@ RegisterNetEvent('Eclipse-airbags:denied', function()
     pending = false
 end)
 
-local function requestDeploy(vehicle)
+local function requestDeploy(vehicle, impact, otherNetId, otherImpact)
     local now = GetGameTimer()
     if pending or now < lockedUntil then
         return
     end
 
     if not NetworkGetEntityIsNetworked(vehicle) then
+        if impact then
+            Damage.applyDirect(vehicle, impact)
+        end
         return
     end
 
@@ -405,11 +412,43 @@ local function requestDeploy(vehicle)
 
     pending = true
     lockedUntil = now + 4000
-    TriggerServerEvent('Eclipse-airbags:request', netId)
+    TriggerServerEvent('Eclipse-airbags:request', netId, impact, otherNetId, otherImpact)
 
     SetTimeout(3000, function()
         pending = false
     end)
+end
+
+local function reportHit(vehicle, heavy, hit)
+    if not heavy and Damage.wrecked(vehicle) then
+        return
+    end
+
+    local impact, otherNetId, otherImpact = nil, nil, nil
+    if Config.SideDamage then
+        impact, otherNetId, otherImpact = Damage.capture(vehicle, hit.dx, hit.dy, hit.drop, heavy)
+    end
+
+    if heavy then
+        requestDeploy(vehicle, impact, otherNetId, otherImpact)
+        return
+    end
+
+    if not impact then
+        return
+    end
+
+    if not NetworkGetEntityIsNetworked(vehicle) then
+        Damage.applyDirect(vehicle, impact)
+        return
+    end
+
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    if not netId or netId == 0 then
+        return
+    end
+
+    TriggerServerEvent('Eclipse-airbags:scrape', netId, impact, otherNetId, otherImpact)
 end
 
 RegisterNetEvent('Eclipse-airbags:accepted', function()
@@ -420,6 +459,31 @@ CreateThread(function()
     local history = {}
     local collidedAt = 0
     local lastPush = 0
+    local pendingHit = nil
+    local lastScrape = 0
+
+    local function resetTrack()
+        history = {}
+        collidedAt = 0
+        pendingHit = nil
+    end
+
+    local function flushHit(vehicle, now)
+        if not pendingHit then
+            return
+        end
+
+        local heavy = pendingHit.drop >= Config.SpeedDrop and pendingHit.speed >= Config.MinSpeed
+        local scraped = Config.SideDamage
+            and pendingHit.drop >= Config.ScrapeDrop
+            and pendingHit.speed >= Config.ScrapeMinSpeed
+        if heavy then
+            reportHit(vehicle, true, pendingHit)
+        elseif scraped and now - lastScrape >= Config.ScrapeCooldownMs then
+            reportHit(vehicle, false, pendingHit)
+            lastScrape = now
+        end
+    end
 
     while true do
         local sleep = 500
@@ -430,10 +494,10 @@ CreateThread(function()
 
             if GetPedInVehicleSeat(vehicle, -1) == ped and not isBlocked(vehicle) then
                 local speed = GetEntitySpeed(vehicle) * 3.6
+                local now = GetGameTimer()
 
-                if speed > 15.0 then
-                    sleep = 0
-                    local now = GetGameTimer()
+                if speed > 8.0 then
+                    sleep = speed > 15.0 and 0 or 40
 
                     if HasEntityCollidedWithAnything(vehicle) then
                         collidedAt = now
@@ -441,7 +505,14 @@ CreateThread(function()
 
                     if now - lastPush >= 40 then
                         lastPush = now
-                        history[#history + 1] = { t = now, speed = speed }
+                        local vx, vy = 0.0, 0.0
+                        local okVel, vel = pcall(GetEntitySpeedVector, vehicle, true)
+                        if okVel and vel and vel.x and vel.y then
+                            vx = vel.x + 0.0
+                            vy = vel.y + 0.0
+                        end
+
+                        history[#history + 1] = { t = now, speed = speed, x = vx, y = vy }
 
                         local oldest = history[1]
                         while oldest and now - oldest.t > Config.SampleMs do
@@ -449,27 +520,70 @@ CreateThread(function()
                             oldest = history[1]
                         end
 
-                        if oldest and oldest.t ~= now and now - collidedAt <= Config.SampleMs + 80 then
+                        local colliding = collidedAt ~= 0 and now - collidedAt <= Config.SampleMs + 80
+                        if oldest and oldest.t ~= now and colliding then
                             local drop = oldest.speed - speed
-                            if drop >= Config.SpeedDrop and oldest.speed >= Config.MinSpeed then
-                                requestDeploy(vehicle)
-                                collidedAt = 0
-                                history = {}
+                            local dx = (oldest.x - vx) * 3.6
+                            local dy = (oldest.y - vy) * 3.6
+                            if drop > 0.0 and (not pendingHit or drop > pendingHit.drop) then
+                                pendingHit = {
+                                    drop = drop,
+                                    speed = oldest.speed,
+                                    dx = dx,
+                                    dy = dy,
+                                    since = pendingHit and pendingHit.since or now
+                                }
+                            end
+                        end
+
+                        if pendingHit then
+                            local heavy = pendingHit.drop >= Config.SpeedDrop and pendingHit.speed >= Config.MinSpeed
+                            local scraped = Config.SideDamage
+                                and pendingHit.drop >= Config.ScrapeDrop
+                                and pendingHit.speed >= Config.ScrapeMinSpeed
+                            if heavy then
+                                reportHit(vehicle, true, pendingHit)
+                                resetTrack()
+                            elseif scraped and now - pendingHit.since >= Config.SampleMs and now - lastScrape >= Config.ScrapeCooldownMs then
+                                reportHit(vehicle, false, pendingHit)
+                                lastScrape = now
+                                resetTrack()
+                            elseif not colliding then
+                                pendingHit = nil
                             end
                         end
                     end
                 else
-                    history = {}
-                    collidedAt = 0
+                    if collidedAt ~= 0 and now - collidedAt <= Config.SampleMs + 80 then
+                        local oldest = history[1]
+                        if oldest then
+                            local vx, vy = 0.0, 0.0
+                            local okVel, vel = pcall(GetEntitySpeedVector, vehicle, true)
+                            if okVel and vel and vel.x and vel.y then
+                                vx = vel.x + 0.0
+                                vy = vel.y + 0.0
+                            end
+                            local drop = oldest.speed - speed
+                            if drop > 0.0 and (not pendingHit or drop > pendingHit.drop) then
+                                pendingHit = {
+                                    drop = drop,
+                                    speed = oldest.speed,
+                                    dx = (oldest.x - vx) * 3.6,
+                                    dy = (oldest.y - vy) * 3.6,
+                                    since = pendingHit and pendingHit.since or now
+                                }
+                            end
+                        end
+                        flushHit(vehicle, now)
+                    end
+                    resetTrack()
                     sleep = 200
                 end
             else
-                history = {}
-                collidedAt = 0
+                resetTrack()
             end
         else
-            history = {}
-            collidedAt = 0
+            resetTrack()
             pending = false
         end
 
@@ -516,6 +630,13 @@ CreateThread(function()
                         return Entity(vehicle).state.eclipseAirbags
                     end)
                     marked = ok and state == true
+                end
+
+                if netId and netId ~= 0 then
+                    if Damage.needsPump(vehicle) then
+                        Damage.pump(vehicle, false)
+                    end
+                    Damage.observe(vehicle)
                 end
 
                 local sentAt = repairSent[netId]

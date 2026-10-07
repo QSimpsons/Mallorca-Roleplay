@@ -3,16 +3,18 @@ game 'gta5'
 lua54 'yes'
 
 author 'Eclipse'
-description 'Eclipse-airbags: airbags uit het stuur en dashboard, zonder brand'
-version '1.2.0'
+description 'Eclipse-airbags: airbags, zijschade en klapband zonder brand'
+version '1.3.0'
 
 data_file 'DLC_ITYP_REQUEST' 'stream/prop_carairbag.ytyp'
 
 shared_scripts {
-    'config.lua'
+    'config.lua',
+    'shared/impact.lua'
 }
 
 client_scripts {
+    'client/damage.lua',
     'client/main.lua'
 }
 
