@@ -8,6 +8,12 @@ Raak je iemand of een muur aan de zijkant, dan komt de deuk op die kant, zoals i
 
 Motoren, fietsen, boten, helikopters, vliegtuigen en treinen doen niet mee. Na een reparatie kunnen de airbags opnieuw.
 
+## Download
+
+https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/side-impact-damage-df38/Eclipse-airbags.zip
+
+Pak het zip uit in je `resources` map. De map heet `Eclipse-airbags`.
+
 ## Installatie
 
 1. Zet de map `Eclipse-airbags` in je `resources`.

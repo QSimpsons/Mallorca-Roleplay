@@ -1,6 +1,8 @@
 # Installatie
 
-1. Kopieer de map `Eclipse-airbags` naar de `resources` van je FiveM-server.
+Download: https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/side-impact-damage-df38/Eclipse-airbags.zip
+
+1. Pak `Eclipse-airbags.zip` uit in de `resources` van je FiveM-server.
 2. Voeg dit toe aan `server.cfg`:
 
 ```
