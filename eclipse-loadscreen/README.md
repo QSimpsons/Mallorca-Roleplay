@@ -13,7 +13,7 @@ setr sv_showBusySpinnerOnLoadingScreen false
 ```
 
 3. Houd één resource met een `loadscreen` actief. Een tweede loadingscreen overschrijft deze.
-4. Pas Discord, het staffteam, regels, sneltoetsen en tips aan in `config.js`.
+4. Pas Discord, het staffteam, de muziek, regels, sneltoetsen en tips aan in `config.js`.
 
 ## Staffteam
 
@@ -30,7 +30,7 @@ staff: {
 },
 ```
 
-De naam op het scherm komt uit `deferrals.handover` tijdens het verbinden. Staat er geen naam, dan blijft die regel weg.
+De welkomstregel gebruikt de spelersnaam uit `deferrals.handover`. Staat er geen naam, dan blijft die regel weg.
 
 ## Clip
 
@@ -38,11 +38,22 @@ De naam op het scherm komt uit `deferrals.handover` tijdens het verbinden. Staat
 
 De video blijft op YouTube staan. Lukt afspelen niet, bijvoorbeeld omdat de eigenaar insluiten heeft uitgezet, dan speelt `assets/background.mp4` en het thema-geluid. Zet `clip.enabled` op `false` om meteen die eigen mp4 te gebruiken. De speler heeft internet nodig zolang de YouTube-clip aan staat.
 
-## Geluid
+## Muziek
 
-`Spatie` of `M` zet het geluid aan of uit. Het volume staat rechtsonder.
+Het paneel rechtsonder leest `music` in `config.js`. Zet `enabled` op `false` om het paneel en het geluid weg te laten. Vervang `file` door een eigen nummer en pas `title` aan. Gebruik een track waar je zelf de rechten van hebt.
 
-Staat de YouTube-clip uit, dan speelt `assets/theme.ogg`. Vervang dat bestand door een eigen nummer en pas `music.title` in `config.js` aan. Gebruik een track waar je zelf de rechten van hebt.
+```js
+music: {
+    enabled: true,
+    file: "assets/theme.ogg",
+    title: "Eclipse Theme",
+    volume: 0.32,
+},
+```
+
+Een andere bestandsnaam zet je ook in `files` in `fxmanifest.lua`. `Spatie` of `M` zet het geluid aan of uit.
+
+Speelt de YouTube-clip, dan komt het geluid uit die video. Lukt de clip niet, dan speelt `music.file`.
 
 ## Video
 

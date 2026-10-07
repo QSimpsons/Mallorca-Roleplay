@@ -18,6 +18,8 @@ const Config = {
         title: "MonsterMash",
     },
 
+    // Muziek. Zet enabled op false om het paneel en het geluid weg te laten.
+    // file is een eigen nummer in deze resource. title is de naam op het scherm.
     music: {
         enabled: true,
         file: "assets/theme.ogg",

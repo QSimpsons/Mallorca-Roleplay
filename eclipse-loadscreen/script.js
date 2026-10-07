@@ -174,6 +174,15 @@ function renderMusicUi(paused) {
     musicToggle.setAttribute("aria-label", paused ? "Geluid afspelen" : "Geluid pauzeren");
 }
 
+function musicAllowed() {
+    return Boolean(Config.music) && Config.music.enabled !== false;
+}
+
+function localMusicFile() {
+    if (!musicAllowed() || typeof Config.music.file !== "string") return "";
+    return Config.music.file.trim();
+}
+
 function clipVideoId() {
     const clip = Config.clip;
     if (!clip || clip.enabled === false || !clip.url) return "";
@@ -198,6 +207,7 @@ function sendClipCommand(func, args) {
 
 function applyClipSound(audible) {
     if (!clipFrame.querySelector("iframe")) return;
+    if (!musicAllowed()) audible = false;
     if (audible) {
         sendClipCommand("unMute");
         sendClipCommand("playVideo");
@@ -214,6 +224,12 @@ function clipIsPending() {
 }
 
 function setMusicPaused(paused) {
+    if (!musicAllowed()) {
+        wantClipSound = false;
+        theme.pause();
+        applyClipSound(false);
+        return;
+    }
     if (clipFrame.dataset.state === "ready" || clipIsPending()) {
         wantClipSound = !paused;
         applyClipSound(!paused);
@@ -302,8 +318,13 @@ function showClip() {
 }
 
 function startLocalMusic() {
-    if (!Config.music || Config.music.enabled === false) return;
-    if (!theme.getAttribute("src")) theme.src = Config.music.file;
+    const file = localMusicFile();
+    if (!file) {
+        musicPanel.hidden = true;
+        return;
+    }
+    musicPanel.hidden = false;
+    if (!theme.getAttribute("src")) theme.src = file;
     theme.volume = clamp01(Number(volumeInput.value) / 100);
     musicTitle.textContent = Config.music.title || "Eclipse Theme";
     if (!wantClipSound) {
@@ -364,17 +385,20 @@ window.addEventListener("message", (event) => {
 });
 
 function setupMusic() {
-    if (!Config.music || !Config.music.enabled) {
+    if (!musicAllowed() || (!localMusicFile() && !clipVideoId())) {
+        wantClipSound = false;
         musicPanel.hidden = true;
+        theme.pause();
         return;
     }
 
+    const file = localMusicFile();
     const initial = clamp01(Number(Config.music.volume) || 0);
     volumeInput.value = String(Math.round(initial * 100));
-    theme.src = Config.music.file;
     theme.volume = initial;
+    if (file) theme.src = file;
     if (clipVideoId()) {
-        musicTitle.textContent = (Config.clip && Config.clip.title) || "MonsterMash";
+        musicTitle.textContent = (Config.clip && Config.clip.title) || Config.music.title || "Muziek";
     } else {
         musicTitle.textContent = Config.music.title || "Eclipse Theme";
         theme.play().then(() => renderMusicUi(false)).catch(() => renderMusicUi(true));
