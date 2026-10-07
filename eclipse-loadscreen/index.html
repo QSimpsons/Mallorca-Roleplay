@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Eclipse Roleplay</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <video id="bg" autoplay muted loop playsinline poster="assets/poster.jpg">
+        <source src="assets/background.mp4" type="video/mp4" />
+    </video>
+    <div id="clip-frame" class="clip">
+        <div id="clip"></div>
+    </div>
+    <div class="shade" aria-hidden="true"></div>
+
+    <div id="finale" class="finale" aria-hidden="true">
+        <div class="finale-card">
+            <h1 id="finale-title">Eclipse</h1>
+            <p id="finale-sub">Roleplay</p>
+        </div>
+    </div>
+
+    <aside class="staff" id="staff" hidden>
+        <h2 id="staff-title"></h2>
+        <ul id="staff-list"></ul>
+    </aside>
+
+    <header>
+        <div class="status">
+            <span class="dot" aria-hidden="true"></span>
+            <span id="status-label">Server online</span>
+            <span id="slots" class="slots" hidden></span>
+        </div>
+        <p id="welcome" class="welcome" hidden></p>
+        <button id="discord" class="discord" type="button"></button>
+    </header>
+
+    <footer class="dock">
+        <section class="rules" aria-labelledby="rules-title">
+            <h2 id="rules-title"></h2>
+            <ul id="rules"></ul>
+        </section>
+
+        <section class="load" aria-live="polite">
+            <div class="load-top">
+                <span id="load-status">Verbinden</span>
+                <span id="load-pct">0%</span>
+            </div>
+            <div class="track" aria-hidden="true">
+                <div id="load-bar"></div>
+            </div>
+            <p id="tip"></p>
+            <div id="keys" class="keys"></div>
+            <p id="load-log"></p>
+        </section>
+
+        <section class="music" id="music">
+            <div class="music-row">
+                <button id="music-toggle" type="button" aria-label="Geluid pauzeren">
+                    <svg id="icon-pause" viewBox="0 0 24 24" aria-hidden="true">
+                        <rect x="6" y="5" width="4" height="14" rx="1"></rect>
+                        <rect x="14" y="5" width="4" height="14" rx="1"></rect>
+                    </svg>
+                    <svg id="icon-play" viewBox="0 0 24 24" aria-hidden="true" hidden>
+                        <path d="M8 5.5v13l11-6.5-11-6.5z"></path>
+                    </svg>
+                </button>
+                <div class="music-copy">
+                    <span class="kicker">Muziek</span>
+                    <span id="music-title"></span>
+                </div>
+                <div class="eq" aria-hidden="true">
+                    <span></span><span></span><span></span><span></span>
+                </div>
+            </div>
+            <label class="volume">
+                <span class="kicker">Volume</span>
+                <input id="volume" type="range" min="0" max="100" value="32" />
+            </label>
+            <p id="hint" class="hint"></p>
+        </section>
+    </footer>
+
+    <audio id="theme" loop preload="auto"></audio>
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
