@@ -37,7 +37,21 @@ for needle in ("ui_page 'html/index.html'", 'client/main.lua', 'server/main.lua'
         errors.append(f'manifest missing {needle}')
 
 config = (ROOT / 'config.lua').read_text(encoding='utf-8')
-for needle in ('Config.Garages', 'Config.Impounds', 'Config.NormalizePlate', 'impound_davis', 'oproep', 'airplane'):
+for needle in (
+    'Config.Garages',
+    'Config.Impounds',
+    'Config.NormalizePlate',
+    "label = 'Impound'",
+    'impound_davis',
+    'impound_sandy',
+    'impound_boten',
+    'impound_lsia',
+    'vector4(401.28, -1632.77, 29.29, 230.0)',
+    'vector4(-780.20, -1425.40, -0.30, 140.0)',
+    'vector4(-1271.50, -3380.20, 13.94, 330.0)',
+    'oproep',
+    'airplane',
+):
     if needle not in config:
         errors.append(f'config missing {needle}')
 
@@ -68,20 +82,22 @@ if depth != 0:
     errors.append(f'locations.lua brace depth ends at {depth}')
 
 ids = re.findall(r"id = '([^']+)'", locations)
-if len(ids) < 200:
-    errors.append(f'expected the ocean_garage locations, found {len(ids)}')
+if len(ids) != 204:
+    errors.append(f'expected 204 garage ids, found {len(ids)}')
 if len(ids) != len(set(ids)):
     errors.append('garage ids are not unique')
-blocks = list(re.finditer(r"id = '([^']+)'.*?\n\t\},", locations, re.S))
-if len(blocks) != len(ids):
-    errors.append('could not split every garage entry')
-else:
-    for match in blocks:
-        block = match.group(0)
-        for field in ('coords = vector3', 'store = vector3', 'spawns = {', 'vector4('):
-            if field not in block:
-                errors.append(f"garage {match.group(1)} missing {field}")
-                break
+if locations.count('vector4(') != 374:
+    errors.append(f"expected 374 spawn points, found {locations.count('vector4(')}")
+if locations.count('coords = vector3') != 204 or locations.count('store = vector3') != 204:
+    errors.append('each garage place needs its own take-out and park marker')
+id_marks = list(re.finditer(r"id = '([^']+)'", locations))
+for index, match in enumerate(id_marks):
+    end = id_marks[index + 1].start() if index + 1 < len(id_marks) else len(locations)
+    chunk = locations[match.end():end]
+    for field in ('coords = vector3', 'store = vector3'):
+        if field not in chunk:
+            errors.append(f"garage {match.group(1)} missing {field}")
+            break
 
 server = (ROOT / 'server/main.lua').read_text(encoding='utf-8')
 client = (ROOT / 'client/main.lua').read_text(encoding='utf-8')

@@ -152,47 +152,76 @@ Config.Markers = {
 -- Gevuld door locations.lua: coords = uithalen, store = parkeren, spawns = uitrijplaats.
 Config.Garages = {}
 
+-- Eén lijst, één naam, daarna alle impound-spawns. Zelfde opzet als de garages.
 Config.Impounds = {
     {
-        id = 'impound_davis',
-        label = 'Impound Davis',
-        type = 'car',
-        coords = vector3(409.14, -1622.88, 29.29),
+        label = 'Impound',
         spawns = {
+            -- Impound Davis
             vector4(401.28, -1632.77, 29.29, 230.0),
             vector4(396.55, -1644.13, 29.29, 320.0),
-            vector4(408.90, -1646.40, 29.29, 230.0)
-        }
-    },
-    {
-        id = 'impound_sandy',
-        label = 'Impound Sandy Shores',
-        type = 'car',
-        coords = vector3(1412.92, 3619.55, 34.90),
-        spawns = {
+            vector4(408.90, -1646.40, 29.29, 230.0),
+            -- Impound Sandy Shores
             vector4(1422.40, 3624.80, 34.87, 200.0),
-            vector4(1416.20, 3622.10, 34.87, 200.0)
-        }
+            vector4(1416.20, 3622.10, 34.87, 200.0),
+            -- Impound haven
+            vector4(-780.20, -1425.40, -0.30, 140.0),
+            -- Impound LSIA
+            vector4(-1271.50, -3380.20, 13.94, 330.0),
+        },
+        sites = {
+            {
+                id = 'impound_davis',
+                type = 'car',
+                coords = vector3(409.14, -1622.88, 29.29),
+                spawnCount = 3,
+            },
+            {
+                id = 'impound_sandy',
+                type = 'car',
+                coords = vector3(1412.92, 3619.55, 34.90),
+                spawnCount = 2,
+            },
+            {
+                id = 'impound_boten',
+                type = 'boat',
+                coords = vector3(-772.40, -1430.55, 1.60),
+                spawnCount = 1,
+            },
+            {
+                id = 'impound_lsia',
+                type = 'aircraft',
+                coords = vector3(-1293.10, -3378.40, 13.94),
+                spawnCount = 1,
+            },
+        },
     },
-    {
-        id = 'impound_boten',
-        label = 'Impound haven',
-        type = 'boat',
-        coords = vector3(-772.40, -1430.55, 1.60),
-        spawns = {
-            vector4(-780.20, -1425.40, -0.30, 140.0)
-        }
-    },
-    {
-        id = 'impound_lsia',
-        label = 'Impound LSIA',
-        type = 'aircraft',
-        coords = vector3(-1293.10, -3378.40, 13.94),
-        spawns = {
-            vector4(-1271.50, -3380.20, 13.94, 330.0)
-        }
-    }
 }
+
+local groupedImpounds = Config.Impounds
+local flatImpounds = {}
+
+for i = 1, #groupedImpounds do
+    local impound = groupedImpounds[i]
+    local cursor = 1
+    for s = 1, #impound.sites do
+        local site = impound.sites[s]
+        local slice = {}
+        for n = 1, site.spawnCount do
+            slice[n] = impound.spawns[cursor]
+            cursor = cursor + 1
+        end
+        flatImpounds[#flatImpounds + 1] = {
+            id = site.id,
+            label = impound.label,
+            type = site.type,
+            coords = site.coords,
+            spawns = slice,
+        }
+    end
+end
+
+Config.Impounds = flatImpounds
 
 function Config.NormalizePlate(plate)
     plate = tostring(plate or ''):upper()
