@@ -4,6 +4,10 @@ Registratiemenu voor nieuwe inwoners. Het logo staat links, het formulier rechts
 
 Velden: voornaam, achternaam, geboortedatum, lengte, geslacht en akkoord met de regels/APV.
 
+## Download
+
+Volledige resource: [downloads/eclipse-identity.zip](../downloads/eclipse-identity.zip). Pak uit en zet de map `eclipse-identity` in `resources`.
+
 ## Installatie
 
 1. Zet de map `eclipse-identity` in `resources`.
