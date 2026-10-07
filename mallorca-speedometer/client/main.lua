@@ -142,15 +142,16 @@ RegisterNetEvent('mallorca-speedometer:client:setFuel', function(plate, fuel)
     fuelReady = true
 end)
 
+-- FiveM native: 1 = links, 0 = rechts
+local INDICATOR_LEFT = 1
+local INDICATOR_RIGHT = 0
+
 local function setIndicators(vehicle)
-    if vehicle == 0 then return end
-    if hazardOn then
-        SetVehicleIndicatorLights(vehicle, 0, true)
-        SetVehicleIndicatorLights(vehicle, 1, true)
-    else
-        SetVehicleIndicatorLights(vehicle, 0, leftOn)
-        SetVehicleIndicatorLights(vehicle, 1, rightOn)
-    end
+    if not vehicle or vehicle == 0 then return end
+    local left = hazardOn or leftOn
+    local right = hazardOn or rightOn
+    SetVehicleIndicatorLights(vehicle, INDICATOR_LEFT, left)
+    SetVehicleIndicatorLights(vehicle, INDICATOR_RIGHT, right)
 end
 
 local function hide()
@@ -220,6 +221,8 @@ CreateThread(function()
         if veh == 0 then
             if wasIn and lastVeh ~= 0 then
                 saveFuel(lastVeh, true)
+                leftOn, rightOn, hazardOn = false, false, false
+                setIndicators(lastVeh)
             end
             wasIn = false
             lastVeh = 0
@@ -229,6 +232,7 @@ CreateThread(function()
             hide()
             Wait(400)
         elseif Config.HideInPauseMenu and IsPauseMenuActive() then
+            setIndicators(veh)
             hide()
             Wait(200)
         else
@@ -249,6 +253,7 @@ CreateThread(function()
             local bodyHp = GetVehicleBodyHealth(veh)
             local fuel = readFuel(veh)
             local standlicht, faren = lightsState(veh)
+            setIndicators(veh)
 
             show({
                 speed = math.floor(speed + 0.5),

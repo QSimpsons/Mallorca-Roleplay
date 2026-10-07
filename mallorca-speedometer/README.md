@@ -32,7 +32,7 @@ Zie ook `INSTALL.txt`.
 
 ## Toetsen
 
-- **← / →** pinkers  
+- **← / →** pinkers (HUD + voertuiglichten)  
 - **↓** noodknippers  
 
 ## Snelheid

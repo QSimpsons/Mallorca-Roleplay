@@ -5,7 +5,7 @@ lua54 'yes'
 name 'mallorca-speedometer'
 author 'Eclipse Roleplay'
 description 'Complete voertuig speedometer in Eclipse-blauw: tank (SQL), motor, schade, pinkers, handrem, lichten'
-version '1.4.1'
+version '1.4.2'
 
 ui_page 'html/index.html'
 
