@@ -42,6 +42,38 @@ Config.Fluids = {
 -- Na de klap even wachten, zodat de schade zelf niet als reparatie telt.
 Config.RepairGraceMs = 2000
 
+-- Schade op de kant waar je iets raakt, zoals in het echt.
+-- Een lichte tik deukt alleen. Een harde tik aan de zijkant geeft een klapband.
+Config.SideDamage = true
+Config.ScrapeMinSpeed = 30.0
+Config.ScrapeDrop = 14.0
+Config.HeavyDrop = 42.0
+Config.ScrapeCooldownMs = 900
+Config.StrikeDistance = 12.0
+Config.MaxImpacts = 5
+
+-- Hoe diep het plaatwerk indeukt. Hoger = verder ingedrukt.
+-- De deuk blijft op het paneel; de rest van de auto blijft heel.
+Config.DentDamageMin = 2400.0
+Config.DentDamageMax = 8800.0
+Config.DentRadiusMin = 0.34
+Config.DentRadiusMax = 0.58
+
+-- Vanaf deze zwaarte (0-1) klapt de band aan de geraakte kant.
+Config.BlowoutSeverity = 0.42
+-- Pas heel hoog vliegt het wiel eraf. Daaronder blijft het een klapband.
+Config.WheelOffSeverity = 0.98
+-- Ruit alleen als de klap hard op dat paneel staat. De deur blijft zitten en deukt in.
+Config.GlassSeverity = 0.78
+Config.PanelOpenSeverity = 0.82
+
+-- Carrosserieverlies bij een schampschot. De motor lijdt alleen bij een klap van voren.
+-- De auto blijft rijden, tot een echte airbag-klap hem total loss maakt.
+Config.ScrapeBodyLoss = 280.0
+Config.ScrapeEngineLoss = 180.0
+Config.MinBodyAfterScrape = 450.0
+Config.MinEngineAfterScrape = 400.0
+
 -- Echt airbag-model (geen bal). Zie third_party/NOTICE.txt.
 Config.AirbagModel = 'prop_carairbag'
 
