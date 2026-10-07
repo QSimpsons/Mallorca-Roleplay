@@ -22,10 +22,11 @@ Config.RepairHealth = 950.0
 -- Hoeveel de carrosserie of motor moet stijgen om als reparatie te tellen.
 Config.RepairRise = 40.0
 
--- Bij de klap zakt de schade tot hier (0-1000) als die nog hoger was.
+-- Bij de klap is de auto total loss. Lager = kapotter (0-1000).
 -- Een reparatie zet de waarden weer omhoog, en dan verdwijnen de airbags.
-Config.CrashBodyHealth = 880.0
-Config.CrashEngineHealth = 720.0
+Config.TotalLoss = true
+Config.CrashBodyHealth = 150.0
+Config.CrashEngineHealth = 80.0
 
 -- Na de klap even wachten, zodat de schade zelf niet als reparatie telt.
 Config.RepairGraceMs = 2000
@@ -54,10 +55,8 @@ Config.Passenger = {
     rot = { x = 0.0, y = 0.0, z = 90.0 }
 }
 
--- Voorruit eruit, motor slaat af, camera schudt.
+-- Ruiten eruit en camera schudt. De motor blijft dood zolang Config.TotalLoss aan staat.
 Config.PopWindscreen = true
-Config.StallEngine = true
-Config.StallMs = 3500
 Config.CameraShake = 0.72
 
 -- Alleen de bestuurder laat het effect afgaan.

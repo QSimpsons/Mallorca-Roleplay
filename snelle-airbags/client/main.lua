@@ -4,6 +4,7 @@ local awaitingRepair = false
 local deployedBags = {}
 local healthFloor = {}
 local repairSent = {}
+local totaled = {}
 
 local function isBlocked(vehicle)
     if Config.BlockedClasses[GetVehicleClass(vehicle)] then
@@ -131,6 +132,11 @@ local function deleteBags(netId)
     deployedBags[netId] = nil
     healthFloor[netId] = nil
     repairSent[netId] = nil
+    totaled[netId] = nil
+
+    if vehicle ~= 0 and DoesEntityExist(vehicle) then
+        SetVehicleUndriveable(vehicle, false)
+    end
 end
 
 local function rememberFloor(netId, body, engine)
@@ -227,16 +233,8 @@ local function deployLocal(vehicle)
     end
 
     local ped = PlayerPedId()
-    if Config.StallEngine and GetPedInVehicleSeat(vehicle, -1) == ped then
+    if GetPedInVehicleSeat(vehicle, -1) == ped then
         awaitingRepair = true
-        SetVehicleEngineOn(vehicle, false, true, true)
-        SetVehicleUndriveable(vehicle, true)
-        local stalled = vehicle
-        SetTimeout(Config.StallMs, function()
-            if DoesEntityExist(stalled) then
-                SetVehicleUndriveable(stalled, false)
-            end
-        end)
     end
 
     local specs = { Config.Driver, Config.Passenger }
@@ -261,11 +259,23 @@ local function deployLocal(vehicle)
 
     local body = GetVehicleBodyHealth(vehicle)
     local engine = GetVehicleEngineHealth(vehicle)
-    if body > Config.CrashBodyHealth then
+    if Config.TotalLoss then
+        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
+        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+        SetVehiclePetrolTankHealth(vehicle, 650.0)
+        SetVehicleUndriveable(vehicle, true)
+        SetVehicleEngineOn(vehicle, false, true, true)
+        SetVehicleDoorOpen(vehicle, 4, false, true)
+        for window = 0, 7 do
+            SmashVehicleWindow(vehicle, window)
+        end
+        body = Config.CrashBodyHealth
+        engine = Config.CrashEngineHealth
+        totaled[netId] = true
+    elseif body > Config.CrashBodyHealth then
         SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
         body = Config.CrashBodyHealth
-    end
-    if engine > Config.CrashEngineHealth then
+    elseif engine > Config.CrashEngineHealth then
         SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
         engine = Config.CrashEngineHealth
     end
@@ -297,7 +307,9 @@ RegisterNetEvent('snelle-airbags:deploy', function(netId)
 
     if Config.PopWindscreen then
         PopOutVehicleWindscreen(vehicle)
-        SmashVehicleWindow(vehicle, 6)
+        for window = 0, 7 do
+            SmashVehicleWindow(vehicle, window)
+        end
     end
 
     PlaySoundFromEntity(-1, 'Whoosh_1s_L_to_R', vehicle, 'MP_LOBBY_SOUNDS', false, 0)
@@ -464,4 +476,21 @@ end)
 
 CreateThread(function()
     loadModel(joaat(Config.AirbagModel))
+end)
+
+CreateThread(function()
+    while true do
+        local waitMs = 1000
+        for netId in pairs(totaled) do
+            waitMs = 400
+            local vehicle = NetworkGetEntityFromNetworkId(netId)
+            if vehicle ~= 0 and DoesEntityExist(vehicle) then
+                SetVehicleUndriveable(vehicle, true)
+                if GetIsVehicleEngineRunning(vehicle) then
+                    SetVehicleEngineOn(vehicle, false, true, true)
+                end
+            end
+        end
+        Wait(waitMs)
+    end
 end)
