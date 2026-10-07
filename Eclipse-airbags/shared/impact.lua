@@ -155,6 +155,105 @@ function Impact.panels(impact)
     return panels
 end
 
+local SIDE_PARTS = {
+    left = {
+        frontDoor = 'door_dside_f',
+        rearDoor = 'door_dside_r',
+        frontWheel = 'wheel_lf',
+        rearWheel = 'wheel_lr',
+        headlight = 'headlight_l',
+        taillight = 'taillight_l'
+    },
+    right = {
+        frontDoor = 'door_pside_f',
+        rearDoor = 'door_pside_r',
+        frontWheel = 'wheel_rf',
+        rearWheel = 'wheel_rr',
+        headlight = 'headlight_r',
+        taillight = 'taillight_r'
+    }
+}
+
+local function addTarget(list, bone, x, y, z, weight, outward)
+    list[#list + 1] = {
+        bone = bone,
+        x = x or 0.0,
+        y = y or 0.0,
+        z = z or 0.0,
+        weight = weight or 1.0,
+        outward = outward or 0.0
+    }
+end
+
+-- Punten op het echte plaatwerk: deur, spatbord, bumper en lamp.
+-- outward duwt de deuk naar de buitenkant van dat paneel.
+function Impact.bodyTargets(impact)
+    local list = {}
+    if type(impact) ~= 'table' then
+        return list
+    end
+
+    if impact.side == 'left' or impact.side == 'right' then
+        local parts = SIDE_PARTS[impact.side]
+        local corner = impact.side == 'left' and -0.5 or 0.5
+        if impact.spread >= 0.75 then
+            addTarget(list, parts.frontDoor, 0.0, -0.06, 0.02, 1.0, 0.22)
+            addTarget(list, parts.frontDoor, 0.0, -0.36, -0.06, 0.9, 0.22)
+            addTarget(list, parts.frontDoor, 0.0, -0.32, -0.28, 0.62, 0.16)
+            addTarget(list, parts.rearDoor, 0.0, -0.08, 0.0, 0.92, 0.22)
+            addTarget(list, parts.rearDoor, 0.0, -0.3, -0.24, 0.6, 0.16)
+            addTarget(list, parts.frontWheel, 0.0, 0.02, 0.34, 0.55, 0.14)
+            addTarget(list, parts.rearWheel, 0.0, 0.0, 0.32, 0.45, 0.14)
+            return list
+        end
+
+        if impact.along >= 0.45 then
+            addTarget(list, parts.frontWheel, 0.0, 0.06, 0.36, 1.0, 0.18)
+            addTarget(list, parts.headlight, 0.0, 0.06, 0.0, 0.85, 0.04)
+            addTarget(list, 'bumper_f', corner, 0.1, -0.06, 0.9, 0.0)
+            return list
+        end
+
+        if impact.along >= -0.05 then
+            addTarget(list, parts.frontDoor, 0.0, -0.12, 0.02, 1.0, 0.24)
+            addTarget(list, parts.frontDoor, 0.0, -0.4, -0.08, 0.95, 0.24)
+            addTarget(list, parts.frontDoor, 0.0, -0.28, -0.3, 0.72, 0.18)
+            return list
+        end
+
+        if impact.along >= -0.55 then
+            addTarget(list, parts.rearDoor, 0.0, -0.1, 0.0, 1.0, 0.24)
+            addTarget(list, parts.rearDoor, 0.0, -0.32, -0.22, 0.78, 0.18)
+            return list
+        end
+
+        addTarget(list, parts.rearWheel, 0.0, 0.0, 0.34, 1.0, 0.16)
+        addTarget(list, parts.taillight, 0.0, -0.04, 0.0, 0.8, 0.04)
+        addTarget(list, 'bumper_r', corner, -0.08, 0.02, 0.85, 0.0)
+        return list
+    end
+
+    if impact.side == 'front' then
+        local along = impact.along or 0.0
+        addTarget(list, 'bumper_f', 0.0, 0.12, -0.05, 1.0, 0.0)
+        addTarget(list, 'bumper_f', -0.55, 0.08, -0.04, Impact.clamp(0.7 - along, 0.35, 1.0), 0.0)
+        addTarget(list, 'bumper_f', 0.55, 0.08, -0.04, Impact.clamp(0.7 + along, 0.35, 1.0), 0.0)
+        addTarget(list, 'bonnet', 0.0, 0.4, 0.02, 0.7, 0.0)
+        addTarget(list, 'headlight_l', 0.0, 0.06, 0.0, Impact.clamp(0.75 - along, 0.3, 1.0), 0.0)
+        addTarget(list, 'headlight_r', 0.0, 0.06, 0.0, Impact.clamp(0.75 + along, 0.3, 1.0), 0.0)
+        return list
+    end
+
+    local along = impact.along or 0.0
+    addTarget(list, 'bumper_r', 0.0, -0.1, 0.02, 1.0, 0.0)
+    addTarget(list, 'bumper_r', -0.5, -0.06, 0.0, Impact.clamp(0.7 - along, 0.35, 1.0), 0.0)
+    addTarget(list, 'bumper_r', 0.5, -0.06, 0.0, Impact.clamp(0.7 + along, 0.35, 1.0), 0.0)
+    addTarget(list, 'boot', 0.0, -0.28, 0.04, 0.68, 0.0)
+    addTarget(list, 'taillight_l', 0.0, -0.04, 0.0, Impact.clamp(0.75 - along, 0.3, 1.0), 0.0)
+    addTarget(list, 'taillight_r', 0.0, -0.04, 0.0, Impact.clamp(0.75 + along, 0.3, 1.0), 0.0)
+    return list
+end
+
 function Impact.dentOffsets(impact, minDim, maxDim)
     local points = {}
     if type(impact) ~= 'table' or type(minDim) ~= 'table' or type(maxDim) ~= 'table' then
@@ -168,35 +267,55 @@ function Impact.dentOffsets(impact, minDim, maxDim)
     end
 
     local midX = (minDim.x + maxDim.x) * 0.5
-    local midY = (minDim.y + maxDim.y) * 0.5
-    local z = minDim.z + ((maxDim.z - minDim.z) * 0.46)
+    local height = maxDim.z - minDim.z
+    local doorZ = minDim.z + (height * 0.42)
+    local sillZ = minDim.z + (height * 0.22)
+    local bumperZ = minDim.z + (height * 0.2)
 
-    local function add(x, y, zOffset)
+    local function add(x, y, z, weight)
         points[#points + 1] = {
             x = x,
             y = y,
-            z = z + (zOffset or 0.0)
+            z = z,
+            weight = weight or 1.0
         }
     end
 
+    local function yAt(t)
+        return minDim.y + (length * Impact.clamp(t, 0.06, 0.94))
+    end
+
     if impact.side == 'left' or impact.side == 'right' then
-        local x = impact.side == 'right' and (maxDim.x - (width * 0.03)) or (minDim.x + (width * 0.03))
-        local center = midY + (impact.along * length * 0.28)
-        center = Impact.clamp(center, minDim.y + (length * 0.12), maxDim.y - (length * 0.12))
-        local reach = length * 0.2 * impact.spread
-        add(x, center, 0.04)
-        if impact.spread >= 0.55 then
-            add(x, Impact.clamp(center + reach, minDim.y + (length * 0.08), maxDim.y - (length * 0.08)), -0.02)
-            add(x, Impact.clamp(center - reach, minDim.y + (length * 0.08), maxDim.y - (length * 0.08)), 0.0)
+        local x = impact.side == 'right' and (maxDim.x + 0.02) or (minDim.x - 0.02)
+        local centerT = Impact.clamp((impact.along + 1.0) * 0.5, 0.12, 0.88)
+        if impact.spread >= 0.75 then
+            for step = 0, 5 do
+                local t = 0.16 + (step * 0.13)
+                local falloff = 1.0 - math.abs(t - centerT)
+                if falloff < 0.45 then
+                    falloff = 0.45
+                end
+                add(x, yAt(t), doorZ, 0.5 + (0.5 * falloff))
+                add(x, yAt(t), sillZ, 0.35 + (0.35 * falloff))
+            end
+            return points
         end
+
+        local reach = 0.08 + (0.06 * impact.spread)
+        add(x, yAt(centerT), doorZ, 1.0)
+        add(x, yAt(centerT - reach), doorZ - (height * 0.08), 0.85)
+        add(x, yAt(centerT + reach), sillZ, 0.7)
+        add(x, yAt(centerT), sillZ, 0.6)
         return points
     end
 
-    local y = impact.side == 'front' and (maxDim.y - (length * 0.03)) or (minDim.y + (length * 0.03))
-    local center = midX + (impact.along * width * 0.22)
-    add(center, y, 0.05)
-    add(center + (width * 0.18), y, 0.0)
-    add(center - (width * 0.18), y, 0.0)
+    local y = impact.side == 'front' and (maxDim.y + 0.02) or (minDim.y - 0.02)
+    local center = midX + (impact.along * width * 0.2)
+    local hoodZ = minDim.z + (height * 0.48)
+    add(center, y, bumperZ, 1.0)
+    add(center - (width * 0.22), y, bumperZ, 0.85)
+    add(center + (width * 0.22), y, bumperZ, 0.85)
+    add(center, impact.side == 'front' and (y - (length * 0.08)) or (y + (length * 0.08)), hoodZ, 0.65)
     return points
 end
 

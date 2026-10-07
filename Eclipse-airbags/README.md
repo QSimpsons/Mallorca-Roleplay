@@ -4,7 +4,7 @@ FiveM-script: rijd je met een auto ergens tegenaan, dan blazen echte airbags op 
 
 Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder groeit uit het stuur, die van de bijrijder uit het dashboard. Op de grond blijven benzine, olie en groene koelvloeistof achter. De auto is total loss: de motor is dood, de ruiten zijn kapot en je kunt niet wegrijden tot hij hersteld is. Na een reparatie verdwijnen de airbags.
 
-Raak je iemand of een muur aan de zijkant, dan komt de deuk op die kant, zoals in het echt. Dat geldt voor jouw auto en voor de auto waar je tegenaan rijdt. Bij een harde tik aan de zijkant klapt de band aan die kant. Een lichte schuur is geen total loss en laat de airbags met rust. Een harde botsing doet beide.
+Raak je iemand of een muur aan de zijkant, dan deukt het plaatwerk in op die kant, zoals in het echt: de deur, het spatbord, de dorpel, de bumper en de lamp. Dat geldt voor jouw auto en voor de auto waar je tegenaan rijdt. De deur blijft zitten en kreukt, in plaats van eraf te vallen. Bij een harde tik aan de zijkant klapt de band aan die kant. Een lichte schuur is geen total loss en laat de airbags met rust. Een harde botsing doet beide.
 
 Motoren, fietsen, boten, helikopters, vliegtuigen en treinen doen niet mee. Na een reparatie kunnen de airbags opnieuw.
 

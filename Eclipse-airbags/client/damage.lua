@@ -107,6 +107,57 @@ function Damage.restore(vehicle)
     end
 end
 
+local function boneLocal(vehicle, boneName)
+    local index = GetEntityBoneIndexByName(vehicle, boneName)
+    if not index or index == -1 then
+        return nil
+    end
+
+    local world = GetWorldPositionOfEntityBone(vehicle, index)
+    if not world then
+        return nil
+    end
+
+    local forward, right, up, pos = GetEntityMatrix(vehicle)
+    local dx = world.x - pos.x
+    local dy = world.y - pos.y
+    local dz = world.z - pos.z
+    return (dx * right.x) + (dy * right.y) + (dz * right.z),
+        (dx * forward.x) + (dy * forward.y) + (dz * forward.z),
+        (dx * up.x) + (dy * up.y) + (dz * up.z)
+end
+
+local function panelPoints(vehicle, impact, dimsMin, dimsMax)
+    local resolved = {}
+    local targets = Impact.bodyTargets(impact)
+    for i = 1, #targets do
+        local target = targets[i]
+        local x, y, z = boneLocal(vehicle, target.bone)
+        if x then
+            local push = target.outward or 0.0
+            if impact.side == 'left' then
+                push = -math.abs(push)
+            elseif impact.side == 'right' then
+                push = math.abs(push)
+            else
+                push = 0.0
+            end
+            resolved[#resolved + 1] = {
+                x = x + (target.x or 0.0) + push,
+                y = y + (target.y or 0.0),
+                z = z + (target.z or 0.0),
+                weight = target.weight or 1.0
+            }
+        end
+    end
+
+    if #resolved >= 2 then
+        return resolved
+    end
+
+    return Impact.dentOffsets(impact, dimsMin, dimsMax)
+end
+
 function Damage.applyVisuals(vehicle, impacts, shake, reset)
     if not DoesEntityExist(vehicle) or #impacts == 0 then
         return
@@ -123,6 +174,7 @@ function Damage.applyVisuals(vehicle, impacts, shake, reset)
     local minDim, maxDim = GetModelDimensions(GetEntityModel(vehicle))
     local dimsMin = { x = minDim.x, y = minDim.y, z = minDim.z }
     local dimsMax = { x = maxDim.x, y = maxDim.y, z = maxDim.z }
+    SetVehicleCanBeVisiblyDamaged(vehicle, true)
     SetVehicleTyresCanBurst(vehicle, true)
 
     local key = keyOf(vehicle)
@@ -131,13 +183,14 @@ function Damage.applyVisuals(vehicle, impacts, shake, reset)
 
     for i = 1, #impacts do
         local impact = impacts[i]
-        local points = Impact.dentOffsets(impact, dimsMin, dimsMax)
+        local points = panelPoints(vehicle, impact, dimsMin, dimsMax)
         local damage = Config.DentDamageMin + ((Config.DentDamageMax - Config.DentDamageMin) * impact.severity)
-        local radius = Config.DentRadiusMin + ((Config.DentRadiusMax - Config.DentRadiusMin) * impact.spread)
+        local radius = Config.DentRadiusMin + ((Config.DentRadiusMax - Config.DentRadiusMin) * impact.severity)
 
         for p = 1, #points do
             local point = points[p]
-            SetVehicleDamage(vehicle, point.x, point.y, point.z, damage, radius, true)
+            local weight = point.weight or 1.0
+            SetVehicleDamage(vehicle, point.x, point.y, point.z, damage * weight, radius, true)
         end
 
         local names = Impact.tyresFor(impact, impact.severity, Config.BlowoutSeverity)
@@ -158,14 +211,11 @@ function Damage.applyVisuals(vehicle, impacts, shake, reset)
             end
         end
 
-        if impact.severity >= Config.DoorSeverity then
-            for n = 1, #panels do
-                local door = panels[n].door
-                if door == 4 or door == 5 then
-                    SetVehicleDoorOpen(vehicle, door, false, true)
-                else
-                    SetVehicleDoorBroken(vehicle, door, impact.severity >= Config.DoorOffSeverity)
-                end
+        if impact.severity >= Config.PanelOpenSeverity then
+            if impact.side == 'front' then
+                SetVehicleDoorOpen(vehicle, 4, false, true)
+            elseif impact.side == 'rear' then
+                SetVehicleDoorOpen(vehicle, 5, false, true)
             end
         end
     end
@@ -230,6 +280,11 @@ function Damage.pumpSoon(vehicle)
     soonToken[key] = token
     CreateThread(function()
         Wait(450)
+        if soonToken[key] ~= token or not DoesEntityExist(vehicle) then
+            return
+        end
+        Damage.pump(vehicle, false)
+        Wait(700)
         if soonToken[key] ~= token or not DoesEntityExist(vehicle) then
             return
         end

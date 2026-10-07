@@ -52,19 +52,20 @@ Config.ScrapeCooldownMs = 900
 Config.StrikeDistance = 12.0
 Config.MaxImpacts = 5
 
--- Hoe diep de deuk wordt. Hoger = meer ingedeukt.
-Config.DentDamageMin = 700.0
-Config.DentDamageMax = 5200.0
-Config.DentRadiusMin = 0.32
-Config.DentRadiusMax = 0.78
+-- Hoe diep het plaatwerk indeukt. Hoger = verder ingedrukt.
+-- De deuk blijft op het paneel; de rest van de auto blijft heel.
+Config.DentDamageMin = 2400.0
+Config.DentDamageMax = 8800.0
+Config.DentRadiusMin = 0.34
+Config.DentRadiusMax = 0.58
 
 -- Vanaf deze zwaarte (0-1) klapt de band aan de geraakte kant.
 Config.BlowoutSeverity = 0.42
 -- Pas heel hoog vliegt het wiel eraf. Daaronder blijft het een klapband.
 Config.WheelOffSeverity = 0.98
-Config.GlassSeverity = 0.55
-Config.DoorSeverity = 0.88
-Config.DoorOffSeverity = 1.1
+-- Ruit alleen als de klap hard op dat paneel staat. De deur blijft zitten en deukt in.
+Config.GlassSeverity = 0.78
+Config.PanelOpenSeverity = 0.82
 
 -- Carrosserieverlies bij een schampschot. De motor lijdt alleen bij een klap van voren.
 -- De auto blijft rijden, tot een echte airbag-klap hem total loss maakt.

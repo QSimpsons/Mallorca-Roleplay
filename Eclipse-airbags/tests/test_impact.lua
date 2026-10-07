@@ -74,8 +74,14 @@ eq(Impact.tyreIndexes('right', { 'rear' })[1], 5, 'right rear index')
 local minDim = { x = -1, y = -2, z = 0 }
 local maxDim = { x = 1, y = 2, z = 1.5 }
 local dents = Impact.dentOffsets({ side = 'right', along = 0.2, spread = 0.9 }, minDim, maxDim)
-eq(#dents >= 2, true, 'side scrape has several dents')
+eq(#dents >= 6, true, 'side scrape creases the doors')
 eq(dents[1].x > 0.8, true, 'right dent sits on the right')
+local low, high = dents[1].z, dents[1].z
+for i = 1, #dents do
+    if dents[i].z < low then low = dents[i].z end
+    if dents[i].z > high then high = dents[i].z end
+end
+eq(high > low, true, 'scrape hits the door and the sill')
 
 local leftDents = Impact.dentOffsets({ side = 'left', along = -0.3, spread = 0.4 }, minDim, maxDim)
 eq(leftDents[1].x < -0.8, true, 'left dent sits on the left')
@@ -93,6 +99,43 @@ eq(rearPanels[1].door, 3, 'rear right door')
 
 local bothPanels = Impact.panels({ side = 'left', along = 0, spread = 0.95 })
 eq(#bothPanels, 2, 'full side hits both doors')
+
+local function hasBone(list, bone)
+    for i = 1, #list do
+        if list[i].bone == bone then
+            return true
+        end
+    end
+    return false
+end
+
+local scrapeBones = Impact.bodyTargets({ side = 'left', along = 0.1, spread = 0.95 })
+eq(hasBone(scrapeBones, 'door_dside_f'), true, 'scrape dents the front door')
+eq(hasBone(scrapeBones, 'door_dside_r'), true, 'scrape dents the rear door')
+eq(hasBone(scrapeBones, 'door_pside_f'), false, 'left scrape stays off the right door')
+
+local fenderBones = Impact.bodyTargets({ side = 'right', along = 0.7, spread = 0.4 })
+eq(hasBone(fenderBones, 'wheel_rf'), true, 'front corner hits the fender')
+eq(hasBone(fenderBones, 'headlight_r'), true, 'front corner hits the headlight')
+eq(hasBone(fenderBones, 'bumper_f'), true, 'front corner hits the bumper')
+
+local doorBones = Impact.bodyTargets({ side = 'left', along = 0.1, spread = 0.4 })
+eq(hasBone(doorBones, 'door_dside_f'), true, 'middle hit caves the door')
+eq(hasBone(doorBones, 'taillight_l'), false, 'door hit misses the tail light')
+
+local tailBones = Impact.bodyTargets({ side = 'left', along = -0.8, spread = 0.4 })
+eq(hasBone(tailBones, 'taillight_l'), true, 'rear corner hits the tail light')
+eq(hasBone(tailBones, 'bumper_r'), true, 'rear corner hits the rear bumper')
+
+local noseBones = Impact.bodyTargets({ side = 'front', along = 0.0, spread = 0.45 })
+eq(hasBone(noseBones, 'bumper_f'), true, 'front crush hits the bumper')
+eq(hasBone(noseBones, 'bonnet'), true, 'front crush creases the bonnet')
+eq(hasBone(noseBones, 'headlight_l'), true, 'front crush hits the left lamp')
+eq(hasBone(noseBones, 'headlight_r'), true, 'front crush hits the right lamp')
+
+local bootBones = Impact.bodyTargets({ side = 'rear', along = 0.0, spread = 0.45 })
+eq(hasBone(bootBones, 'bumper_r'), true, 'rear crush hits the bumper')
+eq(hasBone(bootBones, 'boot'), true, 'rear crush creases the boot')
 
 close(Impact.bodyAfter(1000, 1, 280, 450), 720, 'body loss')
 close(Impact.bodyAfter(500, 1, 280, 450), 450, 'body floor')
