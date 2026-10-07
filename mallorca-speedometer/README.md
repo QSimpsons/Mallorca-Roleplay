@@ -1,6 +1,6 @@
-# Mallorca Speedometer
+# Eclipse Speedometer
 
-Complete FiveM voertuig-HUD.
+Complete FiveM voertuig-HUD in **Eclipse Roleplay**-stijl: donkerblauw + accent `#4db2ff`.
 
 ## Snelle installatie
 
@@ -19,7 +19,7 @@ Zie ook `INSTALL.txt`.
 
 | Onderdeel | Status |
 |-----------|--------|
-| Snelheid (fluo oranje) | ✅ |
+| Snelheid (Eclipse blauw) | ✅ |
 | Tankmeter + % | ✅ |
 | Tank opslaan in SQL | ✅ `owned_vehicles.fuel` |
 | Motor groen/geel/rood | ✅ |

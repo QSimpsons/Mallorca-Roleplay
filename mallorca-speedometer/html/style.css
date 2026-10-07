@@ -1,12 +1,40 @@
+@font-face {
+  font-family: "Exo 2";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/exo2-600.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Exo 2";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("fonts/exo2-700.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Exo 2";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("fonts/exo2-800.ttf") format("truetype");
+}
+
 :root {
-  --text: #f5f7fa;
-  --dim: rgba(245, 247, 250, 0.28);
+  --text: #f4f8ff;
+  --dim: rgba(190, 215, 245, 0.32);
   --green: #39e07a;
   --yellow: #ffd23a;
   --red: #ff3b3b;
-  --amber: #ffb020;
-  --fluo-orange: #ff6a00;
-  --fluo-orange-bright: #ff8f1f;
+  --accent: #4db2ff;
+  --accent-bright: #7ec8ff;
+  --accent-deep: #156dce;
+  --blue-deep: rgba(6, 22, 48, 0.88);
+  --blue-border: rgba(70, 160, 255, 0.28);
+  --blue-glow: rgba(40, 140, 255, 0.45);
+  --font: "Exo 2", "Segoe UI", sans-serif;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -16,15 +44,16 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: transparent;
-  font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+  font-family: var(--font);
   color: var(--text);
   user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 body.demo-mode {
   background:
-    radial-gradient(ellipse at 50% 80%, rgba(40, 80, 50, 0.35), transparent 50%),
-    linear-gradient(180deg, #1a2228 0%, #0c1014 100%);
+    radial-gradient(ellipse at 50% 80%, rgba(20, 60, 130, 0.38), transparent 52%),
+    linear-gradient(180deg, #0c1424 0%, #070b12 100%);
 }
 
 .speedo {
@@ -72,8 +101,8 @@ body.demo-mode {
 }
 
 .icon.active {
-  color: var(--amber);
-  filter: drop-shadow(0 0 0.55vh rgba(255, 176, 32, 0.65));
+  color: var(--accent);
+  filter: drop-shadow(0 0 0.55vh var(--blue-glow));
   animation: blink 0.7s steps(1) infinite;
 }
 
@@ -88,7 +117,7 @@ body.demo-mode {
   animation: none;
 }
 
-/* Motor: groen = gezond (zoals voorbeeld) */
+/* Motor: groen = gezond */
 .icon.status.green {
   color: var(--green);
   filter: drop-shadow(0 0 0.5vh rgba(57, 224, 122, 0.55));
@@ -114,8 +143,8 @@ body.demo-mode {
 }
 
 .icon.lights.on {
-  color: var(--green);
-  filter: drop-shadow(0 0 0.5vh rgba(57, 224, 122, 0.55));
+  color: var(--accent);
+  filter: drop-shadow(0 0 0.5vh var(--blue-glow));
   animation: none;
 }
 
@@ -145,7 +174,7 @@ body.demo-mode {
 }
 
 .fuel-track {
-  stroke: rgba(255, 255, 255, 0.16);
+  stroke: rgba(70, 160, 255, 0.18);
   stroke-width: 2.8;
 }
 
@@ -171,7 +200,7 @@ body.demo-mode {
   font-size: 0.95vh;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: rgba(255, 255, 255, 0.82);
+  color: rgba(244, 248, 255, 0.82);
   z-index: 1;
   font-variant-numeric: tabular-nums;
 }
@@ -212,25 +241,25 @@ body.demo-mode {
 }
 
 .arc-track {
-  stroke: rgba(255, 255, 255, 0.16);
+  stroke: rgba(70, 160, 255, 0.22);
   stroke-width: 2.2;
   stroke-dasharray: 226; /* ~75% of 2πr with r=48 */
   stroke-dashoffset: 56.5;
 }
 
 .arc-track-inner {
-  stroke: rgba(255, 255, 255, 0.1);
+  stroke: rgba(21, 109, 206, 0.22);
   stroke-width: 1.4;
   stroke-dasharray: 188;
   stroke-dashoffset: 47;
 }
 
 .arc-fill {
-  stroke: #ffffff;
+  stroke: var(--accent);
   stroke-width: 2.4;
   stroke-dasharray: 226;
   stroke-dashoffset: 226;
-  filter: drop-shadow(0 0 0.35vh rgba(255, 255, 255, 0.45));
+  filter: drop-shadow(0 0 0.45vh var(--blue-glow));
   transition: stroke-dashoffset 0.12s linear;
 }
 
@@ -247,16 +276,16 @@ body.demo-mode {
 
 .speed {
   font-size: 4.6vh;
-  font-weight: 700;
+  font-weight: 800;
   line-height: 0.95;
   letter-spacing: 0.02em;
-  color: #ff9f1a;
+  color: var(--accent);
   text-shadow:
-    0 0 0.25vh #ffb347,
-    0 0 0.55vh #ff6a00,
-    0 0 1.2vh rgba(255, 106, 0, 0.95),
-    0 0 2.4vh rgba(255, 80, 0, 0.55),
-    0 0.15vh 0.4vh rgba(0, 0, 0, 0.4);
+    0 0 0.25vh var(--accent-bright),
+    0 0 0.55vh var(--accent-deep),
+    0 0 1.2vh rgba(40, 140, 255, 0.95),
+    0 0 2.4vh rgba(10, 50, 120, 0.7),
+    0 0.15vh 0.4vh rgba(0, 8, 24, 0.55);
   font-variant-numeric: tabular-nums;
 }
 
@@ -268,12 +297,12 @@ body.demo-mode {
 .unit {
   margin-top: 0.25vh;
   font-size: 1.15vh;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.16em;
-  color: #ff9a1a;
+  color: var(--accent-bright);
   text-shadow:
-    0 0 0.4vh rgba(255, 154, 26, 0.9),
-    0 0 1vh rgba(255, 106, 0, 0.55);
+    0 0 0.4vh rgba(77, 178, 255, 0.9),
+    0 0 1vh rgba(21, 109, 206, 0.65);
 }
 
 @keyframes blink {
@@ -289,9 +318,10 @@ body.demo-mode {
   width: min(40vh, 92vw);
   padding: 1.8vh;
   border-radius: 1.2vh;
-  background: rgba(8, 10, 12, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #eef2f6;
+  background: linear-gradient(180deg, rgba(12, 32, 64, 0.92), var(--blue-deep));
+  border: 1px solid var(--blue-border);
+  box-shadow: 0 10px 28px rgba(2, 12, 34, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  color: var(--text);
   display: flex;
   flex-direction: column;
   gap: 1vh;
@@ -300,8 +330,8 @@ body.demo-mode {
 
 .demo.hidden { display: none; }
 
-.demo h1 { font-size: 2vh; }
-.demo p { font-size: 1.25vh; color: rgba(238, 242, 246, 0.55); }
+.demo h1 { font-size: 2vh; font-weight: 700; }
+.demo p { font-size: 1.25vh; color: rgba(190, 215, 245, 0.62); }
 
 .demo label {
   display: flex;
@@ -310,7 +340,7 @@ body.demo-mode {
   font-size: 1.15vh;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgba(238, 242, 246, 0.55);
+  color: rgba(190, 215, 245, 0.62);
 }
 
 .demo input,
@@ -318,8 +348,8 @@ body.demo-mode {
 .demo button {
   font: inherit;
   color: inherit;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(3, 12, 28, 0.55);
+  border: 1px solid var(--blue-border);
   border-radius: 0.6vh;
   padding: 0.65vh 0.9vh;
 }
@@ -331,6 +361,6 @@ body.demo-mode {
 }
 
 .demo button.active {
-  background: rgba(57, 224, 122, 0.18);
-  border-color: rgba(57, 224, 122, 0.45);
+  background: rgba(77, 178, 255, 0.18);
+  border-color: rgba(77, 178, 255, 0.5);
 }
