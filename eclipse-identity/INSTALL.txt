@@ -1,0 +1,17 @@
+ECLIPSE RP burgerregistratie
+
+1. Stop het oude Mallorca-registratiemenu.
+2. Zet eclipse-identity in resources.
+3. server.cfg:
+
+   ensure esx_identity
+   ensure eclipse-identity
+
+4. Pas config.lua aan: Discord-link, regels-link en DateFormat
+   (hetzelfde formaat als esx_identity, standaard DD/MM/YYYY).
+
+5. Preview in de browser: html/preview.html
+
+Als het standaard esx_identity-scherm ook opent, haal in
+esx_identity/client/main.lua alleen SetNuiFocus en SendNUIMessage
+weg. Laat het event esx_identity:showRegisterIdentity staan.
