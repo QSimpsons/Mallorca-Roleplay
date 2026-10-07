@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ECLIPSE RP — Burgerregistratie</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <div class="sky__glow"></div>
+    <div class="sky__eclipse"></div>
+    <svg class="sky__line" viewBox="0 0 1200 180" preserveAspectRatio="none">
+      <path fill="#07111d" d="M0 180V118h28V72h34v46h22V48h46v70h18V86h40v32h24V28h38v90h26V64h44v54h30V40h22v16h24V40h18v78h36V70h48v48h22V34h52v84h30V58h40v60h46V46h36v72h28V90h54v28h80V96h34v22h70V70h40v48h175V180z"/>
+    </svg>
+  </div>
+
+  <main id="app" class="app" aria-hidden="true">
+    <div class="layout" role="dialog" aria-modal="true" aria-labelledby="title">
+      <section class="panel brand" aria-label="ECLIPSE RP">
+        <div class="logo-wrap">
+          <img class="logo" src="img/logo.png" alt="ECLIPSE RP" draggable="false" />
+        </div>
+        <p class="quote">
+          <span class="qmark" aria-hidden="true">“</span>
+          Hey! Welkom bij <span class="brand-name">ECLIPSE RP</span>. Hier bouw je je eigen verhaal in de stad. Word wie je wilt, maak vrienden en beleef avonturen. Agent, crimineel, zakenman, ambulancier of pechhulp: iedereen is welkom. Klaar om de stad te verkennen? Sluit je aan en leef je uit.
+        </p>
+        <p class="sign">— <span class="brand-name">ECLIPSE RP</span></p>
+      </section>
+
+      <section class="panel form-panel">
+        <header class="form-head">
+          <p class="kicker">Burgerregistratie</p>
+          <h1 id="title">Welkom bij <span class="brand-name">ECLIPSE RP</span></h1>
+          <p class="lead">Registreer jezelf als inwoner van <span class="brand-name">ECLIPSE RP</span>.</p>
+        </header>
+
+        <form id="form" novalidate>
+          <p class="section-label">Identiteit</p>
+          <div class="grid">
+            <div class="field" id="field-firstname">
+              <label class="label" for="firstname">Voornaam <span class="req">*</span></label>
+              <input id="firstname" name="firstname" class="control" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Noah" />
+              <p class="field__error" id="err-firstname"></p>
+            </div>
+
+            <div class="field" id="field-lastname">
+              <label class="label" for="lastname">Achternaam <span class="req">*</span></label>
+              <input id="lastname" name="lastname" class="control" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="de Vries" />
+              <p class="field__error" id="err-lastname"></p>
+            </div>
+
+            <div class="field" id="field-dob">
+              <span class="label" id="dob-label">Geboortedatum <span class="req">*</span></span>
+              <div class="date-row" role="group" aria-labelledby="dob-label">
+                <input id="day" class="date-part" inputmode="numeric" maxlength="2" placeholder="DD" aria-label="Dag" autocomplete="off" />
+                <span class="slash" aria-hidden="true">/</span>
+                <input id="month" class="date-part" inputmode="numeric" maxlength="2" placeholder="MM" aria-label="Maand" autocomplete="off" />
+                <span class="slash" aria-hidden="true">/</span>
+                <input id="year" class="date-part date-part--year" inputmode="numeric" maxlength="4" placeholder="JJJJ" aria-label="Jaar" autocomplete="off" />
+              </div>
+              <p class="field__error" id="err-dob"></p>
+            </div>
+
+            <div class="field" id="field-height">
+              <label class="label" for="height">Lengte <span class="req">*</span></label>
+              <div class="suffix">
+                <input id="height" name="height" class="control control--suffix" inputmode="numeric" maxlength="3" placeholder="175" autocomplete="off" aria-describedby="height-unit" />
+                <span class="suffix__unit" id="height-unit">cm</span>
+              </div>
+              <p class="field__error" id="err-height"></p>
+            </div>
+          </div>
+
+          <p class="section-label" id="sex-label">Geslacht <span class="req">*</span></p>
+          <div class="sex-row" id="sex-row" role="radiogroup" aria-labelledby="sex-label">
+            <button type="button" class="sex" data-sex="m" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="10" cy="14.2" r="5" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M13.5 10.6 19 5.2M19 5.2h-4.4M19 5.2v4.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>Man</span>
+            </button>
+            <button type="button" class="sex" data-sex="f" aria-pressed="false">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="8.5" r="4.6" fill="none" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M12 13.2v6.6M9.2 17.2h5.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+              <span>Vrouw</span>
+            </button>
+          </div>
+          <p class="field__error" id="err-sex"></p>
+
+          <label class="agree" id="agree">
+            <input id="rules" type="checkbox" />
+            <span class="box" aria-hidden="true"></span>
+            <span class="agree__text">Ik heb de <a href="#" id="rules-link">regels/APV</a> van <span class="brand-name">ECLIPSE RP</span> gelezen en ik ga hiermee akkoord.</span>
+          </label>
+          <p class="field__error" id="err-rules"></p>
+
+          <p class="form-error" id="form-error" role="alert"></p>
+
+          <button class="submit" id="submit" type="submit">
+            <span>Registreren</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+
+          <p class="foot">Voor vragen of bugs ga naar onze <a href="#" id="discord-link">Support Discord</a></p>
+        </form>
+
+        <div id="success" class="success" hidden>
+          <div class="success__mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 12.5 9.2 17 19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2>Je bent ingeschreven</h2>
+          <p>Welkom bij <span class="brand-name">ECLIPSE RP</span>, <strong id="success-name"></strong>.</p>
+          <button type="button" id="preview-reset" class="submit submit--ghost" hidden>Opnieuw invullen</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
