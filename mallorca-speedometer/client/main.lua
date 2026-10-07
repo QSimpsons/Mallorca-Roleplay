@@ -246,7 +246,7 @@ CreateThread(function()
 
             show({
                 speed = math.floor(speed + 0.5),
-                maxSpeed = Config.MaxSpeed or 1300,
+                maxSpeed = Config.MaxSpeed or 600,
                 unit = Config.UseKmh and 'km/h' or 'mph',
                 engine = colorFor(engineHp, Config.Engine.green, Config.Engine.yellow),
                 engineHealth = math.floor(math.max(0.0, math.min(1000.0, engineHp)) / 10.0),

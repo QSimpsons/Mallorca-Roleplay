@@ -66,10 +66,10 @@
 
     async function run() {
       await sleep(600);
-      say('Snelheid omhoog tot 1300 km/h');
-      for (let s = 20; s <= 1300; s += 40) {
+      say('Snelheid omhoog tot 600 km/h');
+      for (let s = 20; s <= 600; s += 20) {
         window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data: {
-          speed: s, maxSpeed: 1300, unit: 'km/h', engine: 'green', damage: 'green',
+          speed: s, maxSpeed: 600, unit: 'km/h', engine: 'green', damage: 'green',
           engineHealth: 95, bodyHealth: 92, left: false, right: false, hazard: false, handbrake: false
         }}}));
         await sleep(40);
@@ -77,21 +77,21 @@
 
       say('Motor → rood · Schade → geel');
       window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data: {
-        speed: 1300, maxSpeed: 1300, unit: 'km/h', engine: 'red', damage: 'yellow',
+        speed: 600, maxSpeed: 600, unit: 'km/h', engine: 'red', damage: 'yellow',
         engineHealth: 12, bodyHealth: 45, left: false, right: false, hazard: false, handbrake: false
       }}}));
       await sleep(1200);
 
       say('Links pinker');
       window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data: {
-        speed: 90, maxSpeed: 1300, unit: 'km/h', engine: 'red', damage: 'yellow',
+        speed: 90, maxSpeed: 600, unit: 'km/h', engine: 'red', damage: 'yellow',
         engineHealth: 12, bodyHealth: 40, left: true, right: false, hazard: false, handbrake: false
       }}}));
       await sleep(1400);
 
       say('Noodknippers + handrem');
       window.dispatchEvent(new MessageEvent('message', { data: { action: 'update', data: {
-        speed: 0, maxSpeed: 1300, unit: 'km/h', engine: 'red', damage: 'yellow',
+        speed: 0, maxSpeed: 600, unit: 'km/h', engine: 'red', damage: 'yellow',
         engineHealth: 12, bodyHealth: 40, left: true, right: true, hazard: true, handbrake: true
       }}}));
       await sleep(2200);

@@ -3,7 +3,7 @@ Config = {}
 -- Eenheden
 Config.UseKmh = true
 -- Maximum voor de snelheidsboog (niet de voertuiglimiet zelf)
-Config.MaxSpeed = 1300
+Config.MaxSpeed = 600
 
 -- Motor (engine health 0-1000)
 Config.Engine = {

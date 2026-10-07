@@ -72,7 +72,7 @@
   }
 
   function update(data = {}) {
-    const max = Number(data.maxSpeed) || 1300;
+    const max = Number(data.maxSpeed) || 600;
     const speed = Math.max(0, Math.min(max, Number(data.speed) || 0));
     const ratio = speed / max;
 
@@ -124,7 +124,7 @@
       const fuel = Number(document.getElementById('demo-fuel').value);
       update({
         speed: Number(document.getElementById('demo-speed').value),
-        maxSpeed: 1300,
+        maxSpeed: 600,
         unit: 'km/h',
         engine,
         damage,

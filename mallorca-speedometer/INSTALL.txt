@@ -43,7 +43,7 @@ STAP 4 - TESTEN
 
 CONFIG
   Zie config.lua
-  - Config.MaxSpeed = 1300          -- HUD-boog (km/h)
+  - Config.MaxSpeed = 600           -- HUD-boog (km/h)
   - Config.Fuel.UseDatabase = true/false
   - Config.Fuel.Resource = 'LegacyFuel' als je een fuel-script gebruikt
 

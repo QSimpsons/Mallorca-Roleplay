@@ -36,7 +36,7 @@ Zie ook `INSTALL.txt`.
 
 ## Snelheid
 
-De boog en het getal lopen tot **1300 km/h** (`Config.MaxSpeed` in `config.lua`).
+De boog en het getal lopen tot **600 km/h** (`Config.MaxSpeed` in `config.lua`).
 Hoger dan dat wordt afgekapt in de HUD; de echte voertuigsnelheid blijft ongewijzigd.
 
 ## Config brandstof
