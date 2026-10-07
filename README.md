@@ -2,5 +2,5 @@
 
 ## Resources
 
-- `snelle-airbags` — airbags vliegen uit de auto bij een harde botsing
+- `Eclipse-airbags` — airbags uit het stuur en dashboard, zonder brand, met benzine, olie en koelvloeistof
 
