@@ -13,7 +13,22 @@ setr sv_showBusySpinnerOnLoadingScreen false
 ```
 
 3. Houd één resource met een `loadscreen` actief. Een tweede loadingscreen overschrijft deze.
-4. Pas Discord, regels, sneltoetsen en tips aan in `config.js`.
+4. Pas Discord, het staffteam, regels, sneltoetsen en tips aan in `config.js`.
+
+## Staffteam
+
+Het paneel links bovenaan leest `staff` in `config.js`. Elke regel heeft een `role` en een `name`. Een lege naam wordt overgeslagen. Zet `staff.enabled` op `false` om het hele paneel te verbergen.
+
+```js
+staff: {
+    enabled: true,
+    title: "Staffteam",
+    members: [
+        { role: "Eigenaar", name: "Jouw naam" },
+        { role: "Admin", name: "Jouw naam" },
+    ],
+},
+```
 
 De naam op het scherm komt uit `deferrals.handover` tijdens het verbinden. Staat er geen naam, dan blijft die regel weg.
 

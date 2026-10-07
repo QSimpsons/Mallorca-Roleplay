@@ -14,6 +14,20 @@ const Config = {
         volume: 0.32,
     },
 
+    // Staffteam. Zet enabled op false om het paneel te verbergen.
+    // role is de functie, name is de weergavenaam. Lege namen worden overgeslagen.
+    staff: {
+        enabled: true,
+        title: "Staffteam",
+        members: [
+            { role: "Eigenaar", name: "Invullen" },
+            { role: "Beheer", name: "Invullen" },
+            { role: "Hoofdadmin", name: "Invullen" },
+            { role: "Admin", name: "Invullen" },
+            { role: "Moderator", name: "Invullen" },
+        ],
+    },
+
     rulesTitle: "Regels",
     rules: [
         "Geen RDM of VDM",

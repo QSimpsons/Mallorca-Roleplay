@@ -2,6 +2,9 @@ const statusLabel = document.getElementById("status-label");
 const slotsLabel = document.getElementById("slots");
 const welcome = document.getElementById("welcome");
 const discordButton = document.getElementById("discord");
+const staffPanel = document.getElementById("staff");
+const staffTitle = document.getElementById("staff-title");
+const staffList = document.getElementById("staff-list");
 const rulesTitle = document.getElementById("rules-title");
 const rulesList = document.getElementById("rules");
 const loadStatus = document.getElementById("load-status");
@@ -105,6 +108,8 @@ function renderStatic() {
 
     discordButton.textContent = Config.discordLabel || "";
 
+    renderStaff();
+
     rulesTitle.textContent = Config.rulesTitle || "";
     rulesList.replaceChildren();
     (Config.rules || []).forEach((rule) => {
@@ -123,6 +128,33 @@ function renderStatic() {
     });
 
     hint.textContent = Config.hint || "";
+}
+
+function renderStaff() {
+    const staff = Config.staff || {};
+    const members = (staff.members || []).filter((member) => {
+        return member && typeof member.name === "string" && member.name.trim() && typeof member.role === "string" && member.role.trim();
+    });
+
+    staffList.replaceChildren();
+    if (staff.enabled === false || members.length === 0) {
+        staffPanel.hidden = true;
+        return;
+    }
+
+    staffTitle.textContent = staff.title || "Staffteam";
+    members.forEach((member) => {
+        const item = document.createElement("li");
+        const role = document.createElement("span");
+        const name = document.createElement("span");
+        role.className = "staff-role";
+        name.className = "staff-name";
+        role.textContent = member.role.trim();
+        name.textContent = member.name.trim();
+        item.append(role, name);
+        staffList.appendChild(item);
+    });
+    staffPanel.hidden = false;
 }
 
 function renderMusicUi(paused) {

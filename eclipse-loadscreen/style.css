@@ -193,8 +193,57 @@ header {
     align-items: end;
 }
 
+.staff {
+    position: absolute;
+    top: 108px;
+    left: 48px;
+    z-index: 2;
+    width: min(280px, 24vw);
+}
+
+.staff h2 {
+    margin: 0 0 10px;
+}
+
+.staff ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.staff li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 7px 0;
+    border-top: 1px solid var(--line);
+}
+
+.staff-role {
+    flex: 0 0 auto;
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.75);
+}
+
+.staff-name {
+    min-width: 0;
+    color: var(--cream);
+    font-size: 14px;
+    text-align: right;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.75);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .kicker,
 .rules h2,
+.staff h2,
 .music-copy .kicker,
 .volume .kicker {
     margin: 0 0 12px;
@@ -447,6 +496,15 @@ input[type="range"]::-webkit-slider-thumb {
         padding: 20px 28px 0;
     }
 
+    .staff {
+        top: 72px;
+        left: 28px;
+    }
+
+    .staff li {
+        padding: 4px 0;
+    }
+
     .dock {
         left: 28px;
         right: 28px;
@@ -466,7 +524,8 @@ input[type="range"]::-webkit-slider-thumb {
     }
 
     .rules,
-    .music {
+    .music,
+    .staff {
         display: none;
     }
 }
