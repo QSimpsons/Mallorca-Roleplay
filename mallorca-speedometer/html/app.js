@@ -16,6 +16,7 @@
     damage: document.getElementById('ind-damage'),
     handbrake: document.getElementById('ind-handbrake'),
     lights: document.getElementById('ind-lights'),
+    highbeam: document.getElementById('ind-highbeam'),
     fuel: document.getElementById('fuel'),
     fuelArc: document.getElementById('fuel-arc'),
     fuelPct: document.getElementById('fuel-pct'),
@@ -37,6 +38,7 @@
     hazard: false,
     handbrake: false,
     lights: true,
+    highbeam: false,
   };
 
   function setActive(node, on) {
@@ -97,6 +99,9 @@
     if (el.lights) {
       el.lights.classList.toggle('on', !!data.lights);
     }
+    if (el.highbeam) {
+      el.highbeam.classList.toggle('on', !!data.highbeam);
+    }
 
     el.root.classList.add('visible');
     el.root.setAttribute('aria-hidden', 'false');
@@ -135,6 +140,7 @@
         hazard: state.hazard,
         handbrake: state.handbrake,
         lights: state.lights,
+        highbeam: state.highbeam,
       });
     };
 
@@ -164,6 +170,10 @@
           state.handbrake = !state.handbrake;
         } else if (key === 'lights') {
           state.lights = !state.lights;
+          if (!state.lights) state.highbeam = false;
+        } else if (key === 'highbeam') {
+          state.highbeam = !state.highbeam;
+          if (state.highbeam) state.lights = true;
         }
 
         el.demo.querySelectorAll('[data-toggle]').forEach((b) => {

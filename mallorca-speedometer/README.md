@@ -24,10 +24,11 @@ Zie ook `INSTALL.txt`.
 | Tank opslaan in SQL | ✅ `owned_vehicles.fuel` |
 | Motor groen/geel/rood | ✅ |
 | Schade | ✅ |
-| Links / rechts pinker | ✅ |
+| Links / rechts pinker (groen) | ✅ |
 | Noodknippers | ✅ |
 | Handrem (rood) | ✅ |
-| Lichten | ✅ |
+| Standlichten (groen) | ✅ |
+| Faren / groot licht (blauw) | ✅ |
 
 ## Toetsen
 

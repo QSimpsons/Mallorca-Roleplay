@@ -170,14 +170,19 @@ local function handbrakeOn(vehicle)
     return IsControlPressed(0, 76)
 end
 
-local function lightsOn(vehicle)
+local function isOn(v)
+    return v == 1 or v == true
+end
+
+local function lightsState(vehicle)
     local on, high = 0, 0
-    local ok = pcall(function()
+    pcall(function()
         local _, a, b = GetVehicleLightsState(vehicle)
         on, high = a, b
     end)
-    if not ok then return false end
-    return on == 1 or high == 1 or on == true or high == true
+    local highOn = isOn(high)
+    local lowOn = isOn(on) or highOn
+    return lowOn, highOn
 end
 
 local function burnFuel(vehicle, dt)
@@ -243,6 +248,7 @@ CreateThread(function()
             local engineHp = GetVehicleEngineHealth(veh)
             local bodyHp = GetVehicleBodyHealth(veh)
             local fuel = readFuel(veh)
+            local standlicht, faren = lightsState(veh)
 
             show({
                 speed = math.floor(speed + 0.5),
@@ -258,7 +264,8 @@ CreateThread(function()
                 right = hazardOn or rightOn,
                 hazard = hazardOn,
                 handbrake = handbrakeOn(veh),
-                lights = lightsOn(veh),
+                lights = standlicht,
+                highbeam = faren,
                 engineOn = GetIsVehicleEngineRunning(veh)
             })
 

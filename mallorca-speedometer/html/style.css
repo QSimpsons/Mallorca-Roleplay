@@ -101,8 +101,8 @@ body.demo-mode {
 }
 
 .icon.active {
-  color: var(--accent);
-  filter: drop-shadow(0 0 0.55vh var(--blue-glow));
+  color: var(--green);
+  filter: drop-shadow(0 0 0.55vh rgba(57, 224, 122, 0.65));
   animation: blink 0.7s steps(1) infinite;
 }
 
@@ -143,6 +143,12 @@ body.demo-mode {
 }
 
 .icon.lights.on {
+  color: var(--green);
+  filter: drop-shadow(0 0 0.5vh rgba(57, 224, 122, 0.55));
+  animation: none;
+}
+
+.icon.highbeam.on {
   color: var(--accent);
   filter: drop-shadow(0 0 0.5vh var(--blue-glow));
   animation: none;

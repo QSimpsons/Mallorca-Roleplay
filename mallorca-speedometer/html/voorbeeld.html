@@ -36,22 +36,22 @@
     async function run() {
       const banner = document.getElementById('banner');
       banner.textContent = 'Tank vol · 72%';
-      send({ speed: 67, maxSpeed: 600, unit: 'km/h', engine: 'green', damage: 'green', fuel: 72, fuelState: 'green', left: false, right: false, hazard: false, handbrake: false, lights: true });
+      send({ speed: 67, maxSpeed: 600, unit: 'km/h', engine: 'green', damage: 'green', fuel: 72, fuelState: 'green', left: false, right: false, hazard: false, handbrake: false, lights: true, highbeam: false });
       await sleep(1600);
 
       banner.textContent = 'Tank daalt…';
       for (let f = 72; f >= 28; f -= 4) {
-        send({ speed: 90, maxSpeed: 600, unit: 'km/h', engine: 'green', damage: 'green', fuel: f, fuelState: f >= 40 ? 'green' : 'yellow', left: false, right: false, hazard: false, handbrake: false, lights: true });
+        send({ speed: 90, maxSpeed: 600, unit: 'km/h', engine: 'green', damage: 'green', fuel: f, fuelState: f >= 40 ? 'green' : 'yellow', left: false, right: false, hazard: false, handbrake: false, lights: true, highbeam: false });
         await sleep(80);
       }
       await sleep(900);
 
       banner.textContent = 'Tank bijna leeg · rood';
-      send({ speed: 40, maxSpeed: 600, unit: 'km/h', engine: 'yellow', damage: 'green', fuel: 8, fuelState: 'red', left: false, right: true, hazard: false, handbrake: false, lights: true });
+      send({ speed: 40, maxSpeed: 600, unit: 'km/h', engine: 'yellow', damage: 'green', fuel: 8, fuelState: 'red', left: false, right: true, hazard: false, handbrake: false, lights: true, highbeam: false });
       await sleep(1600);
 
       banner.textContent = 'Alles actief';
-      send({ speed: 0, maxSpeed: 600, unit: 'km/h', engine: 'red', damage: 'yellow', fuel: 8, fuelState: 'red', left: true, right: true, hazard: true, handbrake: true, lights: true });
+      send({ speed: 0, maxSpeed: 600, unit: 'km/h', engine: 'red', damage: 'yellow', fuel: 8, fuelState: 'red', left: true, right: true, hazard: true, handbrake: true, lights: true, highbeam: true });
       await sleep(2200);
       banner.textContent = 'Klaar';
     }
