@@ -5,6 +5,8 @@ local deployedBags = {}
 local healthFloor = {}
 local repairSent = {}
 local totaled = {}
+local noFireUntil = {}
+local blockPetrolFireUntil = 0
 
 local function isBlocked(vehicle)
     if Config.BlockedClasses[GetVehicleClass(vehicle)] then
@@ -226,6 +228,55 @@ local function spawnAirbag(vehicle, spec, model)
     return { bag = bag, bone = bone, spec = spec }
 end
 
+local function quench(vehicle)
+    SetDisableVehiclePetrolTankFires(vehicle, true)
+    SetDisableVehiclePetrolTankDamage(vehicle, true)
+    if IsEntityOnFire(vehicle) then
+        StopEntityFire(vehicle)
+    end
+
+    local coords = GetEntityCoords(vehicle)
+    StopFireInRange(coords.x, coords.y, coords.z, 6.5)
+end
+
+local function spillAt(vehicle, x, y)
+    local pos = GetOffsetFromEntityInWorldCoords(vehicle, x, y, 0.2)
+    local found, ground = GetGroundZFor_3dCoord(pos.x, pos.y, pos.z + 2.0, false)
+    local z = found and (ground + 0.03) or pos.z
+    return pos.x, pos.y, z
+end
+
+local function leaveFluids(vehicle)
+    local fluids = Config.Fluids
+    local pools = {
+        { kind = 'petrol', x = 0.15, y = -1.45 },
+        { kind = 'petrol', x = -0.35, y = -1.9 },
+        { kind = 'oil', x = -0.1, y = 1.25 },
+        { kind = 'oil', x = 0.35, y = 1.55 },
+        { kind = 'coolant', x = 0.7, y = 0.85 },
+        { kind = 'coolant', x = 0.95, y = 0.35 }
+    }
+
+    for i = 1, #pools do
+        local pool = pools[i]
+        local x, y, z = spillAt(vehicle, pool.x, pool.y)
+
+        if pool.kind == 'petrol' then
+            AddPetrolDecal(x, y, z, 1.5, fluids.petrol.width, fluids.petrol.transparency)
+        elseif pool.kind == 'oil' then
+            local placed = pcall(AddOilDecal, x, y, z, 1.2, fluids.oil.width, fluids.oil.transparency)
+            if not placed then
+                AddDecal(9002, x, y, z, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, fluids.oil.width, fluids.oil.width, 0.05, 0.05, 0.04, 0.95, fluids.coolant.seconds, false, false, false)
+            end
+        else
+            local coolant = fluids.coolant
+            AddDecal(9000, x, y, z, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, coolant.width, coolant.width, coolant.r, coolant.g, coolant.b, coolant.opacity, coolant.seconds, false, false, false)
+        end
+    end
+
+    blockPetrolFireUntil = GetGameTimer() + Config.NoFireMs
+end
+
 local function deployLocal(vehicle)
     local model = joaat(Config.AirbagModel)
     if not loadModel(model) then
@@ -262,7 +313,10 @@ local function deployLocal(vehicle)
     if Config.TotalLoss then
         SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
         SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
-        SetVehiclePetrolTankHealth(vehicle, 650.0)
+        SetVehiclePetrolTankHealth(vehicle, 1000.0)
+        SetDisableVehiclePetrolTankFires(vehicle, true)
+        SetDisableVehiclePetrolTankDamage(vehicle, true)
+        StopEntityFire(vehicle)
         SetVehicleUndriveable(vehicle, true)
         SetVehicleEngineOn(vehicle, false, true, true)
         SetVehicleDoorOpen(vehicle, 4, false, true)
@@ -272,6 +326,7 @@ local function deployLocal(vehicle)
         body = Config.CrashBodyHealth
         engine = Config.CrashEngineHealth
         totaled[netId] = true
+        noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
     elseif body > Config.CrashBodyHealth then
         SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
         body = Config.CrashBodyHealth
@@ -282,14 +337,14 @@ local function deployLocal(vehicle)
     rememberFloor(netId, body, engine)
 
     pcall(function()
-        Entity(vehicle).state:set('snelleAirbags', true, true)
+        Entity(vehicle).state:set('eclipseAirbags', true, true)
     end)
 
     inflate(vehicle, entries)
     SetModelAsNoLongerNeeded(model)
 end
 
-RegisterNetEvent('snelle-airbags:deploy', function(netId)
+RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
     if type(netId) ~= 'number' then
         return
     end
@@ -318,6 +373,10 @@ RegisterNetEvent('snelle-airbags:deploy', function(netId)
         ShakeGameplayCam('SMALL_EXPLOSION_SHAKE', Config.CameraShake)
     end
 
+    quench(vehicle)
+    leaveFluids(vehicle)
+    noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
+
     if NetworkGetEntityOwner(vehicle) ~= PlayerId() then
         return
     end
@@ -325,7 +384,7 @@ RegisterNetEvent('snelle-airbags:deploy', function(netId)
     deployLocal(vehicle)
 end)
 
-RegisterNetEvent('snelle-airbags:denied', function()
+RegisterNetEvent('Eclipse-airbags:denied', function()
     pending = false
 end)
 
@@ -346,14 +405,14 @@ local function requestDeploy(vehicle)
 
     pending = true
     lockedUntil = now + 4000
-    TriggerServerEvent('snelle-airbags:request', netId)
+    TriggerServerEvent('Eclipse-airbags:request', netId)
 
     SetTimeout(3000, function()
         pending = false
     end)
 end
 
-RegisterNetEvent('snelle-airbags:accepted', function()
+RegisterNetEvent('Eclipse-airbags:accepted', function()
     pending = false
 end)
 
@@ -418,7 +477,7 @@ CreateThread(function()
     end
 end)
 
-RegisterNetEvent('snelle-airbags:repaired', function(netId)
+RegisterNetEvent('Eclipse-airbags:repaired', function(netId)
     awaitingRepair = false
     if type(netId) == 'number' then
         deleteBags(netId)
@@ -454,7 +513,7 @@ CreateThread(function()
                 local marked = deployedBags[netId] ~= nil
                 if not marked then
                     local ok, state = pcall(function()
-                        return Entity(vehicle).state.snelleAirbags
+                        return Entity(vehicle).state.eclipseAirbags
                     end)
                     marked = ok and state == true
                 end
@@ -466,7 +525,7 @@ CreateThread(function()
                     rememberFloor(netId, body, engine)
                     if looksRepaired(netId, body, engine) then
                         repairSent[netId] = GetGameTimer()
-                        TriggerServerEvent('snelle-airbags:checkRepair', netId)
+                        TriggerServerEvent('Eclipse-airbags:checkRepair', netId)
                     end
                 end
             end
@@ -480,7 +539,20 @@ end)
 
 CreateThread(function()
     while true do
+        if GetGameTimer() < blockPetrolFireUntil then
+            SetDisablePetrolDecalsIgnitingThisFrame()
+            Wait(0)
+        else
+            Wait(400)
+        end
+    end
+end)
+
+CreateThread(function()
+    while true do
         local waitMs = 1000
+        local now = GetGameTimer()
+
         for netId in pairs(totaled) do
             waitMs = 400
             local vehicle = NetworkGetEntityFromNetworkId(netId)
@@ -491,6 +563,19 @@ CreateThread(function()
                 end
             end
         end
+
+        for netId, untilAt in pairs(noFireUntil) do
+            if now > untilAt then
+                noFireUntil[netId] = nil
+            else
+                waitMs = 400
+                local vehicle = NetworkGetEntityFromNetworkId(netId)
+                if vehicle ~= 0 and DoesEntityExist(vehicle) then
+                    quench(vehicle)
+                end
+            end
+        end
+
         Wait(waitMs)
     end
 end)

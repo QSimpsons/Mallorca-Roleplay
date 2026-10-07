@@ -1,18 +1,18 @@
-# snelle-airbags
+# Eclipse-airbags
 
-FiveM-script: rijd je met een auto ergens tegenaan, dan blazen echte airbags op uit het stuur en het dashboard. Geen ballen en geen tekstmelding.
+FiveM-script: rijd je met een auto ergens tegenaan, dan blazen echte airbags op uit het stuur en het dashboard. Geen ballen en geen tekstmelding. De auto vat geen vuur.
 
-Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder groeit uit het stuur, die van de bijrijder uit het dashboard. Ze blijven in de auto zitten tot de auto hersteld is. Daarna verdwijnen ze, ook als je naast de auto staat. De auto is dan total loss: de motor is dood, de ruiten zijn kapot en je kunt niet wegrijden tot hij hersteld is. Andere spelers zien dezelfde airbags.
+Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder groeit uit het stuur, die van de bijrijder uit het dashboard. Op de grond blijven benzine, olie en groene koelvloeistof achter. De auto is total loss: de motor is dood, de ruiten zijn kapot en je kunt niet wegrijden tot hij hersteld is. Na een reparatie verdwijnen de airbags.
 
 Motoren, fietsen, boten, helikopters, vliegtuigen en treinen doen niet mee. Na een reparatie kunnen de airbags opnieuw.
 
 ## Installatie
 
-1. Zet de map `snelle-airbags` in je `resources`.
+1. Zet de map `Eclipse-airbags` in je `resources`.
 2. Zet in `server.cfg`:
 
 ```
-ensure snelle-airbags
+ensure Eclipse-airbags
 ```
 
 Geen ESX, ox_lib of andere resources nodig.

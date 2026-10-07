@@ -23,10 +23,21 @@ Config.RepairHealth = 950.0
 Config.RepairRise = 40.0
 
 -- Bij de klap is de auto total loss. Lager = kapotter (0-1000).
+-- De motor blijft boven de brandgrens, zodat de auto niet in brand vliegt.
 -- Een reparatie zet de waarden weer omhoog, en dan verdwijnen de airbags.
 Config.TotalLoss = true
 Config.CrashBodyHealth = 150.0
-Config.CrashEngineHealth = 80.0
+Config.CrashEngineHealth = 280.0
+
+-- Hoe lang (ms) vuur na de klap actief wordt gedoofd.
+Config.NoFireMs = 180000
+
+-- Plassen die op de grond achterblijven.
+Config.Fluids = {
+    petrol = { width = 1.9, transparency = 1.0 },
+    oil = { width = 1.45, transparency = 0.95 },
+    coolant = { width = 1.25, r = 0.12, g = 0.92, b = 0.18, opacity = 0.9, seconds = 300.0 }
+}
 
 -- Na de klap even wachten, zodat de schade zelf niet als reparatie telt.
 Config.RepairGraceMs = 2000

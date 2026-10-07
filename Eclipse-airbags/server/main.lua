@@ -20,7 +20,7 @@ local function vehicleOf(src, netId)
     return vehicle
 end
 
-RegisterNetEvent('snelle-airbags:request', function(netId)
+RegisterNetEvent('Eclipse-airbags:request', function(netId)
     local src = source
     if type(netId) ~= 'number' then
         return
@@ -28,7 +28,7 @@ RegisterNetEvent('snelle-airbags:request', function(netId)
 
     local now = os.time()
     if lastRequest[src] and now - lastRequest[src] < 2 then
-        TriggerClientEvent('snelle-airbags:denied', src)
+        TriggerClientEvent('Eclipse-airbags:denied', src)
         return
     end
     lastRequest[src] = now
@@ -37,19 +37,19 @@ RegisterNetEvent('snelle-airbags:request', function(netId)
     local driver = GetPlayerPed(src)
     local okSeat, seatPed = pcall(GetPedInVehicleSeat, vehicle, -1)
     if vehicle == 0 or not okSeat or seatPed ~= driver then
-        TriggerClientEvent('snelle-airbags:denied', src)
+        TriggerClientEvent('Eclipse-airbags:denied', src)
         return
     end
 
     local okClass, class = pcall(GetVehicleClass, vehicle)
     if okClass and Config.BlockedClasses[class] then
-        TriggerClientEvent('snelle-airbags:denied', src)
+        TriggerClientEvent('Eclipse-airbags:denied', src)
         return
     end
 
     local state = deployed[netId]
     if state and now - state < Config.MinRedeploySeconds then
-        TriggerClientEvent('snelle-airbags:denied', src)
+        TriggerClientEvent('Eclipse-airbags:denied', src)
         return
     end
 
@@ -58,15 +58,15 @@ RegisterNetEvent('snelle-airbags:request', function(netId)
     local deployedVehicle = NetworkGetEntityFromNetworkId(netId)
     if deployedVehicle ~= 0 and DoesEntityExist(deployedVehicle) then
         pcall(function()
-            Entity(deployedVehicle).state:set('snelleAirbags', true, true)
+            Entity(deployedVehicle).state:set('eclipseAirbags', true, true)
         end)
     end
 
-    TriggerClientEvent('snelle-airbags:accepted', src)
-    TriggerClientEvent('snelle-airbags:deploy', -1, netId)
+    TriggerClientEvent('Eclipse-airbags:accepted', src)
+    TriggerClientEvent('Eclipse-airbags:deploy', -1, netId)
 end)
 
-RegisterNetEvent('snelle-airbags:checkRepair', function(netId)
+RegisterNetEvent('Eclipse-airbags:checkRepair', function(netId)
     local src = source
     if type(netId) ~= 'number' or not deployed[netId] then
         return
@@ -87,9 +87,9 @@ RegisterNetEvent('snelle-airbags:checkRepair', function(netId)
 
     deployed[netId] = nil
     pcall(function()
-        Entity(vehicle).state:set('snelleAirbags', false, true)
+        Entity(vehicle).state:set('eclipseAirbags', false, true)
     end)
-    TriggerClientEvent('snelle-airbags:repaired', -1, netId)
+    TriggerClientEvent('Eclipse-airbags:repaired', -1, netId)
 end)
 
 AddEventHandler('playerDropped', function()
