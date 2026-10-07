@@ -7,6 +7,17 @@ const Config = {
     discordLabel: "discord.gg/eclipserp",
     discordUrl: "https://discord.gg/eclipserp",
 
+    // YouTube-clip als achtergrond. Het geluid komt uit die video.
+    // Eclipse Roleplay verschijnt pas als het laden klaar is.
+    // Lukt de video niet, dan valt het scherm terug op assets/background.mp4.
+    // Zet enabled op false om meteen die eigen mp4 te gebruiken.
+    clip: {
+        enabled: true,
+        // Deze video zet insluiten uit. Het scherm gebruikt dan assets/background.mp4.
+        url: "https://www.youtube.com/watch?v=Hr4NFyCIsMk",
+        title: "MonsterMash",
+    },
+
     music: {
         enabled: true,
         file: "assets/theme.ogg",

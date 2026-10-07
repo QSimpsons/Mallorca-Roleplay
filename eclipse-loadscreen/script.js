@@ -22,6 +22,10 @@ const volumeInput = document.getElementById("volume");
 const hint = document.getElementById("hint");
 const theme = document.getElementById("theme");
 const video = document.getElementById("bg");
+const clipFrame = document.getElementById("clip-frame");
+const finale = document.getElementById("finale");
+const finaleTitle = document.getElementById("finale-title");
+const finaleSub = document.getElementById("finale-sub");
 
 const handover = window.nuiHandoverData || {};
 let targetProgress = 0;
@@ -29,6 +33,10 @@ let shownProgress = 0;
 let sawLoadProgress = false;
 let tipIndex = 0;
 let musicPaused = false;
+let finaleShown = false;
+let wantClipSound = true;
+let clipShowTimer = 0;
+let clipGiveUpTimer = 0;
 
 function clamp01(value) {
     return Math.max(0, Math.min(1, value));
@@ -48,6 +56,7 @@ function paintProgress(fraction) {
     loadBar.style.width = pct + "%";
     loadPct.textContent = pct + "%";
     loadStatus.textContent = statusFor(fraction);
+    if (fraction >= 0.995) revealFinale();
 }
 
 function setProgress(fraction) {
@@ -165,7 +174,53 @@ function renderMusicUi(paused) {
     musicToggle.setAttribute("aria-label", paused ? "Geluid afspelen" : "Geluid pauzeren");
 }
 
+function clipVideoId() {
+    const clip = Config.clip;
+    if (!clip || clip.enabled === false || !clip.url) return "";
+    const value = String(clip.url).trim();
+    const match = value.match(/(?:youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|[?&]v=)([\w-]{11})/) || value.match(/^([\w-]{11})$/);
+    return match ? match[1] : "";
+}
+
+function clipVolume() {
+    return Math.round(clamp01(Number(volumeInput.value) / 100) * 100);
+}
+
+function sendClipCommand(func, args) {
+    const iframe = clipFrame.querySelector("iframe");
+    if (!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(JSON.stringify({
+        event: "command",
+        func: func,
+        args: args || [],
+    }), "*");
+}
+
+function applyClipSound(audible) {
+    if (!clipFrame.querySelector("iframe")) return;
+    if (audible) {
+        sendClipCommand("unMute");
+        sendClipCommand("playVideo");
+        sendClipCommand("setVolume", [clipVolume()]);
+        renderMusicUi(false);
+        return;
+    }
+    sendClipCommand("mute");
+    renderMusicUi(true);
+}
+
+function clipIsPending() {
+    return Boolean(clipVideoId()) && clipFrame.dataset.state !== "error" && clipFrame.dataset.state !== "ready";
+}
+
 function setMusicPaused(paused) {
+    if (clipFrame.dataset.state === "ready" || clipIsPending()) {
+        wantClipSound = !paused;
+        applyClipSound(!paused);
+        renderMusicUi(paused);
+        if (clipFrame.dataset.state !== "ready") theme.pause();
+        return;
+    }
     if (paused) {
         theme.pause();
         renderMusicUi(true);
@@ -174,6 +229,140 @@ function setMusicPaused(paused) {
     theme.play().then(() => renderMusicUi(false)).catch(() => renderMusicUi(true));
 }
 
+function revealFinale() {
+    if (finaleShown) return;
+    const state = clipFrame.dataset.state || "";
+    if (clipVideoId() && state !== "ready" && state !== "error") return;
+    finaleShown = true;
+    document.body.classList.add("is-finale");
+    if (state !== "ready") return;
+    const name = (Config.serverName || "Eclipse Roleplay").trim();
+    const splitAt = name.indexOf(" ");
+    finaleTitle.textContent = splitAt === -1 ? name : name.slice(0, splitAt);
+    finaleSub.textContent = splitAt === -1 ? "" : name.slice(splitAt + 1);
+    finaleSub.hidden = splitAt === -1;
+    finale.classList.add("is-visible");
+    finale.setAttribute("aria-hidden", "false");
+}
+
+function listenToClip() {
+    const iframe = clipFrame.querySelector("iframe");
+    if (!iframe || !iframe.contentWindow) return;
+    iframe.contentWindow.postMessage(JSON.stringify({
+        event: "listening",
+        id: iframe.id,
+        channel: "widget",
+    }), "*");
+}
+
+function setupClip(videoId) {
+    const iframe = document.createElement("iframe");
+    const params = new URLSearchParams({
+        autoplay: "1",
+        mute: "1",
+        controls: "0",
+        disablekb: "1",
+        fs: "0",
+        modestbranding: "1",
+        rel: "0",
+        playsinline: "1",
+        loop: "1",
+        playlist: videoId,
+        iv_load_policy: "3",
+        enablejsapi: "1",
+    });
+    if (location.protocol === "http:" || location.protocol === "https:") {
+        params.set("origin", location.origin);
+    }
+    iframe.id = "eclipse-clip";
+    iframe.title = "Eclipse Roleplay clip";
+    iframe.allow = "autoplay; encrypted-media; picture-in-picture";
+    iframe.src = "https://www.youtube.com/embed/" + videoId + "?" + params.toString();
+    iframe.addEventListener("load", () => {
+        listenToClip();
+        window.setTimeout(listenToClip, 400);
+    });
+    document.getElementById("clip").replaceWith(iframe);
+    window.clearTimeout(clipGiveUpTimer);
+    clipGiveUpTimer = window.setTimeout(() => {
+        if (clipFrame.dataset.state !== "ready") fallbackClip();
+    }, 12000);
+}
+
+function showClip() {
+    if (clipFrame.dataset.state === "error" || clipFrame.dataset.state === "ready") return;
+    window.clearTimeout(clipShowTimer);
+    window.clearTimeout(clipGiveUpTimer);
+    clipFrame.dataset.state = "ready";
+    clipFrame.classList.add("is-ready");
+    video.pause();
+    video.hidden = true;
+    applyClipSound(wantClipSound);
+    if (shownProgress >= 0.995 || targetProgress >= 0.995) revealFinale();
+}
+
+function startLocalMusic() {
+    if (!Config.music || Config.music.enabled === false) return;
+    if (!theme.getAttribute("src")) theme.src = Config.music.file;
+    theme.volume = clamp01(Number(volumeInput.value) / 100);
+    musicTitle.textContent = Config.music.title || "Eclipse Theme";
+    if (!wantClipSound) {
+        theme.pause();
+        renderMusicUi(true);
+        return;
+    }
+    theme.play().then(() => renderMusicUi(false)).catch(() => renderMusicUi(true));
+}
+
+function fallbackClip() {
+    if (clipFrame.dataset.state === "error") return;
+    window.clearTimeout(clipShowTimer);
+    window.clearTimeout(clipGiveUpTimer);
+    const titleWasUp = finale.classList.contains("is-visible");
+    clipFrame.dataset.state = "error";
+    clipFrame.classList.remove("is-ready");
+    const iframe = clipFrame.querySelector("iframe");
+    if (iframe) iframe.remove();
+    video.hidden = false;
+    video.play().catch(() => {});
+    startLocalMusic();
+    if (titleWasUp) {
+        finale.classList.remove("is-visible");
+        finale.setAttribute("aria-hidden", "true");
+    }
+    if (shownProgress >= 0.995 || targetProgress >= 0.995) revealFinale();
+}
+
+function scheduleShowClip() {
+    if (clipFrame.dataset.state === "error" || clipFrame.dataset.state === "ready") return;
+    window.clearTimeout(clipShowTimer);
+    clipShowTimer = window.setTimeout(() => {
+        if (clipFrame.dataset.state === "error") return;
+        showClip();
+    }, 1000);
+}
+
+window.addEventListener("message", (event) => {
+    if (!clipVideoId() || !event.origin || event.origin.indexOf("youtube.com") === -1) return;
+    let payload = event.data;
+    if (typeof payload === "string") {
+        try {
+            payload = JSON.parse(payload);
+        } catch (error) {
+            return;
+        }
+    }
+    if (!payload || typeof payload !== "object") return;
+    if (payload.event === "onError") {
+        fallbackClip();
+        return;
+    }
+    if (payload.event === "onReady") {
+        window.clearTimeout(clipGiveUpTimer);
+        scheduleShowClip();
+    }
+});
+
 function setupMusic() {
     if (!Config.music || !Config.music.enabled) {
         musicPanel.hidden = true;
@@ -181,23 +370,38 @@ function setupMusic() {
     }
 
     const initial = clamp01(Number(Config.music.volume) || 0);
+    volumeInput.value = String(Math.round(initial * 100));
     theme.src = Config.music.file;
     theme.volume = initial;
-    volumeInput.value = String(Math.round(initial * 100));
-    musicTitle.textContent = Config.music.title || "Eclipse Theme";
+    if (clipVideoId()) {
+        musicTitle.textContent = (Config.clip && Config.clip.title) || "MonsterMash";
+    } else {
+        musicTitle.textContent = Config.music.title || "Eclipse Theme";
+        theme.play().then(() => renderMusicUi(false)).catch(() => renderMusicUi(true));
+    }
 
-    const tryPlay = () => {
+    window.addEventListener("pointerdown", (event) => {
+        if (event.target && event.target.closest && event.target.closest("#music")) return;
+        if (clipFrame.dataset.state === "ready" || clipIsPending()) {
+            if (wantClipSound) applyClipSound(true);
+            return;
+        }
         if (!musicPaused) {
             theme.play().then(() => renderMusicUi(false)).catch(() => renderMusicUi(true));
         }
-    };
-    tryPlay();
-    window.addEventListener("pointerdown", tryPlay, { once: true });
+    }, { once: true });
 
-    musicToggle.addEventListener("click", () => setMusicPaused(!theme.paused));
+    musicToggle.addEventListener("click", () => setMusicPaused(!musicPaused));
     volumeInput.addEventListener("input", () => {
-        theme.volume = clamp01(Number(volumeInput.value) / 100);
-        if (theme.volume === 0) {
+        const level = clamp01(Number(volumeInput.value) / 100);
+        theme.volume = level;
+        if (clipFrame.dataset.state === "ready" || clipIsPending()) {
+            sendClipCommand("setVolume", [Math.round(level * 100)]);
+            if (level === 0) setMusicPaused(true);
+            else if (musicPaused) setMusicPaused(false);
+            return;
+        }
+        if (level === 0) {
             setMusicPaused(true);
         } else if (musicPaused) {
             setMusicPaused(false);
@@ -208,7 +412,7 @@ function setupMusic() {
         if (event.code !== "Space" && event.code !== "KeyM") return;
         if (event.target && event.target.tagName === "INPUT") return;
         event.preventDefault();
-        setMusicPaused(!theme.paused);
+        setMusicPaused(!musicPaused);
     });
 }
 
@@ -241,7 +445,8 @@ function onGameMessage(data) {
 
     if (data.eventName === "eclipseShutdown") {
         targetProgress = 1;
-        document.body.classList.add("is-leaving");
+        revealFinale();
+        window.setTimeout(() => document.body.classList.add("is-leaving"), 1700);
         return;
     }
 
@@ -301,6 +506,9 @@ setupMusic();
 startTips();
 animateProgress();
 video.play().catch(() => {});
+
+const activeClip = clipVideoId();
+if (activeClip) setupClip(activeClip);
 
 const preview = new URLSearchParams(location.search).has("preview") || location.protocol === "file:";
 if (preview) startPreview();

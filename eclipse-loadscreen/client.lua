@@ -7,6 +7,6 @@ CreateThread(function()
         eventName = 'eclipseShutdown'
     }))
 
-    Wait(750)
+    Wait(2600)
     ShutdownLoadingScreenNui()
 end)

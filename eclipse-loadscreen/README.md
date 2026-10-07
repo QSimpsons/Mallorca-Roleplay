@@ -32,11 +32,17 @@ staff: {
 
 De naam op het scherm komt uit `deferrals.handover` tijdens het verbinden. Staat er geen naam, dan blijft die regel weg.
 
+## Clip
+
+`clip.url` in `config.js` is de YouTube-video die als achtergrond speelt. Het geluid komt uit die video. Tijdens het laden blijven de regels, het staffteam en de laadstreep zichtbaar. Pas als het laden klaar is, faden die weg en komt **Eclipse Roleplay** in beeld.
+
+De video blijft op YouTube staan. Lukt afspelen niet, bijvoorbeeld omdat de eigenaar insluiten heeft uitgezet, dan speelt `assets/background.mp4` en het thema-geluid. Zet `clip.enabled` op `false` om meteen die eigen mp4 te gebruiken. De speler heeft internet nodig zolang de YouTube-clip aan staat.
+
 ## Geluid
 
-`Spatie` of `M` zet de muziek aan of uit. Het volume staat rechtsonder.
+`Spatie` of `M` zet het geluid aan of uit. Het volume staat rechtsonder.
 
-`assets/theme.ogg` is een originele ambient-loop. Vervang dat bestand door een eigen nummer en pas `music.title` in `config.js` aan. Gebruik een track waar je zelf de rechten van hebt.
+Staat de YouTube-clip uit, dan speelt `assets/theme.ogg`. Vervang dat bestand door een eigen nummer en pas `music.title` in `config.js` aan. Gebruik een track waar je zelf de rechten van hebt.
 
 ## Video
 
