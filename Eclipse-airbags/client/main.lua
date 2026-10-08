@@ -140,6 +140,7 @@ local function deleteBags(netId)
 
     if vehicle ~= 0 and DoesEntityExist(vehicle) then
         SetVehicleUndriveable(vehicle, false)
+        SetVehicleHandbrake(vehicle, false)
         SetEntityMaxSpeed(vehicle, 0.0)
     end
 end
@@ -252,6 +253,8 @@ local function writeOff(vehicle)
     SetVehicleUndriveable(vehicle, true)
     SetVehicleEngineOn(vehicle, false, true, true)
     SetEntityMaxSpeed(vehicle, 0.1)
+    SetVehicleForwardSpeed(vehicle, 0.0)
+    SetVehicleHandbrake(vehicle, true)
     SetVehicleDoorOpen(vehicle, 4, false, true)
 
     for window = 0, 7 do
@@ -440,6 +443,12 @@ local function requestDeploy(vehicle)
 
     pending = true
     lockedUntil = now + 4000
+    writeOff(vehicle)
+    quench(vehicle)
+    wrecked[netId] = true
+    totaled[netId] = true
+    noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
+    rememberFloor(netId, GetVehicleBodyHealth(vehicle), GetVehicleEngineHealth(vehicle))
     TriggerServerEvent('Eclipse-airbags:request', netId)
 
     SetTimeout(3000, function()
@@ -593,6 +602,7 @@ CreateThread(function()
             local vehicle = NetworkGetEntityFromNetworkId(netId)
             if vehicle ~= 0 and DoesEntityExist(vehicle) then
                 SetVehicleUndriveable(vehicle, true)
+                SetVehicleHandbrake(vehicle, true)
                 SetEntityMaxSpeed(vehicle, 0.1)
                 SetVehicleEngineOn(vehicle, false, true, true)
             end
