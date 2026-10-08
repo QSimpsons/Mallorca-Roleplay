@@ -1,0 +1,90 @@
+Config = {}
+
+-- Snelheid in km/u vlak voor de klap. Daaronder gebeurt er niets.
+Config.MinSpeed = 50.0
+
+-- Hoeveel km/u het voertuig in één meting moet verliezen.
+-- Een noodstop haalt dit niet; een botsing wel.
+Config.SpeedDrop = 26.0
+
+-- Venster in milliseconden waarin de snelheidsdaling wordt gemeten.
+-- Een noodstop haalt de drempel in dit korte venster niet.
+Config.SampleMs = 200
+
+-- Seconden voordat dezelfde auto opnieuw airbags kan krijgen,
+-- en alleen nadat de auto weer is gerepareerd.
+Config.MinRedeploySeconds = 25
+
+-- Carrosserie en motor moeten minstens zo hoog zijn (0-1000)
+-- voordat de airbags opnieuw mogen.
+Config.RepairHealth = 950.0
+
+-- Hoeveel de carrosserie of motor moet stijgen om als reparatie te tellen.
+Config.RepairRise = 40.0
+
+-- Bij de klap is de auto total loss.
+-- Motor onder 300: het gele motorlampje op de teller wordt rood.
+-- 100 blijft boven 0, zodat de auto niet in brand vliegt.
+Config.TotalLoss = true
+Config.CrashBodyHealth = 100.0
+Config.CrashEngineHealth = 100.0
+
+-- Hoe lang (ms) vuur na de klap actief wordt gedoofd.
+Config.NoFireMs = 180000
+
+-- Plassen die op de grond achterblijven.
+Config.Fluids = {
+    petrol = { width = 2.4, transparency = 1.0 },
+    oil = { width = 1.8, transparency = 1.0 },
+    coolant = { width = 1.7, r = 0.1, g = 0.95, b = 0.15, opacity = 1.0, seconds = 300.0 }
+}
+
+-- Na de klap even wachten, zodat de schade zelf niet als reparatie telt.
+Config.RepairGraceMs = 2000
+
+-- Echt airbag-model (geen bal). Zie third_party/NOTICE.txt.
+Config.AirbagModel = 'prop_carairbag'
+
+-- Hoe klein de airbag start en hoe lang het opblazen duurt.
+Config.StartScale = 0.18
+Config.InflateMs = 320
+
+-- Bestuurder: uit het stuur. Bijrijder: uit het dashboard.
+-- Offsets staan op de stoel-bone, y = naar de motorkap, z = omhoog.
+-- Dit zijn de posities waarop het airbag-model in de cabine zichtbaar blijft.
+Config.Driver = {
+    bone = 'seat_dside_f',
+    from = { x = 0.0, y = 0.30, z = 0.40 },
+    to = { x = 0.0, y = 0.30, z = 0.40 },
+    rot = { x = 0.0, y = 0.0, z = 90.0 }
+}
+
+Config.Passenger = {
+    bone = 'seat_pside_f',
+    from = { x = 0.0, y = 0.40, z = 0.40 },
+    to = { x = 0.0, y = 0.40, z = 0.40 },
+    rot = { x = 0.0, y = 0.0, z = 90.0 }
+}
+
+-- Ruiten eruit en camera schudt. De motor blijft dood zolang Config.TotalLoss aan staat.
+Config.PopWindscreen = true
+Config.CameraShake = 0.72
+
+-- Alleen de bestuurder laat het effect afgaan.
+-- Andere spelers in de buurt zien dezelfde airbags.
+Config.SyncDistance = 120.0
+
+-- Boten, helikopters, vliegtuigen, treinen, motoren en fietsen.
+Config.BlockedClasses = {
+    [8] = true,
+    [13] = true,
+    [14] = true,
+    [15] = true,
+    [16] = true,
+    [21] = true
+}
+
+-- Modelnamen die nooit airbags krijgen.
+Config.BlacklistedModels = {
+    -- 'rhino',
+}

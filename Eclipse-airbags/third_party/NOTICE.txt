@@ -1,0 +1,6 @@
+Het airbag-model in stream/ (prop_carairbag.ydr, prop_carairbag.ytd en prop_carairbag.ytyp) komt uit obAirbags van Owen-M (OMSolutions) en BKing (Mirror Park Studios).
+
+Bron: https://github.com/Owen-M/obAirbags
+Licentie: GNU General Public License v3.0. De volledige tekst staat in GPL-3.0.txt.
+
+De rest van deze resource is eigen script. Het model is niet aangepast.
