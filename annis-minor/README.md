@@ -23,7 +23,7 @@ In OpenIV:
 
 OpenIV toont dan het model. `handling.meta`, `vehicles.meta` en `carvariations.meta` zitten in hetzelfde archief.
 
-Het model is een eigen rode compacte coupé: korte motorkap, ronde neus, ovale lampen in het front, wielkasten en een rond Annis-logo tussen de koplampen, op de achterklep en in de wieldoppen. De V6 heeft dezelfde carrosserie met een kleine spoiler. Het blijft een eenvoudig model, zonder losse deuren, draaiende wielen of interieur. Een eigen model vervangt later de bestanden in `stream/`, met dezelfde namen: `aminor.yft`, `aminor.ytd`, `aminorv6.yft` en `aminorv6.ytd`. Op een Linux-server is dat hoofdlettergevoelig.
+Het model is een eigen rode lage coupé: korte motorkap, schuine voorruit, vier ronde lampen, een gaasgrille, twee gaasopeningen in de bumper, een sideskirt, diepe velgen en een grote zwarte achtervleugel. Tussen de lampen, op de achterklep en in de wieldoppen staat een rond Annis-logo. Op het kenteken staat ANNIS. De V6 heeft dezelfde carrosserie met een iets grotere vleugel. Het blijft een eenvoudig model, zonder losse deuren, draaiende wielen of interieur. Een eigen model vervangt later de bestanden in `stream/`, met dezelfde namen: `aminor.yft`, `aminor.ytd`, `aminorv6.yft` en `aminorv6.ytd`. Op een Linux-server is dat hoofdlettergevoelig.
 
 Wielgrootte staat op `0.262` (viercilinder) en `0.270` (V6), in de buurt van een Blista. Zijn de wielen in jouw model te groot of te klein, pas dan `wheelScale` en `wheelScaleRear` aan in `data/vehicles.meta`.
 
