@@ -2,7 +2,7 @@
 
 FiveM-script: rijd je met een auto ergens tegenaan, dan blazen echte airbags op uit het stuur en het dashboard. Geen ballen en geen tekstmelding. De auto vat geen vuur.
 
-Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder groeit uit het stuur, die van de bijrijder uit het dashboard. Op de grond blijven benzine, olie en groene koelvloeistof achter. De auto is total loss: de motor is dood, de ruiten zijn kapot en je kunt niet wegrijden tot hij hersteld is. Na een reparatie verdwijnen de airbags.
+Het effect gaat af als bestuurder wanneer de snelheid hoog genoeg is en in één klap hard daalt. De airbag van de bestuurder groeit uit het stuur, die van de bijrijder uit het dashboard. Op de grond blijven benzine, olie en groene koelvloeistof achter. De auto is total loss zodra de airbags uitspringen: de voorkant is ingedeukt, de banden zijn lek, de motor is dood en je kunt niet wegrijden tot hij hersteld is. Hij vat geen vuur. Na een reparatie verdwijnen de airbags.
 
 Motoren, fietsen, boten, helikopters, vliegtuigen en treinen doen niet mee. Na een reparatie kunnen de airbags opnieuw.
 

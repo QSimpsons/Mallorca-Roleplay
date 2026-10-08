@@ -5,6 +5,7 @@ local deployedBags = {}
 local healthFloor = {}
 local repairSent = {}
 local totaled = {}
+local wrecked = {}
 local noFireUntil = {}
 local blockPetrolFireUntil = 0
 
@@ -135,9 +136,11 @@ local function deleteBags(netId)
     healthFloor[netId] = nil
     repairSent[netId] = nil
     totaled[netId] = nil
+    wrecked[netId] = nil
 
     if vehicle ~= 0 and DoesEntityExist(vehicle) then
         SetVehicleUndriveable(vehicle, false)
+        SetEntityMaxSpeed(vehicle, 0.0)
     end
 end
 
@@ -228,6 +231,42 @@ local function spawnAirbag(vehicle, spec, model)
     return { bag = bag, bone = bone, spec = spec }
 end
 
+local function writeOff(vehicle)
+    if not Config.TotalLoss or vehicle == 0 or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    local body = GetVehicleBodyHealth(vehicle)
+    local engine = GetVehicleEngineHealth(vehicle)
+    if body > Config.CrashBodyHealth then
+        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
+    end
+    if engine > Config.CrashEngineHealth then
+        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+    end
+
+    SetVehiclePetrolTankHealth(vehicle, 1000.0)
+    SetDisableVehiclePetrolTankFires(vehicle, true)
+    SetDisableVehiclePetrolTankDamage(vehicle, true)
+    StopEntityFire(vehicle)
+    SetVehicleUndriveable(vehicle, true)
+    SetVehicleEngineOn(vehicle, false, true, true)
+    SetEntityMaxSpeed(vehicle, 0.1)
+    SetVehicleDoorOpen(vehicle, 4, false, true)
+
+    for window = 0, 7 do
+        SmashVehicleWindow(vehicle, window)
+    end
+
+    for _, wheel in ipairs({ 0, 1, 4, 5 }) do
+        SetVehicleTyreBurst(vehicle, wheel, true, 1000.0)
+    end
+
+    SetVehicleDamage(vehicle, 0.0, 1.6, 0.25, 700.0, 180.0, true)
+    SetVehicleDamage(vehicle, 0.45, 1.1, 0.2, 450.0, 120.0, true)
+    SetVehicleDamage(vehicle, -0.45, 1.1, 0.2, 450.0, 120.0, true)
+end
+
 local function quench(vehicle)
     SetDisableVehiclePetrolTankFires(vehicle, true)
     SetDisableVehiclePetrolTankDamage(vehicle, true)
@@ -308,33 +347,11 @@ local function deployLocal(vehicle)
         deployedBags[netId][i] = entries[i].bag
     end
 
-    local body = GetVehicleBodyHealth(vehicle)
-    local engine = GetVehicleEngineHealth(vehicle)
-    if Config.TotalLoss then
-        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
-        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
-        SetVehiclePetrolTankHealth(vehicle, 1000.0)
-        SetDisableVehiclePetrolTankFires(vehicle, true)
-        SetDisableVehiclePetrolTankDamage(vehicle, true)
-        StopEntityFire(vehicle)
-        SetVehicleUndriveable(vehicle, true)
-        SetVehicleEngineOn(vehicle, false, true, true)
-        SetVehicleDoorOpen(vehicle, 4, false, true)
-        for window = 0, 7 do
-            SmashVehicleWindow(vehicle, window)
-        end
-        body = Config.CrashBodyHealth
-        engine = Config.CrashEngineHealth
-        totaled[netId] = true
-        noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
-    elseif body > Config.CrashBodyHealth then
-        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
-        body = Config.CrashBodyHealth
-    elseif engine > Config.CrashEngineHealth then
-        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
-        engine = Config.CrashEngineHealth
-    end
-    rememberFloor(netId, body, engine)
+    writeOff(vehicle)
+    wrecked[netId] = true
+    totaled[netId] = true
+    noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
+    rememberFloor(netId, GetVehicleBodyHealth(vehicle), GetVehicleEngineHealth(vehicle))
 
     pcall(function()
         Entity(vehicle).state:set('eclipseAirbags', true, true)
@@ -375,7 +392,16 @@ RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
 
     quench(vehicle)
     leaveFluids(vehicle)
+    totaled[netId] = true
     noFireUntil[netId] = GetGameTimer() + Config.NoFireMs
+    SetVehicleUndriveable(vehicle, true)
+    SetVehicleEngineOn(vehicle, false, true, true)
+    SetEntityMaxSpeed(vehicle, 0.1)
+
+    if not wrecked[netId] and (NetworkGetEntityOwner(vehicle) == PlayerId() or GetPedInVehicleSeat(vehicle, -1) == ped) then
+        writeOff(vehicle)
+        wrecked[netId] = true
+    end
 
     if NetworkGetEntityOwner(vehicle) ~= PlayerId() then
         return
@@ -558,9 +584,8 @@ CreateThread(function()
             local vehicle = NetworkGetEntityFromNetworkId(netId)
             if vehicle ~= 0 and DoesEntityExist(vehicle) then
                 SetVehicleUndriveable(vehicle, true)
-                if GetIsVehicleEngineRunning(vehicle) then
-                    SetVehicleEngineOn(vehicle, false, true, true)
-                end
+                SetEntityMaxSpeed(vehicle, 0.1)
+                SetVehicleEngineOn(vehicle, false, true, true)
             end
         end
 
