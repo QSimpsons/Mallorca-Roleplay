@@ -11,25 +11,19 @@ In het spel is dit een **Annis**, hetzelfde merk als de Savestra en de ZR350. Sp
 
 De viercilinder is de dagelijkse auto: licht, kort en iets vlotter dan een Blista. De V6 zit zwaarder op de neus, draait sneller op en loopt verder door. Die blijft onder een Kanjo van de streep en onder een Sugoi, en wint het duidelijk van de viercilinder.
 
-## 3D-model
+## Download en OpenIV
 
-Deze resource heeft de handling, de namen, de kleuren en de dealer-gegevens. Het koetswerk zelf zit er niet bij: een `.yft` is een GTA-model en hoort bij je eigen model, niet in deze meta.
+Alles zit in één zip: [`Annis-Minor.zip`](./Annis-Minor.zip). Pak die uit. Daarin staat de FiveM-map én het bestand voor OpenIV.
 
-Zet de bestanden in `annis-minor/stream/`. De naam moet exact overeenkomen met de spawnnaam. Op een Linux-server is dat hoofdlettergevoelig.
+In OpenIV:
 
-```text
-stream/aminor.yft
-stream/aminor.ytd
-stream/aminor_hi.yft          optioneel, hoge details van dichtbij
+1. Bestand openen.
+2. Kies `openiv/Annis-Minor.rpf`.
+3. Dubbelklik `aminor.yft` of `aminorv6.yft`.
 
-stream/aminorv6.yft
-stream/aminorv6.ytd
-stream/aminorv6_hi.yft        optioneel
-```
+OpenIV toont dan het model. `handling.meta`, `vehicles.meta` en `carvariations.meta` zitten in hetzelfde archief.
 
-De V6 mag hetzelfde model zijn. Kopieer dan de bestanden van `aminor` en hernoem ze naar `aminorv6`. Textures mogen ook gedeeld worden: zet in `data/vehicles.meta` bij de V6 `<txdName>aminor</txdName>`.
-
-Het model zelf moet lore-friendly zijn: geen echte logo's, geen merkbadge, geen modeltype op de achterklep. Ontbreken de bestanden, dan print de client na het inladen welke spawnnaam geen model heeft. De resource start wel, maar `/car aminor` kan dan geen auto tonen.
+Het model in die bestanden is een eigen low-poly coupé, zodat je de vorm, de textures en de meta kunt bekijken. Er zitten geen losse deuren, geen draaiende wielen en geen interieur in. Op de server kun je de bestanden in `stream/` later vervangen door je eigen model. De bestandsnaam moet exact gelijk blijven: `aminor.yft`, `aminor.ytd`, `aminorv6.yft` en `aminorv6.ytd`. Op een Linux-server is dat hoofdlettergevoelig.
 
 Wielgrootte staat op `0.262` (viercilinder) en `0.270` (V6), in de buurt van een Blista. Zijn de wielen in jouw model te groot of te klein, pas dan `wheelScale` en `wheelScaleRear` aan in `data/vehicles.meta`.
 
@@ -44,7 +38,7 @@ ensure annis-minor
 
 3. Herstart de server.
 
-Spawn, als het model in `stream/` staat:
+Spawn:
 
 ```text
 /car aminor
