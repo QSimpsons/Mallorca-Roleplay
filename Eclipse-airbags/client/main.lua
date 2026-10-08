@@ -262,9 +262,17 @@ local function writeOff(vehicle)
         SetVehicleTyreBurst(vehicle, wheel, true, 1000.0)
     end
 
-    SetVehicleDamage(vehicle, 0.0, 1.6, 0.25, 700.0, 180.0, true)
-    SetVehicleDamage(vehicle, 0.45, 1.1, 0.2, 450.0, 120.0, true)
-    SetVehicleDamage(vehicle, -0.45, 1.1, 0.2, 450.0, 120.0, true)
+    SetVehicleExplodesOnHighExplosionDamage(vehicle, false)
+    SetVehicleDamage(vehicle, 0.0, 1.4, 0.2, 180.0, 40.0, true)
+    SetVehicleDamage(vehicle, 0.4, 1.0, 0.15, 120.0, 30.0, true)
+    SetVehicleDamage(vehicle, -0.4, 1.0, 0.15, 120.0, 30.0, true)
+
+    if GetVehicleEngineHealth(vehicle) < Config.CrashEngineHealth then
+        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+    end
+    StopEntityFire(vehicle)
+    local coords = GetEntityCoords(vehicle)
+    StopFireInRange(coords.x, coords.y, coords.z, 8.0)
 end
 
 local function quench(vehicle)
@@ -301,11 +309,12 @@ local function leaveFluids(vehicle)
         local x, y, z = spillAt(vehicle, pool.x, pool.y)
 
         if pool.kind == 'petrol' then
-            AddPetrolDecal(x, y, z, 1.5, fluids.petrol.width, fluids.petrol.transparency)
+            AddPetrolDecal(x, y, z, 2.0, fluids.petrol.width, fluids.petrol.transparency)
+            AddDecal(9003, x, y, z, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, fluids.petrol.width, fluids.petrol.width, 0.15, 0.12, 0.05, 0.9, fluids.coolant.seconds, false, false, false)
         elseif pool.kind == 'oil' then
-            local placed = pcall(AddOilDecal, x, y, z, 1.2, fluids.oil.width, fluids.oil.transparency)
+            local placed = pcall(AddOilDecal, x, y, z, 1.5, fluids.oil.width, fluids.oil.transparency)
             if not placed then
-                AddDecal(9002, x, y, z, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, fluids.oil.width, fluids.oil.width, 0.05, 0.05, 0.04, 0.95, fluids.coolant.seconds, false, false, false)
+                AddDecal(9002, x, y, z, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, fluids.oil.width, fluids.oil.width, 0.02, 0.02, 0.02, 1.0, fluids.coolant.seconds, false, false, false)
             end
         else
             local coolant = fluids.coolant
@@ -593,10 +602,16 @@ CreateThread(function()
             if now > untilAt then
                 noFireUntil[netId] = nil
             else
-                waitMs = 400
+                waitMs = 0
                 local vehicle = NetworkGetEntityFromNetworkId(netId)
                 if vehicle ~= 0 and DoesEntityExist(vehicle) then
                     quench(vehicle)
+                    if GetVehicleEngineHealth(vehicle) < Config.CrashEngineHealth then
+                        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+                        if healthFloor[netId] then
+                            healthFloor[netId].engine = Config.CrashEngineHealth
+                        end
+                    end
                 end
             end
         end
