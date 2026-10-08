@@ -1,0 +1,25 @@
+Mallorca Takel v2 — installatie
+===============================
+
+1. Zet de map mallorca-takel in resources.
+2. Voer sql/install.sql uit in je ESX-database.
+3. In server.cfg, na es_extended:
+
+   ensure oxmysql
+   ensure es_extended
+   ensure ox_target
+   ensure mallorca-takel
+
+4. Job mechanic / Wegenwacht rang 1 t/m 6.
+5. restart mallorca-takel
+
+In-game
+-------
+F1  = tablet
+O   = op de bak / afzetten (in fmltow of dlbrickade)
+Zet de auto achter de bak, daarna O.
+Oogje op auto = Voertuig takelen
+/takelnodig [tekst] = pechhulp krijgt een melding (alias: /takelhulp)
+E bij depot / inbeslagname / ophaalmarker
+
+Geen GTA flatbed of towtruck. Alleen fmltow en dlbrickade.
