@@ -49,19 +49,19 @@ Config.AirbagModel = 'prop_carairbag'
 Config.StartScale = 0.18
 Config.InflateMs = 320
 
--- Bestuurder: groeit uit het stuur naar de bestuurder toe.
--- Bijrijder: groeit uit het dashboard.
+-- Bestuurder: uit het stuur. Bijrijder: uit het dashboard.
 -- Offsets staan op de stoel-bone, y = naar de motorkap, z = omhoog.
+-- Dit zijn de posities waarop het airbag-model in de cabine zichtbaar blijft.
 Config.Driver = {
     bone = 'seat_dside_f',
-    from = { x = 0.0, y = 0.50, z = 0.55 },
+    from = { x = 0.0, y = 0.30, z = 0.40 },
     to = { x = 0.0, y = 0.30, z = 0.40 },
     rot = { x = 0.0, y = 0.0, z = 90.0 }
 }
 
 Config.Passenger = {
     bone = 'seat_pside_f',
-    from = { x = 0.0, y = 0.68, z = 0.50 },
+    from = { x = 0.0, y = 0.40, z = 0.40 },
     to = { x = 0.0, y = 0.40, z = 0.40 },
     rot = { x = 0.0, y = 0.0, z = 90.0 }
 }

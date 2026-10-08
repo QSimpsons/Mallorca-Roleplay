@@ -96,6 +96,25 @@ local function removeAirbagsFromVehicle(vehicle)
     end
 end
 
+local function restoreDrive(vehicle)
+    if vehicle == 0 or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    SetVehicleUndriveable(vehicle, false)
+    SetVehicleHandbrake(vehicle, false)
+    SetVehicleEngineOn(vehicle, true, true, false)
+
+    local cap = GetVehicleModelEstimatedMaxSpeed(GetEntityModel(vehicle))
+    if not cap or cap < 5.0 then
+        cap = 60.0
+    end
+
+    -- 0.0 op SetEntityMaxSpeed is stilstand. De model-topsnelheid haalt de limiet weg.
+    SetEntityMaxSpeed(vehicle, cap)
+    pcall(SetVehicleMaxSpeed, vehicle, 0.0)
+end
+
 local function deleteBags(netId)
     local vehicle = NetworkGetEntityFromNetworkId(netId)
     if vehicle ~= 0 then
@@ -115,12 +134,9 @@ local function deleteBags(netId)
     repairSent[netId] = nil
     totaled[netId] = nil
     wrecked[netId] = nil
+    noFireUntil[netId] = nil
 
-    if vehicle ~= 0 and DoesEntityExist(vehicle) then
-        SetVehicleUndriveable(vehicle, false)
-        SetVehicleHandbrake(vehicle, false)
-        SetEntityMaxSpeed(vehicle, 0.0)
-    end
+    restoreDrive(vehicle)
 end
 
 local function rememberFloor(netId, body, engine)
@@ -192,9 +208,9 @@ local function spawnAirbag(vehicle, spec, model)
 
     SetEntityAsMissionEntity(bag, true, true)
     SetEntityCollision(bag, false, false)
-    FreezeEntityPosition(bag, true)
+    SetEntityVisible(bag, true, false)
+    SetEntityLodDist(bag, 250)
     attachBag(bag, vehicle, bone, spec, 1.0)
-    FreezeEntityPosition(bag, true)
 
     return { bag = bag, bone = bone, spec = spec }
 end
@@ -296,6 +312,11 @@ local function leaveFluids(vehicle)
 end
 
 local function deployLocal(vehicle)
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    if bagEntries[netId] then
+        return
+    end
+
     local model = joaat(Config.AirbagModel)
     if not loadModel(model) then
         return
@@ -316,17 +337,14 @@ local function deployLocal(vehicle)
     end
 
     if #entries == 0 then
-        SetModelAsNoLongerNeeded(model)
         return
     end
 
-    local netId = NetworkGetNetworkIdFromEntity(vehicle)
     deployedBags[netId] = {}
     bagEntries[netId] = entries
     for i = 1, #entries do
         deployedBags[netId][i] = entries[i].bag
         attachBag(entries[i].bag, vehicle, entries[i].bone, entries[i].spec, 1.0)
-        FreezeEntityPosition(entries[i].bag, true)
     end
 
     writeOff(vehicle)
@@ -340,7 +358,6 @@ local function deployLocal(vehicle)
     end)
 
     inflate(vehicle, entries)
-    SetModelAsNoLongerNeeded(model)
 end
 
 RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
@@ -385,15 +402,30 @@ RegisterNetEvent('Eclipse-airbags:deploy', function(netId)
         wrecked[netId] = true
     end
 
-    if NetworkGetEntityOwner(vehicle) ~= PlayerId() then
-        return
+    local driver = GetPedInVehicleSeat(vehicle, -1)
+    if driver == ped or (driver == 0 and NetworkGetEntityOwner(vehicle) == PlayerId()) then
+        deployLocal(vehicle)
     end
-
-    deployLocal(vehicle)
 end)
 
 RegisterNetEvent('Eclipse-airbags:denied', function()
     pending = false
+
+    local vehicle = GetVehiclePedIsIn(PlayerPedId(), false)
+    if vehicle == 0 or not DoesEntityExist(vehicle) then
+        return
+    end
+
+    local netId = NetworkGetNetworkIdFromEntity(vehicle)
+    if deployedBags[netId] or bagEntries[netId] then
+        return
+    end
+
+    totaled[netId] = nil
+    wrecked[netId] = nil
+    noFireUntil[netId] = nil
+    healthFloor[netId] = nil
+    restoreDrive(vehicle)
 end)
 
 local function requestDeploy(vehicle)
@@ -573,18 +605,28 @@ CreateThread(function()
             if vehicle ~= 0 and DoesEntityExist(vehicle) then
                 local body = GetVehicleBodyHealth(vehicle)
                 local engine = GetVehicleEngineHealth(vehicle)
-                if not (body >= Config.RepairHealth and engine >= Config.RepairHealth) then
+                local floor = healthFloor[netId]
+                local wasWrecked = floor and floor.body <= 400.0 and floor.engine <= 400.0
+                local fixed = wasWrecked and GetGameTimer() >= floor.readyAt and (body >= 700.0 or engine >= 700.0)
+                if fixed then
+                    if not repairSent[netId] then
+                        repairSent[netId] = GetGameTimer()
+                        TriggerServerEvent('Eclipse-airbags:checkRepair', netId)
+                    end
+                    deleteBags(netId)
+                    restoreDrive(vehicle)
+                elseif body < 600.0 and engine < 600.0 then
                     if engine > Config.CrashEngineHealth then
                         SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
                     end
                     if body > Config.CrashBodyHealth then
                         SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
                     end
+                    SetVehicleUndriveable(vehicle, true)
+                    SetVehicleHandbrake(vehicle, true)
+                    SetEntityMaxSpeed(vehicle, 0.1)
+                    SetVehicleEngineOn(vehicle, false, true, true)
                 end
-                SetVehicleUndriveable(vehicle, true)
-                SetVehicleHandbrake(vehicle, true)
-                SetEntityMaxSpeed(vehicle, 0.1)
-                SetVehicleEngineOn(vehicle, false, true, true)
 
                 local entries = bagEntries[netId]
                 if entries then
@@ -592,7 +634,6 @@ CreateThread(function()
                         local entry = entries[i]
                         if DoesEntityExist(entry.bag) and not IsEntityAttachedToEntity(entry.bag, vehicle) then
                             attachBag(entry.bag, vehicle, entry.bone, entry.spec, 1.0)
-                            FreezeEntityPosition(entry.bag, true)
                         end
                     end
                 end
