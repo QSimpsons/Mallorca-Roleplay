@@ -42,30 +42,6 @@ local function loadModel(model)
     return true
 end
 
-local function unit(v)
-    local length = math.sqrt((v.x * v.x) + (v.y * v.y) + (v.z * v.z))
-    if length < 0.0001 then
-        return v
-    end
-
-    return vector3(v.x / length, v.y / length, v.z / length)
-end
-
-local function setScale(entity, scale)
-    local forward, right, up, pos = GetEntityMatrix(entity)
-    forward = unit(forward)
-    right = unit(right)
-    up = unit(up)
-
-    SetEntityMatrix(
-        entity,
-        forward.x * scale, forward.y * scale, forward.z * scale,
-        right.x * scale, right.y * scale, right.z * scale,
-        up.x * scale, up.y * scale, up.z * scale,
-        pos.x, pos.y, pos.z
-    )
-end
-
 local function easeOut(t)
     local left = 1.0 - t
     return 1.0 - (left * left * left)
