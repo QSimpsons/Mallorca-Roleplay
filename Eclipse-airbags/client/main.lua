@@ -2,6 +2,7 @@ local pending = false
 local lockedUntil = 0
 local awaitingRepair = false
 local deployedBags = {}
+local bagEntries = {}
 local healthFloor = {}
 local repairSent = {}
 local totaled = {}
@@ -133,6 +134,7 @@ local function deleteBags(netId)
     end
 
     deployedBags[netId] = nil
+    bagEntries[netId] = nil
     healthFloor[netId] = nil
     repairSent[netId] = nil
     totaled[netId] = nil
@@ -170,17 +172,8 @@ local function looksRepaired(netId, body, engine)
         return false
     end
 
-    local bodyRose = body >= floor.body + Config.RepairRise
-    local engineRose = engine >= floor.engine + Config.RepairRise
-    if bodyRose or engineRose then
-        return true
-    end
-
-    if body >= Config.RepairHealth and engine >= Config.RepairHealth then
-        return floor.body < Config.RepairHealth or floor.engine < Config.RepairHealth
-    end
-
-    return false
+    -- Alleen een echte reparatie. Een kleine schommeling haalt de airbags niet weg.
+    return body >= Config.RepairHealth and engine >= Config.RepairHealth
 end
 
 local function inflate(vehicle, entries)
@@ -193,13 +186,11 @@ local function inflate(vehicle, entries)
         end
 
         local eased = easeOut(t)
-        local scale = Config.StartScale + ((1.0 - Config.StartScale) * eased)
 
         for i = 1, #entries do
             local entry = entries[i]
             if DoesEntityExist(entry.bag) then
                 attachBag(entry.bag, vehicle, entry.bone, entry.spec, eased)
-                setScale(entry.bag, scale)
             end
         end
 
@@ -226,8 +217,8 @@ local function spawnAirbag(vehicle, spec, model)
     SetEntityAsMissionEntity(bag, true, true)
     SetEntityCollision(bag, false, false)
     FreezeEntityPosition(bag, true)
-    attachBag(bag, vehicle, bone, spec, 0.0)
-    setScale(bag, Config.StartScale)
+    attachBag(bag, vehicle, bone, spec, 1.0)
+    FreezeEntityPosition(bag, true)
 
     return { bag = bag, bone = bone, spec = spec }
 end
@@ -355,8 +346,11 @@ local function deployLocal(vehicle)
 
     local netId = NetworkGetNetworkIdFromEntity(vehicle)
     deployedBags[netId] = {}
+    bagEntries[netId] = entries
     for i = 1, #entries do
         deployedBags[netId][i] = entries[i].bag
+        attachBag(entries[i].bag, vehicle, entries[i].bone, entries[i].spec, 1.0)
+        FreezeEntityPosition(entries[i].bag, true)
     end
 
     writeOff(vehicle)
@@ -601,10 +595,31 @@ CreateThread(function()
             waitMs = 400
             local vehicle = NetworkGetEntityFromNetworkId(netId)
             if vehicle ~= 0 and DoesEntityExist(vehicle) then
+                local body = GetVehicleBodyHealth(vehicle)
+                local engine = GetVehicleEngineHealth(vehicle)
+                if not (body >= Config.RepairHealth and engine >= Config.RepairHealth) then
+                    if engine > Config.CrashEngineHealth then
+                        SetVehicleEngineHealth(vehicle, Config.CrashEngineHealth)
+                    end
+                    if body > Config.CrashBodyHealth then
+                        SetVehicleBodyHealth(vehicle, Config.CrashBodyHealth)
+                    end
+                end
                 SetVehicleUndriveable(vehicle, true)
                 SetVehicleHandbrake(vehicle, true)
                 SetEntityMaxSpeed(vehicle, 0.1)
                 SetVehicleEngineOn(vehicle, false, true, true)
+
+                local entries = bagEntries[netId]
+                if entries then
+                    for i = 1, #entries do
+                        local entry = entries[i]
+                        if DoesEntityExist(entry.bag) and not IsEntityAttachedToEntity(entry.bag, vehicle) then
+                            attachBag(entry.bag, vehicle, entry.bone, entry.spec, 1.0)
+                            FreezeEntityPosition(entry.bag, true)
+                        end
+                    end
+                end
             end
         end
 

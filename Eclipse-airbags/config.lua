@@ -24,7 +24,7 @@ Config.RepairRise = 40.0
 
 -- Bij de klap is de auto total loss.
 -- Motor onder 300: het gele motorlampje op de teller wordt rood.
--- Blijft boven 0 zodat de auto niet in brand vliegt.
+-- 100 blijft boven 0, zodat de auto niet in brand vliegt.
 Config.TotalLoss = true
 Config.CrashBodyHealth = 100.0
 Config.CrashEngineHealth = 100.0
