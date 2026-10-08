@@ -51,15 +51,18 @@ Spawn, als het model in `stream/` staat:
 /car aminorv6
 ```
 
-## Dealer, garage en kofferbak
+## ESX-voertuigenwinkel
 
-De meta maakt de auto spawnbaar. Je shop en inventory kennen hem daarna nog niet.
+De spawn werkt via deze resource. De ESX-shop leest de auto's uit de database. Importeer daarvoor het bestand `esx_vehicles.sql` in dezelfde database als `esx_vehicleshop`.
 
-- QBCore / Qbox: `install/qb-core.lua`
-- ESX: `install/esx.sql`
-- ox_inventory (klein dashboardkastje, krappe kofferbak): `install/ox_inventory.lua`
+Daarna staan ze in de winkel:
 
-Prijzen zijn een voorstel voor een gewone RP-economie. Zet ze gelijk aan de rest van je server.
+| Naam in de shop | Model | Categorie | Prijs |
+| --- | --- | --- | --- |
+| Annis Minor | `aminor` | compacts | 24500 |
+| Annis Minor V6 | `aminorv6` | sports | 41000 |
+
+Prijzen wijzig je in dat SQL-bestand voordat je het importeert. Gebruik je ox_inventory, dan staat een kleine kofferbak in `install/ox_inventory.lua`.
 
 ## Rijgedrag
 
