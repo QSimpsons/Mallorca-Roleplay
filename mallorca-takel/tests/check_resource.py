@@ -40,6 +40,8 @@ if re.search(r'\[`towtruck', cfg) or re.search(r'\[`flatbed', cfg):
     errors.append('vanilla tow vehicles should not be in config')
 if "menu = 'F1'" not in cfg or "toggle = 'O'" not in cfg:
     errors.append('keys must be F1 tablet and O attach')
+if "CallCommand = 'takelnodig'" not in cfg:
+    errors.append('config must expose /takelnodig for pechhulp alerts')
 if "JobName = 'mechanic'" not in cfg:
     errors.append('config must use mechanic job')
 if 'MinGrade = 1' not in cfg or 'MaxGrade = 6' not in cfg:
@@ -66,12 +68,12 @@ if 'pinToBed' not in tow:
     errors.append('tow.lua missing bed slide/pin')
 
 client = (ROOT / 'client/main.lua').read_text(encoding='utf-8')
-for needle in ('mallorca_takel_toggle', 'doAttach', 'doDetach', 'fmltow', 'dlbrickade'):
+for needle in ('mallorca_takel_toggle', 'doAttach', 'doDetach', 'fmltow', 'dlbrickade', 'takelnodig'):
     if needle not in client:
         errors.append('client missing ' + needle)
 
 server = (ROOT / 'server/main.lua').read_text(encoding='utf-8')
-for needle in ('mallorca-takel:server:impound', 'mallorca-takel:server:syncAttach', 'isEmployee'):
+for needle in ('mallorca-takel:server:impound', 'mallorca-takel:server:syncAttach', 'isEmployee', 'call_none_online'):
     if needle not in server:
         errors.append('server missing ' + needle)
 

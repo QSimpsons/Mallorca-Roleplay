@@ -4,6 +4,7 @@ local towing = {}
 local liveCalls = {}
 local callSeq = 0
 local lastAttach = {}
+local lastCallAt = {}
 
 local function loadESX()
     if Config.Framework ~= 'esx' then
@@ -86,11 +87,43 @@ local function notify(src, key, extra)
 end
 
 local function forEachEmployee(fn)
-    for _, id in ipairs(GetPlayers()) do
-        local src = tonumber(id)
-        if src and isEmployee(src) then
+    local seen = {}
+    local function ping(src)
+        src = tonumber(src)
+        if not src or seen[src] then
+            return
+        end
+        if isEmployee(src) then
+            seen[src] = true
             fn(src)
         end
+    end
+
+    if ESX and ESX.GetExtendedPlayers then
+        for jobName, allowed in pairs(Config.AllowedJobs or {}) do
+            if allowed then
+                local list = ESX.GetExtendedPlayers('job', jobName)
+                if type(list) == 'table' then
+                    for i = 1, #list do
+                        local xPlayer = list[i]
+                        ping(xPlayer and xPlayer.source)
+                    end
+                end
+            end
+        end
+        if Config.JobName then
+            local list = ESX.GetExtendedPlayers('job', Config.JobName)
+            if type(list) == 'table' then
+                for i = 1, #list do
+                    local xPlayer = list[i]
+                    ping(xPlayer and xPlayer.source)
+                end
+            end
+        end
+    end
+
+    for _, id in ipairs(GetPlayers()) do
+        ping(id)
     end
 end
 
@@ -440,6 +473,12 @@ end)
 RegisterNetEvent('mallorca-takel:server:createCall', function(data)
     local src = source
     data = data or {}
+    local cooldown = tonumber(Config.CallCooldownMs) or 30000
+    if lastCallAt[src] and (GetGameTimer() - lastCallAt[src]) < cooldown then
+        notify(src, 'call_wait')
+        return
+    end
+
     local ident, name = identifierOf(src)
     local ped = GetPlayerPed(src)
     local coords = GetEntityCoords(ped)
@@ -457,18 +496,25 @@ RegisterNetEvent('mallorca-takel:server:createCall', function(data)
         status = 'open'
     }
     liveCalls[call.id] = call
+    lastCallAt[src] = GetGameTimer()
     dbInsert(
         [[INSERT INTO mallorca_takel_calls (caller, caller_name, pos_x, pos_y, pos_z, message, kind, status)
           VALUES (?, ?, ?, ?, ?, ?, 'player', 'open')]],
         { ident, name, call.x, call.y, call.z, call.message }
     )
-    notify(src, 'call_sent')
+
+    local pinged = 0
     forEachEmployee(function(employeeSrc)
-        if not Config.RequireDuty or onDuty[employeeSrc] then
-            TriggerClientEvent('mallorca-takel:client:newCall', employeeSrc, call)
-            pushSync(employeeSrc)
-        end
+        TriggerClientEvent('mallorca-takel:client:newCall', employeeSrc, call)
+        pushSync(employeeSrc)
+        pinged = pinged + 1
     end)
+
+    if pinged == 0 then
+        notify(src, 'call_none_online')
+    else
+        notify(src, 'call_sent')
+    end
 end)
 
 RegisterNetEvent('mallorca-takel:server:acceptCall', function(id)
@@ -540,4 +586,5 @@ AddEventHandler('playerDropped', function()
     onDuty[src] = nil
     towing[src] = nil
     lastAttach[src] = nil
+    lastCallAt[src] = nil
 end)

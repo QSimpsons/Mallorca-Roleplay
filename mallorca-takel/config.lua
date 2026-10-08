@@ -5,9 +5,11 @@ Config.JobName = 'mechanic'
 Config.AllowedJobs = {
     mechanic = true,
     wegenwacht = true,
+    pechhulp = true,
     anwb = true,
     mecano = true,
-    monteur = true
+    monteur = true,
+    takel = true
 }
 Config.MinGrade = 1
 Config.MaxGrade = 6
@@ -37,6 +39,7 @@ function Config.IsAllowedJob(name)
     end
     return name:find('mechanic', 1, true) ~= nil
         or name:find('wegenwacht', 1, true) ~= nil
+        or name:find('pechhulp', 1, true) ~= nil
         or name:find('anwb', 1, true) ~= nil
 end
 
@@ -66,7 +69,9 @@ Config.Keys = {
 }
 
 Config.Command = 'takel'
-Config.CallCommand = 'takelhulp'
+Config.CallCommand = 'takelnodig'
+Config.CallCommandAlias = 'takelhulp'
+Config.CallCooldownMs = 30000
 
 Config.UseTarget = true
 Config.TargetDistance = 12.0
@@ -184,9 +189,11 @@ Config.Locale = {
     bill_received = 'Je hebt een takelfactuur ontvangen.',
     paid = 'Betaald. Je voertuig staat klaar.',
     cannot_pay = 'Niet genoeg contant geld.',
-    call_sent = 'Takeldienst is gewaarschuwd.',
+    call_sent = 'Pechhulp is gewaarschuwd.',
+    call_none_online = 'Er is nu geen pechhulp online.',
+    call_wait = 'Je hebt net al pechhulp gevraagd. Wacht even.',
     call_taken = 'Oproep aangenomen. GPS gezet.',
-    call_new = 'Nieuwe takeloproep binnengekomen.',
+    call_new = 'Nieuwe pechhulp-oproep: iemand heeft /takelnodig gedaan.',
     truck_out = 'Takelwagen uitgehaald.',
     truck_in = 'Takelwagen weggezet.',
     spawn_blocked = 'Spawnplek is geblokkeerd.',

@@ -19,7 +19,7 @@ F1  = tablet
 O   = op de bak / afzetten (in fmltow of dlbrickade)
 Zet de auto achter de bak, daarna O.
 Oogje op auto = Voertuig takelen
-/takelhulp [tekst] = pechhulp oproepen
+/takelnodig [tekst] = pechhulp krijgt een melding (alias: /takelhulp)
 E bij depot / inbeslagname / ophaalmarker
 
 Geen GTA flatbed of towtruck. Alleen fmltow en dlbrickade.

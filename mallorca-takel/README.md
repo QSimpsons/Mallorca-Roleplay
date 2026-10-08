@@ -25,7 +25,7 @@ ensure mallorca-takel
 | Tablet | **F1** of `/takel` |
 | Op de bak / afzetten | In **fmltow** of **dlbrickade**, auto achter de bak, **O** |
 | Oogje | ox_target op de auto of de takelwagen |
-| Pechhulp | `/takelhulp` of oogje op je auto |
+| Pechhulp | `/takelnodig` (of `/takelhulp`) — pechhulp krijgt een melding |
 | Depot | Marker bij Mallorca Takel, **E** |
 | Inbeslagname | Met lading naar de rode marker, **E** |
 

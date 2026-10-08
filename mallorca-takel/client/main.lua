@@ -230,14 +230,49 @@ RegisterNetEvent('mallorca-takel:client:sync', function(payload)
 end)
 
 RegisterNetEvent('mallorca-takel:client:newCall', function(call)
-    if Config.RequireDuty and not onDuty then
-        return
+    local who = (call and (call.callerName or call.caller_name)) or 'Iemand'
+    local msg = (call and call.message) or 'Pechhulp nodig'
+    local text = ('PECHHULP: %s heeft /takelnodig gedaan — %s'):format(who, msg)
+
+    if ESX and ESX.ShowNotification then
+        ESX.ShowNotification(text)
+    elseif GetResourceState('ox_lib') == 'started' then
+        pcall(function()
+            exports.ox_lib:notify({
+                title = 'Pechhulp',
+                description = text,
+                type = 'warning',
+                duration = 9000
+            })
+        end)
+    else
+        notify('call_new')
     end
-    if not isEmployee() then
-        return
-    end
-    notify('call_new')
+
+    TriggerEvent('chat:addMessage', {
+        color = { 232, 93, 4 },
+        multiline = true,
+        args = { 'Pechhulp', text }
+    })
     PlaySoundFrontend(-1, 'Menu_Accept', 'Phone_SoundSet_Default', true)
+
+    if call and call.x and call.y then
+        local blip = AddBlipForCoord(call.x + 0.0, call.y + 0.0, (call.z or 0.0) + 0.0)
+        SetBlipSprite(blip, 161)
+        SetBlipColour(blip, 47)
+        SetBlipScale(blip, 1.1)
+        SetBlipFlashes(blip, true)
+        BeginTextCommandSetBlipName('STRING')
+        AddTextComponentSubstringPlayerName('Takelnodig')
+        EndTextCommandSetBlipName(blip)
+        CreateThread(function()
+            Wait(90000)
+            if DoesBlipExist(blip) then
+                RemoveBlip(blip)
+            end
+        end)
+    end
+
     refreshNui({ highlightCall = call and call.id })
 end)
 
@@ -630,7 +665,7 @@ RegisterCommand('mallorca_takel_toggle', function()
     end
 end, false)
 
-RegisterCommand(Config.CallCommand, function(_, args)
+local function requestPechhulp(args)
     local msg = table.concat(args or {}, ' ')
     if msg == '' then
         msg = 'Pechhulp nodig'
@@ -640,7 +675,24 @@ RegisterCommand(Config.CallCommand, function(_, args)
         x = c.x, y = c.y, z = c.z,
         message = msg
     })
+end
+
+RegisterCommand(Config.CallCommand or 'takelnodig', function(_, args)
+    requestPechhulp(args)
 end, false)
+
+if Config.CallCommandAlias and Config.CallCommandAlias ~= Config.CallCommand then
+    RegisterCommand(Config.CallCommandAlias, function(_, args)
+        requestPechhulp(args)
+    end, false)
+end
+
+TriggerEvent('chat:addSuggestion', '/takelnodig', 'Waarschuw de pechhulp', {
+    { name = 'bericht', help = 'Optioneel: wat er mis is' }
+})
+TriggerEvent('chat:addSuggestion', '/takelhulp', 'Waarschuw de pechhulp', {
+    { name = 'bericht', help = 'Optioneel: wat er mis is' }
+})
 
 RegisterKeyMapping(Config.Command, 'Mallorca Takel tablet', 'keyboard', Config.Keys.menu)
 RegisterKeyMapping('mallorca_takel_toggle', 'Voertuig takelen / loskoppelen', 'keyboard', Config.Keys.toggle)
