@@ -105,7 +105,8 @@ body.demo-mode .app { padding-left: 280px; }
 .ghost,
 .duty,
 .list button,
-.garage button {
+.garage button,
+#btn-store {
   appearance: none;
   border: 1px solid transparent;
   background: transparent;
@@ -199,7 +200,13 @@ button.primary {
   border: 0;
 }
 
-#btn-store { width: 100%; margin-top: 8px; color: var(--gold); }
+#btn-store {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  color: var(--gold);
+  text-align: center;
+}
 
 .row-head {
   display: flex;
