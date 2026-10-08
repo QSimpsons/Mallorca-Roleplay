@@ -22,12 +22,12 @@ Config.RepairHealth = 950.0
 -- Hoeveel de carrosserie of motor moet stijgen om als reparatie te tellen.
 Config.RepairRise = 40.0
 
--- Bij de klap is de auto total loss. Lager = kapotter (0-1000).
--- De motor blijft hoog genoeg dat het spel hem niet zelf aansteekt.
--- Rijden kan nog steeds niet. Een reparatie zet de waarden weer omhoog.
+-- Bij de klap is de auto total loss.
+-- Motor onder 300: het gele motorlampje op de teller wordt rood.
+-- Blijft boven 0 zodat de auto niet in brand vliegt.
 Config.TotalLoss = true
 Config.CrashBodyHealth = 100.0
-Config.CrashEngineHealth = 350.0
+Config.CrashEngineHealth = 100.0
 
 -- Hoe lang (ms) vuur na de klap actief wordt gedoofd.
 Config.NoFireMs = 180000
