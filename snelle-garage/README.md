@@ -34,7 +34,7 @@ Toetsen aanpassen: FiveM → Settings → Key Bindings → FiveM.
 
 Een voertuig uit de impound haal je gratis in het garagemenu. Het wordt uit de impound gehaald en bij die garage neergezet, ook als de takel het in beslag nam. Een voertuig dat buiten staat of weg is, zet je bij de impound ook gratis weer neer.
 
-Een auto die je bij de cardealer koopt, rijd je naar een garage en parkeer je met **E**. De garage herkent de aankoop ook als de dealer hem onder een license-id heeft gezet in plaats van je karakter-id. Een auto van iemand anders komt er niet in.
+Een auto die je bij de cardealer koopt, rijd je naar een garage en parkeer je met **E**. De garage herkent die aankoop ook als de dealer hem onder een license-id heeft gezet in plaats van je karakter-id. Een auto uit een spawnmenu of commando komt er niet in: die melding „Aankoop herkend” krijg je alleen bij een echte aankoop.
 
 Boten en vliegtuigen haal je op bij hun eigen garage of impound. `/oproep` zet alleen auto's bij je neer.
 

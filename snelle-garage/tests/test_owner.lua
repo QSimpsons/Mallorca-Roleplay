@@ -36,4 +36,12 @@ no(SnelleOwner.same('char1:abc123', nil), 'geen identifiers')
 local unique = SnelleOwner.unique({ 'char1:abc123', 'char1:abc123', '', 'license:abc123' })
 yes(#unique == 2, 'dubbele identifiers vallen weg')
 
+local now = 1000
+local window = 60
+yes(SnelleOwner.purchaseMatches({ ident = 'char1:abc123', at = 980 }, idents, now, window), 'verse aankoop')
+yes(SnelleOwner.purchaseMatches({ ident = 'license:abc123', at = 1000 }, idents, now, window), 'aankoop op license')
+no(SnelleOwner.purchaseMatches({ ident = 'char1:abc123', at = 900 }, idents, now, window), 'te oude aankoop')
+no(SnelleOwner.purchaseMatches({ ident = 'char2:andere', at = 990 }, idents, now, window), 'aankoop van iemand anders')
+no(SnelleOwner.purchaseMatches(nil, idents, now, window), 'geen aankoop')
+
 print(('ok %d checks'):format(passed))

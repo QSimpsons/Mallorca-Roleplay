@@ -115,9 +115,16 @@ for needle in (
     'SnelleOwner.same',
     'ownedByPlayer',
     'fetchOwnedMany',
+    'freshPurchase',
+    'rememberPurchase',
+    'SnelleOwner.purchaseMatches',
 ):
     if needle not in server:
         errors.append(f'server missing {needle}')
+
+claim = server.split('local function claim(props)', 1)
+if len(claim) != 2 or 'freshPurchase(plateKey, src, xPlayer)' not in claim[1].split('INSERT INTO owned_vehicles', 1)[0]:
+    errors.append('spawned vehicle can still be inserted as a purchase')
 
 for needle in (
     'snelle-garage:client:spawn',

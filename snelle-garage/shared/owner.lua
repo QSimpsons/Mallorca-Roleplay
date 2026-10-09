@@ -45,3 +45,22 @@ function SnelleOwner.unique(list)
 
     return out
 end
+
+function SnelleOwner.purchaseMatches(mark, idents, now, window)
+    if type(mark) ~= 'table' or type(idents) ~= 'table' then
+        return false
+    end
+
+    local at = tonumber(mark.at)
+    local ident = mark.ident
+    now = tonumber(now)
+    window = tonumber(window)
+    if not at or not now or not window or window < 0 or type(ident) ~= 'string' or ident == '' then
+        return false
+    end
+    if now < at or (now - at) > window then
+        return false
+    end
+
+    return SnelleOwner.same(ident, idents)
+end
