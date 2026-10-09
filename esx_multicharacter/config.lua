@@ -25,6 +25,10 @@ else
     Config.Relog = true
     --------------------
 
+    -- Skip the character selection menu and spawn straight into the first saved character
+    Config.SkipCharacterSelection = true
+    --------------------
+
     -- Default appearance for new characters
     Config.Default = {
         ["m"] = {

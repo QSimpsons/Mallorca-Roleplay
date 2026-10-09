@@ -16,7 +16,7 @@ end)
 -- Events
 
 ESX.SecureNetEvent("esx_multicharacter:SetupUI", function(data, slots)
-    if not nuiReady then
+    if not Config.SkipCharacterSelection and not nuiReady then
         print('[WARNING]', 'NUI not ready yet, awaiting...')
         xLib.waitFor(function()
             return nuiReady == true

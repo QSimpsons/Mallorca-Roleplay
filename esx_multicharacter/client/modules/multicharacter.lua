@@ -206,6 +206,37 @@ function Multicharacter:SetupCharacter(index)
     self:PrepForUI()
 end
 
+function Multicharacter:FirstCharacterSlot()
+    local selected = nil
+
+    for id, character in pairs(self.Characters) do
+        local slot = tonumber(id)
+        local disabled = character and (character.disabled == true or character.disabled == 1 or character.disabled == "1")
+
+        if slot and not disabled and (not selected or slot < selected) then
+            selected = slot
+        end
+    end
+
+    return selected
+end
+
+function Multicharacter:SpawnWithoutSelection()
+    local slot = self:FirstCharacterSlot()
+
+    if not slot then
+        return false
+    end
+
+    self.tempIndex = slot
+    self.spawned = slot
+    self.canRelog = false
+    self:CloseUI()
+    DoScreenFadeOut(0)
+    TriggerServerEvent("esx_multicharacter:CharacterChosen", slot, false)
+    return true
+end
+
 function Multicharacter:SetupUI(characters, slots)
     DoScreenFadeOut(0)
 
@@ -227,6 +258,8 @@ function Multicharacter:SetupUI(characters, slots)
             TriggerServerEvent("esx_multicharacter:CharacterChosen", 1, true)
             TriggerEvent("esx_identity:showRegisterIdentity")
         end)
+    elseif Config.SkipCharacterSelection and self:SpawnWithoutSelection() then
+        return
     else
         Menu:InitCharacter()
     end
