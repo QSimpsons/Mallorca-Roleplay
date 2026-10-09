@@ -81,6 +81,9 @@ function Multicharacter:SetupCharacters()
     SetEntityHeading(self.playerPed, self.spawnCoords.w)
 
     SetPlayerControl(ESX.playerId, false, 0)
+    self:CloseUI()
+    SetNuiFocus(false, false)
+    DoScreenFadeOut(0)
     self:SetupCamera()
     self:HideHud(true)
 
@@ -258,7 +261,7 @@ function Multicharacter:SetupUI(characters, slots)
             TriggerServerEvent("esx_multicharacter:CharacterChosen", 1, true)
             TriggerEvent("esx_identity:showRegisterIdentity")
         end)
-    elseif Config.SkipCharacterSelection and self:SpawnWithoutSelection() then
+    elseif self:SpawnWithoutSelection() then
         return
     else
         Menu:InitCharacter()
@@ -313,7 +316,9 @@ function Multicharacter:Reset()
 end
 
 function Multicharacter:PlayerLoaded(playerData, isNew, skin)
-    DoScreenFadeOut(750)
+    self:CloseUI()
+    SetNuiFocus(false, false)
+    DoScreenFadeOut(0)
     self:AwaitFadeOut()
 
     local spawnPoint = Config.Spawn[1]
@@ -332,16 +337,9 @@ function Multicharacter:PlayerLoaded(playerData, isNew, skin)
     end
 
     if not self:HasSavedOutfit(savedSkin) then
-        self.finishedCreation = false
-        self:SetDefaultSkin(playerData)
-
-        while not self.finishedCreation do
-            Wait(200)
-        end
-
-        savedSkin = copySkin(exports["skinchanger"]:GetSkin())
-        DoScreenFadeOut(500)
-        self:AwaitFadeOut()
+        local sex = playerData and playerData.sex == "f" and "f" or "m"
+        savedSkin = copySkin(Config.Default[sex] or Config.Default["m"])
+        savedSkin.sex = sex == "f" and 1 or 0
     end
 
     local function restoreOutfit()

@@ -82,6 +82,22 @@ function Multicharacter:SetupCharacters(source)
         characters = characters,
     }
 
+    if Config.SkipCharacterSelection then
+        local slot = nil
+
+        for id, character in pairs(characters) do
+            local characterSlot = tonumber(id)
+
+            if characterSlot and not isCharacterDisabled(character) and (not slot or characterSlot < slot) then
+                slot = characterSlot
+            end
+        end
+
+        if slot and self:CharacterChosen(source, slot, false) then
+            return
+        end
+    end
+
     TriggerClientEvent("esx_multicharacter:SetupUI", source, characters, slots)
 end
 
@@ -89,14 +105,14 @@ function Multicharacter:CharacterChosen(source, charid, isNew)
     charid = normalizeCharacterSlot(charid)
 
     if not charid or type(isNew) ~= "boolean" then
-        return
+        return false
     end
 
     local identifier = ESX.GetIdentifier(source)
     local session = self.sessions[source]
 
     if not identifier or not session or session.identifier ~= identifier or charid > session.slots then
-        return
+        return false
     end
 
     local character = session.characters and session.characters[charid]
@@ -104,13 +120,14 @@ function Multicharacter:CharacterChosen(source, charid, isNew)
 
     if isNew then
         if character or databaseCharacter then
-            return
+            return false
         end
 
         self.awaitingRegistration[source] = charid
+        return true
     else
         if not character or not databaseCharacter or isCharacterDisabled(character) or isCharacterDisabled(databaseCharacter) then
-            return
+            return false
         end
 
         SetPlayerRoutingBucket(source, 0)
@@ -119,7 +136,7 @@ function Multicharacter:CharacterChosen(source, charid, isNew)
 
             if ESX.GetPlayerFromIdentifier(identifier) then
                 DropPlayer(source, "[ESX Multicharacter] Your identifier " .. identifier .. " is already on the server!")
-                return
+                return true
             end
         end
 
@@ -127,6 +144,7 @@ function Multicharacter:CharacterChosen(source, charid, isNew)
         TriggerEvent("esx:onPlayerJoined", source, charIdentifier)
         ESX.Players[ESX.GetIdentifier(source)] = charIdentifier
         self.sessions[source] = nil
+        return true
     end
 end
 

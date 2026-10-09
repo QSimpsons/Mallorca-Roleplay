@@ -1,6 +1,9 @@
 Config = {}
 Config.Locale = GetConvar("esx:locale", "en")
 
+-- Enter the game on the saved character. No character selection menu.
+Config.SkipCharacterSelection = true
+
 -- Allows players to delete their characters
 Config.CanDelete = true
 
@@ -23,10 +26,6 @@ else
     -- Do not use unless you are prepared to adjust your resources to correctly reset data
     -- Information: https://github.com/thelindat/esx_multicharacter#relogging
     Config.Relog = true
-    --------------------
-
-    -- Skip the character selection menu and spawn straight into the first saved character
-    Config.SkipCharacterSelection = true
     --------------------
 
     -- Default appearance for new characters

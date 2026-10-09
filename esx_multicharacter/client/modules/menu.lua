@@ -36,6 +36,10 @@ end
 
 
 function Menu:InitCharacter()
+    if Multicharacter:SpawnWithoutSelection() then
+        return
+    end
+
     local Characters = Multicharacter.Characters
     local Character = next(Characters)
     self:CheckModel(Characters[Character])
