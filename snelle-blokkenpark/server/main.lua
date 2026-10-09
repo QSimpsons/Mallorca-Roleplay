@@ -322,21 +322,6 @@ AddEventHandler('playerDropped', function()
     save()
 end)
 
-RegisterCommand('blokkenpark', function(src, args)
-    if src == 0 then
-        print('[snelle-blokkenpark] Alleen een speler kan dit commando gebruiken.')
-        return
-    end
-    TriggerClientEvent('snelle-blokkenpark:tp', src, args[1] == 'parking' and 'interior' or 'park')
-end, true)
-
-RegisterCommand('blokkenpos', function(src)
-    if src == 0 then
-        return
-    end
-    TriggerClientEvent('snelle-blokkenpark:printpos', src)
-end, true)
-
 load()
 local restored = 0
 for _ in pairs(parked) do

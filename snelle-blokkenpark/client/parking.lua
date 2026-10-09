@@ -354,16 +354,6 @@ RegisterNetEvent('snelle-blokkenpark:sync', function(list)
     refreshDisplays()
 end)
 
-RegisterNetEvent('snelle-blokkenpark:tp', function(where)
-    if where == 'interior' then
-        local foot = Config.Parking.insideFoot
-        teleportTo(foot.x, foot.y, foot.z, foot.w, false)
-        return
-    end
-    local center = Config.ParkCenter
-    teleportTo(center.x, center.y, center.z, 180.0, false)
-end)
-
 CreateThread(function()
     local interior = Config.Parking.interior
     local id = GetInteriorAtCoords(interior.x, interior.y, interior.z)
@@ -520,14 +510,6 @@ AddEventHandler('onResourceStop', function(name)
     if parkingBlip then
         RemoveBlip(parkingBlip)
     end
-end)
-
-RegisterNetEvent('snelle-blokkenpark:printpos', function()
-    local pos = GetEntityCoords(PlayerPedId())
-    local heading = GetEntityHeading(PlayerPedId())
-    local line = ('vector4(%.2f, %.2f, %.2f, %.2f)'):format(pos.x, pos.y, pos.z, heading)
-    print('[snelle-blokkenpark] ' .. line)
-    BP.notify(line)
 end)
 
 AddEventHandler('onClientResourceStart', function(name)
