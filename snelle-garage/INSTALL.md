@@ -14,7 +14,7 @@ Eclipse Garage — installatie
 In-game
 -------
 E bij blauwe marker     = menu, daarna Uithalen
-E bij rode marker       = gekochte auto parkeren (ook van de cardealer)
+E bij rode marker       = gekochte auto parkeren (geen gespawnde auto)
 E bij een impound       = ophalen
 /garage                 = dichtstbijzijnde garage
 /impound of /inbeslag   = dichtstbijzijnde impound

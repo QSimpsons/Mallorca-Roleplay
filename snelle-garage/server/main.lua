@@ -1156,6 +1156,31 @@ RegisterNetEvent('snelle-garage:server:spawnFailed', function(token)
     revertTicket(token, Config.Text.modelFail)
 end)
 
+local recentPurchases = {}
+local PURCHASE_WINDOW = 20 * 60
+
+local function rememberPurchase(plate, ownerIdent)
+    local plateKey = Config.NormalizePlate(plate)
+    if plateKey == '' or type(ownerIdent) ~= 'string' or ownerIdent == '' then
+        return
+    end
+    recentPurchases[plateKey] = {
+        ident = ownerIdent,
+        at = os.time()
+    }
+end
+
+local function freshPurchase(plateKey, src, xPlayer)
+    local mark = recentPurchases[plateKey]
+    if SnelleOwner.purchaseMatches(mark, playerIdents(src, xPlayer), os.time(), PURCHASE_WINDOW) then
+        return true
+    end
+    if type(mark) == 'table' and os.time() - (tonumber(mark.at) or 0) > PURCHASE_WINDOW then
+        recentPurchases[plateKey] = nil
+    end
+    return false
+end
+
 local function saveStored(plateKey, propsJson, parking, cb)
     local sets = { 'vehicle = ?' }
     local params = { propsJson }
@@ -1245,6 +1270,13 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
             notify(src, Config.Text.notOwner)
             return
         end
+        -- Alleen een auto die de cardealer net verkocht mag een nieuwe rij krijgen.
+        -- Een gespawnde auto heeft geen aankoop en blijft buiten de garage.
+        if not freshPurchase(plateKey, src, xPlayer) then
+            release()
+            notify(src, Config.Text.notOwner)
+            return
+        end
         if type(props) ~= 'table' or not props.model then
             release()
             notify(src, Config.Text.modelFail)
@@ -1284,6 +1316,7 @@ RegisterNetEvent('snelle-garage:server:store', function(payload)
                     return
                 end
                 release()
+                recentPurchases[plateKey] = nil
                 spawned[plateKey] = nil
                 logAction(xPlayer.identifier, playerName(xPlayer, src), 'store', props.plate, location.id, 0)
                 TriggerClientEvent('snelle-garage:client:stored', src, {
@@ -1547,6 +1580,7 @@ RegisterNetEvent('snelle-garage:server:staffImpound', function(payload)
 end)
 
 local function deliverPurchase(plate, ownerIdent)
+    rememberPurchase(plate, ownerIdent)
     if not (Config.Cardealer and Config.Cardealer.storePurchases ~= false) then
         return
     end
