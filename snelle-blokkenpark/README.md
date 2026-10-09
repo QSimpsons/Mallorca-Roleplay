@@ -12,12 +12,10 @@ Pak uit en zet `snelle-blokkenpark` in `resources/[scripts]`. Door `ensure [scri
 
 ## Wat je ziet
 
-- Eclipse Roleplay-logo op de twee hoeken van het rode blok, en op de borden
-- Entreebord **BLOKKENPARK** aan de noordkant van het plein
-- Fonteinplein met planten, lantaarns en de banken die er al stonden
-- Oost- en westpromenade met bomen en banken
-- Prieel, picknick, burger- en hotdogkraam, fietsenrek, krantenbak en brievenbus
-- Blauwe parkeerblip naar de inrit
+- Eclipse Roleplay-logo op de twee hoeken van het rode blok
+- Blauwe parkeerblip naar de ondergrondse parking
+
+Het plein zelf blijft jouw Blokkenpark. Er worden geen bomen, banken of kraampjes bij gezet.
 
 ## Ondergrondse parking
 

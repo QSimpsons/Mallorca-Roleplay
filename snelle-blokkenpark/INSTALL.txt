@@ -9,4 +9,4 @@ https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/blokkenpark-custom-415
 
 `ensure [scripts]` staat al in je server.cfg, dus je hoeft geen ensure-regel en geen ace-commands toe te voegen. Er zijn ook geen /commands. Het plein en de ondergrondse parking staan meteen op Legion Square.
 
-Loop of rijd naar Blokkenpark. De blauwe P is de inrit. Druk op E om naar binnen te gaan, in een vrij vak te parkeren, en weer naar buiten te rijden.
+Jouw Blokkenpark blijft zoals het is. Op de twee hoeken van het rode blok staat het Eclipse-logo. De blauwe P is de ondergrondse parking: druk op E om naar binnen te gaan, te parkeren en weer naar buiten te rijden.

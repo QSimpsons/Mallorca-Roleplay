@@ -176,8 +176,8 @@ def main():
     errors += syntax_check(lua)
     props, signs, spots, meta = load_config(lua)
 
-    if meta.get('count', 0) < 40:
-        errors += fail(f'te weinig props: {meta.get("count")}')
+    if meta.get('count', 0) != 0:
+        errors += fail('het bestaande Blokkenpark hoort leeg te blijven, geen extra props')
     if meta.get('spots') != 10:
         errors += fail(f'verwacht 10 vakken, kreeg {meta.get("spots")}')
     if meta.get('max') != 2:

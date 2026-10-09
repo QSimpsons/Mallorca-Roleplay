@@ -116,38 +116,65 @@ local function scanCubes()
     cx = cx / #tops
     cy = cy / #tops
 
-    local faces = {}
-    local z = maxZ - 4.8
+    -- Het rode blok steekt verder uit dan het grijze blok erboven.
+    -- De hoogte met de grootste reikwijdte is dus het rood.
+    local bestReach = -1.0
+    local bestHits = {}
+    local z = maxZ - 1.5
     while z > 33.0 do
-        for i = 0, 15 do
-            local ang = (i / 16.0) * math.pi * 2.0
-            local sx = cx + math.cos(ang) * 26.0
-            local sy = cy + math.sin(ang) * 26.0
+        local hits = {}
+        local reach = 0.0
+        for i = 0, 23 do
+            local ang = (i / 24.0) * math.pi * 2.0
+            local sx = cx + math.cos(ang) * 22.0
+            local sy = cy + math.sin(ang) * 22.0
             local hit = probe(sx, sy, z, cx, cy, z)
             if hit and math.abs(hit.nz) < 0.35 then
                 local dx = hit.x - cx
                 local dy = hit.y - cy
-                if dx * hit.nx + dy * hit.ny > 1.2 and not tooClose(faces, hit.x, hit.y, hit.z, 2.2) then
-                    faces[#faces + 1] = hit
+                local outward = dx * hit.nx + dy * hit.ny
+                local dist = math.sqrt(dx * dx + dy * dy)
+                if outward > 1.0 and dist > reach then
+                    reach = dist
+                end
+                if outward > 1.0 and not tooClose(hits, hit.x, hit.y, hit.z, 1.6) then
+                    hits[#hits + 1] = hit
                 end
             end
         end
+        if reach > bestReach and #hits >= 2 then
+            bestReach = reach
+            bestHits = hits
+        end
         Wait(0)
-        z = z - 2.6
+        z = z - 1.8
     end
 
-    local chosen = twoRedCorners(faces, maxZ)
+    local chosen = twoRedCorners(bestHits, bestHits[1] and (bestHits[1].z + 4.6) or maxZ)
     local logos = {}
     for i = 1, #chosen do
         local hit = chosen[i]
+        local ix = cx - hit.x
+        local iy = cy - hit.y
+        local along = ix * hit.nx + iy * hit.ny
+        ix = ix - hit.nx * along
+        iy = iy - hit.ny * along
+        local ilen = math.sqrt(ix * ix + iy * iy)
+        if ilen > 0.01 then
+            ix = ix / ilen
+            iy = iy / ilen
+        else
+            ix, iy = 0.0, 0.0
+        end
+
         logos[#logos + 1] = {
-            x = hit.x,
-            y = hit.y,
+            x = hit.x + ix * 1.35 + hit.nx * 0.12,
+            y = hit.y + iy * 1.35 + hit.ny * 0.12,
             z = hit.z,
             nx = hit.nx,
             ny = hit.ny,
             nz = hit.nz,
-            size = 2.8,
+            size = 2.4,
         }
     end
 
@@ -169,8 +196,8 @@ function BP.drawLogo(logo)
     rx = (rx / rlen) * size * 0.5
     ry = (ry / rlen) * size * 0.5
 
-    local cx = logo.x + logo.nx * 0.35
-    local cy = logo.y + logo.ny * 0.35
+    local cx = logo.x + logo.nx * 0.08
+    local cy = logo.y + logo.ny * 0.08
     local cz = logo.z
     local hz = size * 0.5
 
