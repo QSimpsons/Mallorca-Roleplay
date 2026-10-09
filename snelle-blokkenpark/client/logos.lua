@@ -1,10 +1,6 @@
 BP.cubeLogos = {}
 BP.logoReady = false
 
-local function atan2(y, x)
-    return math.atan(y, x)
-end
-
 local function probe(x1, y1, z1, x2, y2, z2)
     local handle = StartExpensiveSynchronousShapeTestLosProbe(x1, y1, z1, x2, y2, z2, 1, 0, 7)
     local _, hit, coords, normal = GetShapeTestResult(handle)
@@ -45,6 +41,46 @@ local function tooClose(list, x, y, z, gap)
     return false
 end
 
+local function horizontalDistance(a, b)
+    local dx = a.x - b.x
+    local dy = a.y - b.y
+    return math.sqrt(dx * dx + dy * dy)
+end
+
+-- Alleen de twee buitenhoeken van het rode blok. Het grijze blok erboven blijft leeg.
+local function twoRedCorners(faces, maxZ)
+    local red = {}
+    local ceiling = maxZ - 4.5
+    for i = 1, #faces do
+        local face = faces[i]
+        if face.z < ceiling and face.z > 33.0 then
+            red[#red + 1] = face
+        end
+    end
+
+    if #red < 2 then
+        return {}
+    end
+
+    local bestI, bestJ, bestD = 1, 2, -1.0
+    for i = 1, #red do
+        for j = i + 1, #red do
+            local gap = horizontalDistance(red[i], red[j])
+            if gap > bestD then
+                bestD = gap
+                bestI = i
+                bestJ = j
+            end
+        end
+    end
+
+    if bestD < 4.0 then
+        return {}
+    end
+
+    return { red[bestI], red[bestJ] }
+end
+
 local function scanCubes()
     local tops = {}
     local checks = 0
@@ -80,47 +116,68 @@ local function scanCubes()
     cx = cx / #tops
     cy = cy / #tops
 
-    local logos = {}
-    local z = maxZ - 1.2
-    while z > 33.0 and #logos < 8 do
+    local faces = {}
+    local z = maxZ - 4.8
+    while z > 33.0 do
         for i = 0, 15 do
             local ang = (i / 16.0) * math.pi * 2.0
             local sx = cx + math.cos(ang) * 26.0
             local sy = cy + math.sin(ang) * 26.0
             local hit = probe(sx, sy, z, cx, cy, z)
-            if hit and math.abs(hit.nz) < 0.4 then
+            if hit and math.abs(hit.nz) < 0.35 then
                 local dx = hit.x - cx
                 local dy = hit.y - cy
-                if dx * hit.nx + dy * hit.ny > 1.2 and not tooClose(logos, hit.x, hit.y, hit.z, 5.0) then
-                    local heading = math.deg(atan2(-hit.nx, hit.ny)) % 360.0
-                    logos[#logos + 1] = {
-                        x = hit.x + hit.nx * 0.18,
-                        y = hit.y + hit.ny * 0.18,
-                        z = hit.z,
-                        heading = heading,
-                        size = 6.2,
-                    }
+                if dx * hit.nx + dy * hit.ny > 1.2 and not tooClose(faces, hit.x, hit.y, hit.z, 2.2) then
+                    faces[#faces + 1] = hit
                 end
             end
         end
         Wait(0)
-        z = z - 3.4
+        z = z - 2.6
+    end
+
+    local chosen = twoRedCorners(faces, maxZ)
+    local logos = {}
+    for i = 1, #chosen do
+        local hit = chosen[i]
+        logos[#logos + 1] = {
+            x = hit.x,
+            y = hit.y,
+            z = hit.z,
+            nx = hit.nx,
+            ny = hit.ny,
+            nz = hit.nz,
+            size = 2.8,
+        }
     end
 
     return logos
 end
 
-function BP.drawLogo(center, heading, size)
+function BP.drawLogo(logo)
     if not BP.logoReady then
         return
     end
 
-    local right = BP.headingToRight(heading) * (size * 0.5)
-    local up = vector3(0.0, 0.0, size * 0.5)
-    local bl = center - right - up
-    local br = center + right - up
-    local tl = center - right + up
-    local tr = center + right + up
+    local size = logo.size
+    local rx = -logo.ny
+    local ry = logo.nx
+    local rlen = math.sqrt(rx * rx + ry * ry)
+    if rlen < 0.01 then
+        return
+    end
+    rx = (rx / rlen) * size * 0.5
+    ry = (ry / rlen) * size * 0.5
+
+    local cx = logo.x + logo.nx * 0.35
+    local cy = logo.y + logo.ny * 0.35
+    local cz = logo.z
+    local hz = size * 0.5
+
+    local tl = { x = cx - rx, y = cy - ry, z = cz + hz }
+    local tr = { x = cx + rx, y = cy + ry, z = cz + hz }
+    local br = { x = cx + rx, y = cy + ry, z = cz - hz }
+    local bl = { x = cx - rx, y = cy - ry, z = cz - hz }
 
     DrawSpritePoly(
         tl.x, tl.y, tl.z,
@@ -131,6 +188,16 @@ function BP.drawLogo(center, heading, size)
         1.0, 0.0, 0.0,
         0.0, 0.0, 0.0,
         0.0, 1.0, 0.0
+    )
+    DrawSpritePoly(
+        tl.x, tl.y, tl.z,
+        br.x, br.y, br.z,
+        bl.x, bl.y, bl.z,
+        255, 255, 255, 255,
+        'eclipse_logo_txd', 'logo',
+        1.0, 0.0, 0.0,
+        0.0, 1.0, 0.0,
+        1.0, 1.0, 0.0
     )
 end
 
@@ -147,7 +214,7 @@ CreateThread(function()
             local found = scanCubes()
             if #found > 0 then
                 BP.cubeLogos = found
-                print(('[snelle-blokkenpark] %d Eclipse-logo\'s op de blokken gezet.'):format(#found))
+                print('[snelle-blokkenpark] Eclipse-logo op de twee hoeken van het rode blok.')
                 break
             end
         end
@@ -165,7 +232,7 @@ CreateThread(function()
                 local logo = logos[i]
                 if #(pos - vector3(logo.x, logo.y, logo.z)) < 120.0 then
                     waitMs = 0
-                    BP.drawLogo(vector3(logo.x, logo.y, logo.z), logo.heading, logo.size)
+                    BP.drawLogo(logo)
                 end
             end
         end
