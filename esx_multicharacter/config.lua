@@ -13,10 +13,10 @@ if IsDuplicityVersion() then
     -- Text to prepend to each character (char#:identifier) - keep it short
     Config.Prefix = "char"
 else
-    -- Sets the location for the character selection scene
-    -- To set the spawn location for new characters, modify the default value in the users SQL table
+    -- Where you appear when you enter the game.
+    -- x, y, z is the position. w is the direction you face.
     Config.Spawn = {
-        { x = -284.2856, y = 562.4627, z = 172.9182, w = 19.9895 },
+        { x = 149.2077, y = -996.8772, z = 29.3580, w = 160.2064 },
     }
     --------------------
 

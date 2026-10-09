@@ -316,12 +316,13 @@ function Multicharacter:PlayerLoaded(playerData, isNew, skin)
     DoScreenFadeOut(750)
     self:AwaitFadeOut()
 
-    local esxSpawns = ESX.GetConfig().DefaultSpawns
-    local spawn = esxSpawns[math.random(1, #esxSpawns)]
-
-    if not isNew and playerData.coords then
-        spawn = playerData.coords
-    end
+    local spawnPoint = Config.Spawn[1]
+    local spawn = {
+        x = spawnPoint.x,
+        y = spawnPoint.y,
+        z = spawnPoint.z,
+        heading = spawnPoint.heading or spawnPoint.w or 0.0,
+    }
 
     local character = self.Characters[self.spawned]
     local savedSkin = copySkin(skin)
