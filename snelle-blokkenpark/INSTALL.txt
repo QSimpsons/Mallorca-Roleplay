@@ -1,0 +1,12 @@
+# snelle-blokkenpark
+
+Download:
+https://github.com/QSimpsons/Mallorca-Roleplay/raw/cursor/blokkenpark-custom-4158/downloads/snelle-blokkenpark.zip
+
+1. Pak de zip uit.
+2. Zet de map `snelle-blokkenpark` in `resources/[scripts]`.
+3. Herstart de server.
+
+`ensure [scripts]` staat al in je server.cfg, dus je hoeft geen ensure-regel en geen ace-commands toe te voegen. Er zijn ook geen /commands. Het plein en de ondergrondse parking staan meteen op Legion Square.
+
+Jouw Blokkenpark blijft zoals het is. Op de twee hoeken van het rode blok staat het Eclipse-logo. De blauwe P is de ondergrondse parking: druk op E om naar binnen te gaan, te parkeren en weer naar buiten te rijden.

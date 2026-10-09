@@ -1,0 +1,3 @@
+# Niet nodig als de map in resources/[scripts] staat en je al `ensure [scripts]` hebt.
+# Dan start Blokkenpark vanzelf mee. Geen extra commands.
+ensure snelle-blokkenpark
