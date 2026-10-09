@@ -1,0 +1,6 @@
+# Na es_extended. Vóór andere Legion-maps als die dezelfde props overschrijven.
+ensure snelle-blokkenpark
+
+# Optioneel: /blokkenpark en /blokkenpos alleen voor staff
+add_ace group.admin command.blokkenpark allow
+add_ace group.admin command.blokkenpos allow

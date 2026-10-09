@@ -1,0 +1,18 @@
+# snelle-blokkenpark installatie
+
+1. Kopieer de map `snelle-blokkenpark` naar `resources`.
+2. Zet in server.cfg, na es_extended:
+
+```cfg
+ensure snelle-blokkenpark
+add_ace group.admin command.blokkenpark allow
+add_ace group.admin command.blokkenpos allow
+```
+
+3. Herstart de server.
+4. Ga naar Legion Square (Blokkenpark). Het plein heeft extra bomen, banken, kraampjes en borden.
+5. De blauwe P-blip is de ondergrondse parking. Rijd de marker in en druk op E.
+6. Binnen: rij een vrij vak in en druk op E. Met E bij de uitgang rijd je weer naar buiten.
+
+`/blokkenpark` zet een admin op het plein. `/blokkenpark parking` zet je in de kelder.
+`/blokkenpos` print je huidige vector4 in F8, handig als je een prop wilt verplaatsen.

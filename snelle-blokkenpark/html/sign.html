@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<style>
+  html, body {
+    margin: 0;
+    width: 1024px;
+    height: 320px;
+    overflow: hidden;
+    background: transparent;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .sign {
+    width: 1024px;
+    height: 320px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    gap: 36px;
+    padding: 0 56px;
+    background: linear-gradient(100deg, #0c2418 0%, #1a4a32 55%, #123526 100%);
+    border-top: 10px solid #d6f58a;
+    border-bottom: 10px solid #d6f58a;
+  }
+  .badge {
+    width: 168px;
+    height: 168px;
+    border-radius: 28px;
+    background: #d6f58a;
+    color: #10281c;
+    font-size: 78px;
+    font-weight: 800;
+    letter-spacing: -2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+  }
+  .kicker {
+    font-size: 28px;
+    letter-spacing: 12px;
+    color: #d6f58a;
+    font-weight: 700;
+  }
+  .title {
+    margin-top: 6px;
+    font-size: 84px;
+    line-height: 0.95;
+    letter-spacing: 2px;
+    font-weight: 800;
+    color: #f4fff6;
+  }
+  .sub {
+    margin-top: 12px;
+    font-size: 26px;
+    letter-spacing: 6px;
+    color: #c9e6d4;
+    font-weight: 600;
+  }
+  body.parking .sign {
+    background: linear-gradient(100deg, #07152e 0%, #14386f 58%, #0b2148 100%);
+    border-top-color: #8eb6ff;
+    border-bottom-color: #8eb6ff;
+  }
+  body.parking .badge {
+    background: #2f7bff;
+    color: #f5f8ff;
+    border-radius: 84px;
+    font-size: 92px;
+  }
+  body.parking .kicker { color: #b9d2ff; }
+  body.parking .sub { color: #d5e4ff; }
+</style>
+</head>
+<body>
+  <div class="sign">
+    <div class="badge" id="badge">BP</div>
+    <div>
+      <div class="kicker" id="kicker">CENTRUM</div>
+      <div class="title" id="title">BLOKKENPARK</div>
+      <div class="sub" id="sub">LOS SANTOS</div>
+    </div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).get('type') === 'parking') {
+      document.body.classList.add('parking');
+      document.getElementById('badge').textContent = 'P';
+      document.getElementById('kicker').textContent = 'BLOKKENPARK';
+      document.getElementById('title').textContent = 'PARKING';
+      document.getElementById('sub').textContent = 'ONDERGRONDS  ·  P1';
+    }
+  </script>
+</body>
+</html>
