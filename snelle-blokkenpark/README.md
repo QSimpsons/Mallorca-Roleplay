@@ -12,6 +12,7 @@ Pak uit en zet `snelle-blokkenpark` in `resources/[scripts]`. Door `ensure [scri
 
 ## Wat je ziet
 
+- Eclipse Roleplay-logo op de blokken van het plein, en op de borden
 - Entreebord **BLOKKENPARK** aan de noordkant van het plein
 - Fonteinplein met planten, lantaarns en de banken die er al stonden
 - Oost- en westpromenade met bomen en banken

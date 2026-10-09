@@ -41,6 +41,8 @@ REQUIRED = [
     'client/parking.lua',
     'server/main.lua',
     'html/sign.html',
+    'html/img/logo.png',
+    'client/logos.lua',
     'data/parked.json',
     'README.md',
     'INSTALL.txt',
@@ -152,7 +154,7 @@ def main():
             errors += fail(f'ontbreekt: {rel}')
 
     manifest = open(os.path.join(ROOT, 'fxmanifest.lua'), encoding='utf-8').read()
-    for rel in ('config.lua', 'client/util.lua', 'client/props.lua', 'client/parking.lua', 'server/main.lua', 'html/sign.html'):
+    for rel in ('config.lua', 'client/util.lua', 'client/logos.lua', 'client/props.lua', 'client/parking.lua', 'server/main.lua', 'html/sign.html', 'html/img/logo.png'):
         if rel not in manifest:
             errors += fail(f'fxmanifest noemt {rel} niet')
 

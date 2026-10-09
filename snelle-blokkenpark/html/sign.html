@@ -24,18 +24,20 @@
     border-bottom: 10px solid #d6f58a;
   }
   .badge {
-    width: 168px;
-    height: 168px;
-    border-radius: 28px;
-    background: #d6f58a;
-    color: #10281c;
-    font-size: 78px;
-    font-weight: 800;
-    letter-spacing: -2px;
+    width: 210px;
+    height: 210px;
+    border-radius: 105px;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
+    overflow: hidden;
+  }
+  .badge img {
+    width: 210px;
+    height: 210px;
+    object-fit: contain;
   }
   .kicker {
     font-size: 28px;
@@ -63,19 +65,13 @@
     border-top-color: #8eb6ff;
     border-bottom-color: #8eb6ff;
   }
-  body.parking .badge {
-    background: #2f7bff;
-    color: #f5f8ff;
-    border-radius: 84px;
-    font-size: 92px;
-  }
   body.parking .kicker { color: #b9d2ff; }
   body.parking .sub { color: #d5e4ff; }
 </style>
 </head>
 <body>
   <div class="sign">
-    <div class="badge" id="badge">BP</div>
+    <div class="badge"><img src="img/logo.png" alt="Eclipse Roleplay"></div>
     <div>
       <div class="kicker" id="kicker">CENTRUM</div>
       <div class="title" id="title">BLOKKENPARK</div>
@@ -85,7 +81,6 @@
   <script>
     if (new URLSearchParams(location.search).get('type') === 'parking') {
       document.body.classList.add('parking');
-      document.getElementById('badge').textContent = 'P';
       document.getElementById('kicker').textContent = 'BLOKKENPARK';
       document.getElementById('title').textContent = 'PARKING';
       document.getElementById('sub').textContent = 'ONDERGRONDS  ·  P1';

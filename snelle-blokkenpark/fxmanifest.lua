@@ -11,6 +11,7 @@ shared_script 'config.lua'
 
 client_scripts {
     'client/util.lua',
+    'client/logos.lua',
     'client/props.lua',
     'client/parking.lua',
 }
@@ -19,4 +20,5 @@ server_script 'server/main.lua'
 
 files {
     'html/sign.html',
+    'html/img/logo.png',
 }
