@@ -69,8 +69,8 @@
     state.texts = data.texts || {};
     state.query = '';
     searchEl.value = '';
-    searchEl.placeholder = state.texts.search || 'Zoek voertuig…';
-    brandTitle.textContent = data.title || 'POLITIE GARAGE';
+    searchEl.placeholder = state.texts.search || 'Zoek op naam of model…';
+    brandTitle.textContent = data.title || 'Politiegarage';
     locationEl.textContent = data.location || 'Garage';
     gradeLabel.textContent = `Rang ${data.grade ?? '—'}`;
 
@@ -172,7 +172,7 @@
             ${statRow(t.brake || 'Remmen', stats.brake)}
             ${statRow(t.handling || 'Handling', stats.handling)}
           </div>
-          <button type="button" class="spawn-btn" data-spawn="${escapeAttr(v.id)}">${escapeHtml(t.spawn || 'SPAWN VOERTUIG')}</button>
+          <button type="button" class="spawn-btn" data-spawn="${escapeAttr(v.id)}">${escapeHtml(t.spawn || 'PAK VOERTUIG')}</button>
         </div>
       `;
 

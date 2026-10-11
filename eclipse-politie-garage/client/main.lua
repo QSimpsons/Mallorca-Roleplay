@@ -144,15 +144,15 @@ local function openUi(garage)
     SendNUIMessage({
         action = 'open',
         data = {
-            title = 'POLITIE GARAGE',
+            title = 'Politiegarage',
             location = garage.label or 'Garage',
             garageId = garage.id,
             grade = playerGrade(),
             categories = categoriesForGarage(garage, vehicles),
             vehicles = payloadVehicles(vehicles),
             texts = {
-                search = 'Zoek voertuig…',
-                spawn = 'SPAWN VOERTUIG',
+                search = 'Zoek op naam of model…',
+                spawn = 'PAK VOERTUIG',
                 empty = 'Geen voertuigen in deze categorie.',
                 favoritesEmpty = 'Nog geen favorieten. Klik op ★ bij een voertuig.',
                 speed = 'Snelheid',

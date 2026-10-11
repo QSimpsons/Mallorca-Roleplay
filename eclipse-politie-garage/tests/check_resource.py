@@ -43,13 +43,20 @@ def main() -> int:
         errors.append("config missing Config.Vehicles")
     if "Config.Categories" not in config:
         errors.append("config missing Config.Categories")
-    if "POLITIE" not in paths["html/index.html"].read_text(encoding="utf-8"):
-        errors.append("index.html missing POLITIE brand title")
+    html = paths["html/index.html"].read_text(encoding="utf-8")
+    if "ECLIPSE RP" not in html:
+        errors.append("index.html missing ECLIPSE RP branding")
+    if "Politiegarage" not in html:
+        errors.append("index.html missing Politiegarage title")
 
-    css = paths["style.css"].read_text(encoding="utf-8") if False else paths["html/style.css"].read_text(encoding="utf-8")
-    for var in ("--blue", "--display", "--shell"):
+    css = paths["html/style.css"].read_text(encoding="utf-8")
+    for var in ("--accent", "--accent-deep", "--shell", "Exo 2"):
         if var not in css:
             errors.append(f"style.css missing {var}")
+    if not (ROOT / "html/fonts/exo2-700.ttf").exists():
+        errors.append("missing Exo 2 font file")
+    if not (ROOT / "html/img/logo.png").exists():
+        errors.append("missing Eclipse logo")
 
     js = paths["html/app.js"].read_text(encoding="utf-8")
     for fn in ("open(", "renderGrid", "SPAWN", "favorites"):
@@ -66,15 +73,14 @@ def main() -> int:
     if "SetNuiFocus" not in client:
         errors.append("client missing SetNuiFocus")
 
-    # Basic HTML structure
-    html = paths["html/index.html"].read_text(encoding="utf-8")
-    for el in ('id="categories"', 'id="grid"', 'id="search"', 'id="brand-title"'):
+    for el in ('id="categories"', 'id="grid"', 'id="search"', 'id="brand-title"', 'img/logo.png'):
         if el not in html:
             errors.append(f"index.html missing {el}")
 
-    # Ensure no obvious purple AI-default theme hardcode
-    if re.search(r"#7[cC]3[aA][eE][dD]|purple", css):
-        errors.append("unexpected purple theme token in CSS")
+    if re.search(r"#7[cC]3[aA][eE][dD]|purple|#F4F1EA", css, re.I):
+        errors.append("unexpected non-Eclipse theme token in CSS")
+    if "Manrope" in css or "Sora" in css:
+        errors.append("old light-theme fonts still present")
 
     if errors:
         print("FAIL")

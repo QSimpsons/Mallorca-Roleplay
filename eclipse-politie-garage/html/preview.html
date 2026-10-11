@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Politie Garage — Preview</title>
+  <title>ECLIPSE RP — Politiegarage Preview</title>
   <style>
     html, body { margin: 0; height: 100%; }
     iframe { border: 0; width: 100%; height: 100%; }
   </style>
 </head>
 <body>
-  <iframe id="frame" src="index.html" title="Politie Garage"></iframe>
+  <iframe id="frame" src="index.html" title="ECLIPSE RP Politiegarage"></iframe>
   <script>
     const demo = {
-      title: 'POLITIE GARAGE',
+      title: 'Politiegarage',
       location: 'Mission Row',
       garageId: 'mission_row',
       grade: 8,
@@ -29,18 +29,18 @@
         { id: 'police', label: 'Politie Cruiser', model: 'police', category: 'patrol', badge: 'PATROUILLE', image: 'https://docs.fivem.net/vehicles/police.webp', stats: { speed: 72, accel: 68, brake: 70, handling: 74 } },
         { id: 'police2', label: 'Politie Buffalo', model: 'police2', category: 'patrol', badge: 'PATROUILLE', image: 'https://docs.fivem.net/vehicles/police2.webp', stats: { speed: 78, accel: 74, brake: 72, handling: 76 } },
         { id: 'police3', label: 'Politie Interceptor', model: 'police3', category: 'patrol', badge: 'PATROUILLE', image: 'https://docs.fivem.net/vehicles/police3.webp', stats: { speed: 82, accel: 80, brake: 74, handling: 78 } },
-        { id: 'police4', label: 'Onopvallende Sedan', model: 'police4', category: 'unmarked', badge: 'CIVIL', image: 'https://docs.fivem.net/vehicles/police4.webp', stats: { speed: 76, accel: 70, brake: 68, handling: 72 } },
-        { id: 'fbi', label: 'Onopvallende Buffalo', model: 'fbi', category: 'unmarked', badge: 'CIVIL', image: 'https://docs.fivem.net/vehicles/fbi.webp', stats: { speed: 80, accel: 76, brake: 70, handling: 74 } },
-        { id: 'fbi2', label: 'Onopvallende SUV', model: 'fbi2', category: 'unmarked', badge: 'CIVIL', image: 'https://docs.fivem.net/vehicles/fbi2.webp', stats: { speed: 74, accel: 68, brake: 72, handling: 70 } },
-        { id: 'policeb', label: 'Politie Motor', model: 'policeb', category: 'motor', badge: 'MC', image: 'https://docs.fivem.net/vehicles/policeb.webp', stats: { speed: 88, accel: 90, brake: 78, handling: 86 } },
-        { id: 'riot', label: 'ME / Riot', model: 'riot', category: 'special', badge: 'SPEC', image: 'https://docs.fivem.net/vehicles/riot.webp', stats: { speed: 55, accel: 48, brake: 62, handling: 50 } },
-        { id: 'policet', label: 'Transporter', model: 'policet', category: 'special', badge: 'SPEC', image: 'https://docs.fivem.net/vehicles/policet.webp', stats: { speed: 62, accel: 55, brake: 66, handling: 58 } },
-        { id: 'riot2', label: 'Panservoertuig', model: 'riot2', category: 'special', badge: 'RANK', image: 'https://docs.fivem.net/vehicles/riot2.webp', stats: { speed: 50, accel: 42, brake: 60, handling: 46 } },
+        { id: 'police4', label: 'Onopvallende Sedan', model: 'police4', category: 'unmarked', badge: 'ONOPVALLEND', image: 'https://docs.fivem.net/vehicles/police4.webp', stats: { speed: 76, accel: 70, brake: 68, handling: 72 } },
+        { id: 'fbi', label: 'Onopvallende Buffalo', model: 'fbi', category: 'unmarked', badge: 'ONOPVALLEND', image: 'https://docs.fivem.net/vehicles/fbi.webp', stats: { speed: 80, accel: 76, brake: 70, handling: 74 } },
+        { id: 'fbi2', label: 'Onopvallende SUV', model: 'fbi2', category: 'unmarked', badge: 'ONOPVALLEND', image: 'https://docs.fivem.net/vehicles/fbi2.webp', stats: { speed: 74, accel: 68, brake: 72, handling: 70 } },
+        { id: 'policeb', label: 'Politie Motor', model: 'policeb', category: 'motor', badge: 'MOTOR', image: 'https://docs.fivem.net/vehicles/policeb.webp', stats: { speed: 88, accel: 90, brake: 78, handling: 86 } },
+        { id: 'riot', label: 'ME-wagen', model: 'riot', category: 'special', badge: 'SPECIAAL', image: 'https://docs.fivem.net/vehicles/riot.webp', stats: { speed: 55, accel: 48, brake: 62, handling: 50 } },
+        { id: 'policet', label: 'Transporter', model: 'policet', category: 'special', badge: 'SPECIAAL', image: 'https://docs.fivem.net/vehicles/policet.webp', stats: { speed: 62, accel: 55, brake: 66, handling: 58 } },
+        { id: 'riot2', label: 'Panservoertuig', model: 'riot2', category: 'special', badge: 'RANG', image: 'https://docs.fivem.net/vehicles/riot2.webp', stats: { speed: 50, accel: 42, brake: 60, handling: 46 } },
         { id: 'polmav', label: 'Politieheli', model: 'polmav', category: 'air', badge: 'LUCHT', image: 'https://docs.fivem.net/vehicles/polmav.webp', stats: { speed: 90, accel: 70, brake: 65, handling: 80 } },
       ],
       texts: {
-        search: 'Zoek voertuig…',
-        spawn: 'SPAWN VOERTUIG',
+        search: 'Zoek op naam of model…',
+        spawn: 'PAK VOERTUIG',
         empty: 'Geen voertuigen in deze categorie.',
         favoritesEmpty: 'Nog geen favorieten. Klik op ★ bij een voertuig.',
         speed: 'Snelheid',

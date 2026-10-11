@@ -178,7 +178,7 @@ Config.Vehicles = {
         model = 'police4',
         category = 'unmarked',
         minGrade = 4,
-        badge = 'CIVIL',
+        badge = 'ONOPVALLEND',
         stats = { speed = 76, accel = 70, brake = 68, handling = 72 },
     },
     {
@@ -187,7 +187,7 @@ Config.Vehicles = {
         model = 'fbi',
         category = 'unmarked',
         minGrade = 5,
-        badge = 'CIVIL',
+        badge = 'ONOPVALLEND',
         stats = { speed = 80, accel = 76, brake = 70, handling = 74 },
     },
     {
@@ -196,7 +196,7 @@ Config.Vehicles = {
         model = 'fbi2',
         category = 'unmarked',
         minGrade = 5,
-        badge = 'CIVIL',
+        badge = 'ONOPVALLEND',
         stats = { speed = 74, accel = 68, brake = 72, handling = 70 },
     },
     {
@@ -205,16 +205,16 @@ Config.Vehicles = {
         model = 'policeb',
         category = 'motor',
         minGrade = 3,
-        badge = 'MC',
+        badge = 'MOTOR',
         stats = { speed = 88, accel = 90, brake = 78, handling = 86 },
     },
     {
         id = 'riot',
-        label = 'ME / Riot',
+        label = 'ME-wagen',
         model = 'riot',
         category = 'special',
         minGrade = 6,
-        badge = 'SPEC',
+        badge = 'SPECIAAL',
         stats = { speed = 55, accel = 48, brake = 62, handling = 50 },
     },
     {
@@ -223,7 +223,7 @@ Config.Vehicles = {
         model = 'policet',
         category = 'special',
         minGrade = 6,
-        badge = 'SPEC',
+        badge = 'SPECIAAL',
         stats = { speed = 62, accel = 55, brake = 66, handling = 58 },
     },
     {
@@ -232,7 +232,7 @@ Config.Vehicles = {
         model = 'riot2',
         category = 'special',
         minGrade = 8,
-        badge = 'RANK',
+        badge = 'RANG',
         stats = { speed = 50, accel = 42, brake = 60, handling = 46 },
     },
     {
