@@ -4,7 +4,7 @@ lua54 'yes'
 
 author 'Eclipse Roleplay'
 description 'ECLIPSE RP politiegarage — donkerblauw NUI voor dienstvoertuigen'
-version '1.1.0'
+version '1.2.0'
 
 ui_page 'html/index.html'
 
@@ -26,6 +26,8 @@ files {
     'html/app.js',
     'html/preview.html',
     'html/img/logo.png',
+    'html/img/vehicles/polargento1.png',
+    'html/img/vehicles/polargent01.png',
     'html/img/vehicles/*.png',
     'html/img/vehicles/*.webp',
     'html/img/vehicles/*.jpg',

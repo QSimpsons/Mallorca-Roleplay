@@ -42,6 +42,8 @@ local function playerGrade()
     return job.grade or 0
 end
 
+local imageCache = {}
+
 local function urlDecode(str)
     str = str:gsub('+', ' ')
     return (str:gsub('%%(%x%x)', function(hex)
@@ -64,14 +66,79 @@ local function normalizeImageUrl(url)
     return url
 end
 
-local function localVehicleImage(model)
-    if not model or model == '' then return nil end
+local function toBase64(data)
+    local b = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    return ((data:gsub('.', function(x)
+        local r, byte = '', x:byte()
+        for i = 8, 1, -1 do
+            r = r .. (byte % 2 ^ i - byte % 2 ^ (i - 1) > 0 and '1' or '0')
+        end
+        return r
+    end) .. '0000'):gsub('%d%d%d?%d?%d?%d?', function(x)
+        if #x < 6 then return '' end
+        local c = 0
+        for i = 1, 6 do
+            c = c + (x:sub(i, i) == '1' and 2 ^ (6 - i) or 0)
+        end
+        return b:sub(c + 1, c + 1)
+    end) .. ({ '', '==', '=' })[#data % 3 + 1])
+end
+
+local function mimeForPath(path)
+    if path:match('%.webp$') then return 'image/webp' end
+    if path:match('%.jpe?g$') then return 'image/jpeg' end
+    return 'image/png'
+end
+
+-- Lokale resource-file → data-uri (werkt altijd in NUI, ook zonder nui-pad issues)
+local function embedLocalImage(resourcePath)
+    if imageCache[resourcePath] ~= nil then
+        return imageCache[resourcePath]
+    end
+
+    local raw = LoadResourceFile(GetCurrentResourceName(), resourcePath)
+    if not raw or raw == '' then
+        imageCache[resourcePath] = false
+        return nil
+    end
+
+    -- Grote bestanden: liever nui:// (data-uri kan zwaar zijn)
+    if #raw > (Config.MaxEmbedImageBytes or 450000) then
+        imageCache[resourcePath] = false
+        return nil
+    end
+
+    local uri = ('data:%s;base64,%s'):format(mimeForPath(resourcePath), toBase64(raw))
+    imageCache[resourcePath] = uri
+    return uri
+end
+
+local function toResourcePath(img)
+    img = img:gsub('^/+', '')
+    if img:sub(1, 5) == 'html/' then
+        return img
+    end
+    if img:sub(1, 4) == 'img/' then
+        return 'html/' .. img
+    end
+    if img:match('^vehicles/') then
+        return 'html/img/' .. img
+    end
+    return 'html/img/vehicles/' .. img
+end
+
+local function nuiPath(resourcePath)
+    return ('nui://%s/%s'):format(GetCurrentResourceName(), resourcePath)
+end
+
+local function findLocalImagePath(name)
+    if not name or name == '' then return nil end
     local res = GetCurrentResourceName()
     local exts = { '.png', '.webp', '.jpg', '.jpeg' }
     for i = 1, #exts do
-        local file = ('html/img/vehicles/%s%s'):format(model, exts[i])
+        local file = ('html/img/vehicles/%s%s'):format(name, exts[i])
         if LoadResourceFile(res, file) then
-            return ('img/vehicles/%s%s'):format(model, exts[i])
+            return file
         end
     end
     return nil
@@ -81,20 +148,31 @@ local function vehicleImage(vehicle)
     local img = vehicle.image
     if type(img) == 'string' and img ~= '' then
         img = normalizeImageUrl(img)
-        -- Relatief pad: img/vehicles/naam.png
-        if not img:match('^https?://') and not img:match('^nui://') and not img:match('^data:') then
-            img = img:gsub('^/+', '')
-            if img:sub(1, 5) == 'html/' then
-                img = img:sub(6)
-            end
+
+        if img:match('^data:') or img:match('^nui://') then
             return img
         end
-        return img
+
+        if img:match('^https?://') then
+            return img
+        end
+
+        -- Relatief / bestandsnaam → embed of nui://
+        local resourcePath = toResourcePath(img)
+        local embedded = embedLocalImage(resourcePath)
+        if embedded then
+            return embedded
+        end
+        return nuiPath(resourcePath)
     end
 
-    local localImg = localVehicleImage(vehicle.model) or localVehicleImage(vehicle.id)
-    if localImg then
-        return localImg
+    local localPath = findLocalImagePath(vehicle.model) or findLocalImagePath(vehicle.id)
+    if localPath then
+        local embedded = embedLocalImage(localPath)
+        if embedded then
+            return embedded
+        end
+        return nuiPath(localPath)
     end
 
     return (Config.ImageBase or 'https://docs.fivem.net/vehicles/%s.webp'):format(vehicle.model)

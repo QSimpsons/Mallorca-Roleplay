@@ -57,6 +57,19 @@ def main() -> int:
         errors.append("missing Exo 2 font file")
     if not (ROOT / "html/img/logo.png").exists():
         errors.append("missing Eclipse logo")
+    if not (ROOT / "html/img/vehicles/polargento1.png").exists():
+        errors.append("missing example vehicle image polargento1.png")
+    if "html/img/vehicles/*.png" not in manifest:
+        errors.append("fxmanifest missing vehicle image glob")
+    client = paths["client/main.lua"].read_text(encoding="utf-8")
+    if "normalizeImageUrl" not in client:
+        errors.append("client missing normalizeImageUrl for custom images")
+    if "embedLocalImage" not in client:
+        errors.append("client missing embedLocalImage data-uri fallback")
+    if "toBase64" not in client:
+        errors.append("client missing toBase64 helper")
+    if "html/img/vehicles/polargento1.png" not in manifest:
+        errors.append("fxmanifest must explicitly include polargento1.png")
 
     js = paths["html/app.js"].read_text(encoding="utf-8")
     for fn in ("open(", "renderGrid", "SPAWN", "favorites"):

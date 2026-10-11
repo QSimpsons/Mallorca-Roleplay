@@ -100,8 +100,12 @@ Config.Marker = {
 -- 1) Zet je PNG/WebP in html/img/vehicles/<model>.png  (automatisch gevonden)
 -- 2) Of zet image = 'img/vehicles/mijnauto.png' in Config.Vehicles
 -- 3) Of een DIRECTE image-url (eindigt op .png/.webp/.jpg) — geen imagetourls viewer-pagina
+-- Lokale bestanden worden als data-uri in de NUI gezet (werkt betrouwbaar in FiveM).
 -- Standaard GTA-modellen vallen terug op docs.fivem.net
 Config.ImageBase = 'https://docs.fivem.net/vehicles/%s.webp'
+Config.MaxEmbedImageBytes = 450000 -- daarboven gebruikt het nui:// pad
+
+
 
 ------------------------------------------------------------------------
 -- Sidebar-categorieën (id moet uniek zijn)
