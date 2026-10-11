@@ -32,9 +32,13 @@ def main():
             errors.append(f"config missing {n}")
 
     client = files["client/main.lua"].read_text(encoding="utf-8")
-    for n in ("SetEntityProofs", "SetVehicleTyresCanBurst", "applyProtection", "ProtectVehicle"):
+    for n in ("SetEntityProofs", "SetVehicleTyresCanBurst", "applyProtection", "ProtectVehicle", "applySpeedSettings", "ModifyVehicleTopSpeed"):
         if n not in client:
             errors.append(f"client missing {n}")
+    if "SetVehicleFixed" in client:
+        errors.append("client must not call SetVehicleFixed (causes high-speed stutter)")
+    if "MaxSpeedKmh" not in cfg:
+        errors.append("config missing MaxSpeedKmh")
 
     if errors:
         print("FAIL"); print("\n".join(errors)); return 1
