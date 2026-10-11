@@ -50,9 +50,13 @@ Config.OnlyOccupiedByPlayer = false -- false = ook andere overheidswagens in de 
 Config.NearbyDistance = 60.0
 
 -- Hoe vaak opnieuw toepassen (ms). Lager = strakker, iets meer load.
-Config.RefreshMs = 1000
+Config.RefreshMs = 750
 
--- Wat er beschermd wordt
+-- 0 damage: volledig onkwetsbaar (invincible + proofs + health lock)
+Config.ZeroDamage = true
+Config.Invincible = true
+
+-- Wat er beschermd wordt (bij ZeroDamage allemaal aan)
 Config.Proofs = {
     bullet = true,      -- kogels
     fire = true,        -- vuur
@@ -64,11 +68,12 @@ Config.Proofs = {
 }
 
 Config.TyresCanBurst = false      -- banden knappen niet
+Config.WheelsCanBreak = false
 Config.CanBeVisiblyDamaged = false
 Config.StrongAxles = true
 Config.EngineNeverDegrade = true
-Config.KeepEngineHealthy = true   -- motor altijd ~1000 health
-Config.KeepBodyHealthy = true     -- body/health hoog houden ZONDER SetVehicleFixed tijdens rijden
+Config.KeepEngineHealthy = true   -- motor altijd 1000
+Config.KeepBodyHealthy = true     -- body/health altijd 1000 (geen SetVehicleFixed tijdens rijden)
 Config.DisableVehicleWeapons = false -- true = voertuigwapens uit (meestal niet nodig)
 
 -- Snelheid: geen harde limiet (voorkomt “stoppen en weer wegrijden” rond hoge km/u).
@@ -79,5 +84,5 @@ Config.TopSpeedMultiplier = 1.35
 Config.DisableAutoBrakeAtHighSpeed = true
 
 Config.Text = {
-    applied = 'Overheidsvoertuig: kogelvrij & onverwoestbaar.',
+    applied = 'Overheidsvoertuig: 0 damage (kogelvrij & onverwoestbaar).',
 }

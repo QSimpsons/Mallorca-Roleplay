@@ -82,71 +82,87 @@ local function applySpeedSettings(vehicle)
     end
 end
 
+local function lockZeroDamage(vehicle)
+    -- Pure health/proof lock — NOOIT SetVehicleFixed hier (breekt snelheid).
+    SetVehicleEngineHealth(vehicle, 1000.0)
+    SetVehicleBodyHealth(vehicle, 1000.0)
+    SetVehiclePetrolTankHealth(vehicle, 1000.0)
+    SetEntityHealth(vehicle, GetEntityMaxHealth(vehicle))
+
+    for i = 0, 7 do
+        if IsVehicleTyreBurst(vehicle, i, false) or IsVehicleTyreBurst(vehicle, i, true) then
+            SetVehicleTyreFixed(vehicle, i)
+        end
+    end
+
+    for i = 0, 7 do
+        if not IsVehicleWindowIntact(vehicle, i) then
+            FixVehicleWindow(vehicle, i)
+        end
+    end
+
+    if not GetIsVehicleEngineRunning(vehicle) and GetPedInVehicleSeat(vehicle, -1) ~= 0 then
+        SetVehicleEngineOn(vehicle, true, true, false)
+    end
+end
+
 local function applyProtection(vehicle)
     if not DoesEntityExist(vehicle) or not IsEntityAVehicle(vehicle) then return end
 
+    local zero = Config.ZeroDamage == true
     local p = Config.Proofs or {}
+
     SetEntityProofs(
         vehicle,
-        p.bullet == true,
-        p.fire == true,
-        p.explosion == true,
-        p.collision == true,
-        p.melee == true,
-        p.steam == true,
+        zero or p.bullet == true,
+        zero or p.fire == true,
+        zero or p.explosion == true,
+        zero or p.collision == true,
+        zero or p.melee == true,
+        zero or p.steam == true,
         true,
-        p.drown == true
+        zero or p.drown == true
     )
 
-    SetVehicleCanBeVisiblyDamaged(vehicle, Config.CanBeVisiblyDamaged == true)
-    SetVehicleTyresCanBurst(vehicle, Config.TyresCanBurst == true)
+    if Config.Invincible ~= false or zero then
+        SetEntityInvincible(vehicle, true)
+    end
+
+    SetEntityCanBeDamaged(vehicle, false)
+    SetVehicleCanBeVisiblyDamaged(vehicle, false)
+    SetVehicleTyresCanBurst(vehicle, false)
+    SetVehicleWheelsCanBreak(vehicle, Config.WheelsCanBreak == true)
     SetDisableVehiclePetrolTankDamage(vehicle, true)
     SetDisableVehiclePetrolTankFires(vehicle, true)
     SetVehicleExplodesOnHighExplosionDamage(vehicle, false)
+    SetVehicleReceivesRampDamage(vehicle, false)
+    pcall(function()
+        SetDisableVehicleEngineFires(vehicle, true)
+    end)
 
-    if Config.StrongAxles then
+    if Config.StrongAxles ~= false then
         SetVehicleHasStrongAxles(vehicle, true)
     end
 
-    if Config.EngineNeverDegrade then
+    if Config.EngineNeverDegrade ~= false then
         SetVehicleEngineCanDegrade(vehicle, false)
     end
 
-    -- Nooit SetVehicleFixed tijdens het rijden: dat laat de auto "stoppen en weer wegrijden".
     local moving = vehicleSpeedKmh(vehicle) > 5.0
 
-    if Config.KeepEngineHealthy then
-        if GetVehicleEngineHealth(vehicle) < 950.0 then
-            SetVehicleEngineHealth(vehicle, 1000.0)
-        end
-        if GetVehiclePetrolTankHealth(vehicle) < 950.0 then
-            SetVehiclePetrolTankHealth(vehicle, 1000.0)
-        end
-        -- Houd motor aan bij hoge snelheid
-        if moving and not GetIsVehicleEngineRunning(vehicle) then
-            SetVehicleEngineOn(vehicle, true, true, false)
-        end
+    if zero or Config.KeepEngineHealthy or Config.KeepBodyHealthy then
+        lockZeroDamage(vehicle)
     end
 
-    if Config.KeepBodyHealthy and not moving then
-        if GetVehicleBodyHealth(vehicle) < 950.0 then
-            SetVehicleBodyHealth(vehicle, 1000.0)
-            SetVehicleDeformationFixed(vehicle)
-        end
+    -- Deformatie alleen stilstaand fixen (niet tijdens rijden)
+    if not moving and (zero or Config.KeepBodyHealthy) then
+        SetVehicleDeformationFixed(vehicle)
         SetVehicleDirtLevel(vehicle, 0.0)
-    elseif Config.KeepBodyHealthy then
-        -- Tijdens rijden alleen health bijhouden, geen Fixed/Deformation (breekt snelheid)
-        if GetVehicleBodyHealth(vehicle) < 200.0 then
-            SetVehicleBodyHealth(vehicle, 1000.0)
-        end
     end
 
     if Config.DisableVehicleWeapons then
         DisableVehicleWeapon(true, vehicle, PlayerPedId())
     end
-
-    SetEntityCanBeDamaged(vehicle, false)
-    SetVehicleReceivesRampDamage(vehicle, false)
 
     applySpeedSettings(vehicle)
 
@@ -194,7 +210,7 @@ end
 
 CreateThread(function()
     while true do
-        local wait = Config.RefreshMs or 1000
+        local wait = Config.RefreshMs or 750
         local ped = PlayerPedId()
         local veh = GetVehiclePedIsIn(ped, false)
         local targets = collectTargets()
@@ -210,15 +226,21 @@ CreateThread(function()
             end
         end
 
-        -- Tijdens hard rijden: geen auto-handrem / engine-off glitches
-        if Config.DisableAutoBrakeAtHighSpeed and veh ~= 0 and shouldProtect(veh) then
+        -- In jouw overheidswagen: elke frame 0 damage + snelheid vasthouden
+        if veh ~= 0 and shouldProtect(veh) then
             wait = 0
-            SetVehicleHandbrake(veh, false)
-            if not GetIsVehicleEngineRunning(veh) then
-                SetVehicleEngineOn(veh, true, true, false)
+            if Config.ZeroDamage then
+                SetEntityInvincible(veh, true)
+                SetEntityCanBeDamaged(veh, false)
+                lockZeroDamage(veh)
             end
-            -- Voorkom dat cruise/limiter de auto laat inhouden
-            applySpeedSettings(veh)
+            if Config.DisableAutoBrakeAtHighSpeed then
+                SetVehicleHandbrake(veh, false)
+                if not GetIsVehicleEngineRunning(veh) then
+                    SetVehicleEngineOn(veh, true, true, false)
+                end
+                applySpeedSettings(veh)
+            end
         end
 
         for entity in pairs(protected) do

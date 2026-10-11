@@ -1,6 +1,6 @@
 # Eclipse Overheid Voertuigen
 
-Maakt overheids-/hulpdienstvoertuigen **kogelvrij** en **onverwoestbaar** (geen schade, banden knappen niet, motor blijft heel).
+Maakt overheids-/hulpdienstvoertuigen **0 damage**: kogelvrij, invincible, geen schade (banden/motor/body blijven heel).
 
 ## Installatie
 
