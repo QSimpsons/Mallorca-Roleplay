@@ -233,17 +233,6 @@ local function applyExtras(vehicle)
     end
 end
 
-local function findFreeSpawn(spawnPoints)
-    for i = 1, #spawnPoints do
-        local sp = spawnPoints[i]
-        local pos = vector3(sp.x, sp.y, sp.z)
-        if ESX.Game.IsSpawnPointClear(pos, 3.0) then
-            return sp
-        end
-    end
-    return nil
-end
-
 local function findGarageById(id)
     for i = 1, #Config.Garages do
         if Config.Garages[i].id == id then
@@ -269,6 +258,92 @@ local function makePlate()
     return ('%s%0' .. digits .. 'd'):format(Config.Plate.prefix or 'POL', n)
 end
 
+-- Spawn alleen binnen OneSync-range van de speler, anders vlak voor de speler.
+local function resolveSpawn(garage)
+    local ped = PlayerPedId()
+    local pedCoords = GetEntityCoords(ped)
+    local pedHeading = GetEntityHeading(ped)
+    local maxDist = Config.MaxSpawnDistance or 80.0
+    local spawnPoints = (garage and garage.spawnPoints) or {}
+
+    for i = 1, #spawnPoints do
+        local sp = spawnPoints[i]
+        local pos = vector3(sp.x, sp.y, sp.z)
+        if #(pedCoords - pos) <= maxDist and ESX.Game.IsSpawnPointClear(pos, 3.0) then
+            return pos, sp.w or sp.heading or 0.0
+        end
+    end
+
+    -- Fallback: voor de speler (voorkomt ESX "Out of onesync range")
+    local forward = GetEntityForwardVector(ped)
+    local tryOffsets = { 4.0, 6.0, 8.0, 3.0, 10.0 }
+    for i = 1, #tryOffsets do
+        local dist = tryOffsets[i]
+        local pos = pedCoords + (forward * dist)
+        local found, groundZ = GetGroundZFor_3dCoord(pos.x, pos.y, pedCoords.z + 2.0, false)
+        if found then
+            pos = vector3(pos.x, pos.y, groundZ + 0.2)
+        end
+        if ESX.Game.IsSpawnPointClear(pos, 2.5) then
+            return pos, pedHeading
+        end
+    end
+
+    local pos = pedCoords + (forward * 4.0)
+    return vector3(pos.x, pos.y, pedCoords.z), pedHeading
+end
+
+local function finishSpawnedVehicle(vehicle)
+    if not vehicle or vehicle == 0 or not DoesEntityExist(vehicle) then
+        notify(Config.Text.modelFail, 'error')
+        return false
+    end
+
+    SetVehicleNumberPlateText(vehicle, makePlate())
+    SetVehicleEngineOn(vehicle, true, true, false)
+    SetVehicleDirtLevel(vehicle, 0.0)
+    SetVehicleOnGroundProperly(vehicle)
+    applyExtras(vehicle)
+    setFuel(vehicle, Config.Fuel.default)
+    giveKeys(vehicle)
+
+    if Config.WarpIntoVehicle then
+        TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
+    end
+
+    notify(Config.Text.spawned, 'success')
+    return true
+end
+
+local function spawnVehicleNative(model, coords, heading, cb)
+    local hash = type(model) == 'number' and model or joaat(model)
+    if not IsModelInCdimage(hash) or not IsModelAVehicle(hash) then
+        cb(nil)
+        return
+    end
+
+    RequestModel(hash)
+    local timeout = GetGameTimer() + 8000
+    while not HasModelLoaded(hash) do
+        if GetGameTimer() > timeout then
+            cb(nil)
+            return
+        end
+        Wait(10)
+    end
+
+    local vehicle = CreateVehicle(hash, coords.x, coords.y, coords.z, heading or 0.0, true, false)
+    if vehicle and vehicle ~= 0 then
+        SetEntityAsMissionEntity(vehicle, true, true)
+        SetModelAsNoLongerNeeded(hash)
+        NetworkRegisterEntityAsNetworked(vehicle)
+        local netId = NetworkGetNetworkIdFromEntity(vehicle)
+        SetNetworkIdCanMigrate(netId, true)
+        SetVehicleHasBeenOwnedByPlayer(vehicle, true)
+    end
+    cb(vehicle)
+end
+
 local function spawnVehicle(vehicleCfg, garage)
     if GetGameTimer() - lastSpawnAt < (Config.SpawnCooldown or 2500) then
         notify(Config.Text.cooldown, 'error')
@@ -280,35 +355,41 @@ local function spawnVehicle(vehicleCfg, garage)
         return
     end
 
-    local sp = findFreeSpawn(garage.spawnPoints or {})
-    if not sp then
+    local coords, heading = resolveSpawn(garage)
+    if not coords then
         notify(Config.Text.blocked, 'error')
         return
     end
 
+    -- UI dicht vóór spawn (focus/camera kan ESX-afstand checks verstoren)
+    closeUi()
     lastSpawnAt = GetGameTimer()
     local model = vehicleCfg.model
 
-    ESX.Game.SpawnVehicle(model, vector3(sp.x, sp.y, sp.z), sp.w or 0.0, function(vehicle)
-        if not vehicle or vehicle == 0 then
-            notify(Config.Text.modelFail, 'error')
-            return
-        end
+    local pedCoords = GetEntityCoords(PlayerPedId())
+    if #(pedCoords - coords) > (Config.MaxSpawnDistance or 80.0) then
+        -- Extra veiligheidsnet: altijd dichtbij spawnen
+        coords, heading = resolveSpawn(nil)
+    end
 
-        SetVehicleNumberPlateText(vehicle, makePlate())
-        SetVehicleEngineOn(vehicle, true, true, false)
-        SetVehicleDirtLevel(vehicle, 0.0)
-        applyExtras(vehicle)
-        setFuel(vehicle, Config.Fuel.default)
-        giveKeys(vehicle)
+    local function onSpawned(vehicle)
+        if not finishSpawnedVehicle(vehicle) then return end
+    end
 
-        if Config.WarpIntoVehicle then
-            TaskWarpPedIntoVehicle(PlayerPedId(), vehicle, -1)
-        end
-
-        notify(Config.Text.spawned, 'success')
-        closeUi()
+    -- ESX spawn kan crashen/erroren buiten OneSync-range; vang af en gebruik native.
+    local ok = pcall(function()
+        ESX.Game.SpawnVehicle(model, coords, heading or 0.0, function(vehicle)
+            if vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then
+                onSpawned(vehicle)
+            else
+                spawnVehicleNative(model, coords, heading, onSpawned)
+            end
+        end)
     end)
+
+    if not ok then
+        spawnVehicleNative(model, coords, heading, onSpawned)
+    end
 end
 
 local function storeCurrentVehicle(garage)

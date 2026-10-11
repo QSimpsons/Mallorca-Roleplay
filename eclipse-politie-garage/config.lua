@@ -22,6 +22,10 @@ Config.WarpIntoVehicle = true
 -- Spawn-cooldown in ms (anti-spam).
 Config.SpawnCooldown = 2500
 
+-- Max afstand tot een spawnpoint (OneSync / ESX client-spawn limiet).
+-- Verder weg → spawn voor de speler i.p.v. Mission Row-coords.
+Config.MaxSpawnDistance = 80.0
+
 -- Marker / interactie
 Config.MarkerDistance = 28.0
 Config.InteractDistance = 2.2
