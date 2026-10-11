@@ -62,11 +62,12 @@ local function vehicleSpeedKmh(vehicle)
 end
 
 local function applySpeedSettings(vehicle)
-    -- 0 = geen limiet (sneller dan 295 mag). Anders omrekenen km/h → m/s.
+    -- MaxSpeedKmh <= 0 → geen limiet (sneller dan 295 mag).
     local maxKmh = tonumber(Config.MaxSpeedKmh) or 0
     if maxKmh <= 0 then
-        SetVehicleMaxSpeed(vehicle, 0.0) -- 0 = game default / uncapped for many builds
-        SetEntityMaxSpeed(vehicle, 9999.0)
+        -- Hoge cap i.p.v. 0.0 (0 reset naar standaard game-limiet)
+        SetVehicleMaxSpeed(vehicle, 500.0) -- m/s ≈ ver boven 295 km/h
+        SetEntityMaxSpeed(vehicle, 500.0)
     else
         local ms = maxKmh / 3.6
         SetVehicleMaxSpeed(vehicle, ms)
@@ -75,7 +76,7 @@ local function applySpeedSettings(vehicle)
 
     local mult = tonumber(Config.TopSpeedMultiplier) or 1.0
     if mult < 0.1 then mult = 0.1 end
-    if not speedBoostApplied[vehicle] or Config.RefreshMs then
+    if not speedBoostApplied[vehicle] then
         ModifyVehicleTopSpeed(vehicle, mult)
         speedBoostApplied[vehicle] = true
     end

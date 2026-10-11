@@ -20,6 +20,8 @@ ensure eclipse-overheid-voertuigen
 - Standaard: alleen met job `police` of `ambulance` (zie config)
 - Match op spawnmodel (`polargento1`, `police`, …) en optioneel emergency-class 18
 - Blijft elke seconde opnieuw toepassen (tegen damage-scripts)
+- Geen snelheidslimiet (`MaxSpeedKmh = 0`) — sneller dan 295 mag
+- Geen `SetVehicleFixed` tijdens het rijden (voorkomt stoppen/haperen op hoge snelheid)
 - Export na spawn:
 
 ```lua
