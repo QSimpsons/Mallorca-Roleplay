@@ -71,7 +71,7 @@
     searchEl.value = '';
     searchEl.placeholder = state.texts.search || 'Zoek op naam of model…';
     brandTitle.textContent = data.title || 'Politiegarage';
-    locationEl.textContent = data.location || 'Garage';
+    locationEl.textContent = data.location || 'Made By Goudesnelle';
     gradeLabel.textContent = `Rang ${data.grade ?? '—'}`;
 
     const first = state.categories.find((c) => c.special !== 'favorites') || state.categories[0];
