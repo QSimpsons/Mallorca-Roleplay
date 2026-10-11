@@ -109,12 +109,12 @@ Config.Categories = {
 }
 
 ------------------------------------------------------------------------
--- Locaties (Mission Row – pas aan naar jullie MLO)
+-- Locaties (pas coords aan naar jullie MLO)
 ------------------------------------------------------------------------
 Config.Garages = {
     {
         id = 'mission_row',
-        label = 'Politiegarage Mission Row',
+        label = 'Politiegarage',
         coords = vector3(452.6, -1017.4, 28.5),
         deleteCoords = vector3(452.6, -1014.4, 28.5),
         minGrade = 1,

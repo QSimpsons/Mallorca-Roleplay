@@ -145,7 +145,7 @@ local function openUi(garage)
         action = 'open',
         data = {
             title = 'Politiegarage',
-            location = garage.label or 'Garage',
+            location = 'Made By Goudesnelle',
             garageId = garage.id,
             grade = playerGrade(),
             categories = categoriesForGarage(garage, vehicles),
