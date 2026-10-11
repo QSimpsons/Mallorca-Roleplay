@@ -32,6 +32,19 @@ ensure eclipse-politie-garage
 
 **E** bij de marker om te openen · **ESC** om te sluiten.
 
+## Eigen afbeeldingen
+
+1. Zet je PNG/WebP in `html/img/vehicles/<model>.png` (bijv. `polargento1.png`).
+2. Voeg het voertuig toe in **`config.lua`** (niet in `preview.html`):
+
+```lua
+image = 'img/vehicles/polargento1.png',
+```
+
+Of laat `image` weg als het bestand exact `<model>.png` heet — dan wordt het automatisch gevonden.
+
+Gebruik geen imagetourls-viewerlinks (`/nl/v?u=...`). Alleen directe `.png`/`.webp`-urls of lokale bestanden.
+
 ## Preview
 
 Open `html/preview.html` via een lokale webserver.

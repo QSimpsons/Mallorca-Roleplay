@@ -130,6 +130,25 @@
     });
   }
 
+  function normalizeImageUrl(url) {
+    if (!url) return '';
+    try {
+      const m = String(url).match(/[?&]u=([^&]+)/);
+      if (m) {
+        const decoded = decodeURIComponent(m[1].replace(/\+/g, ' '));
+        if (/^https?:\/\//i.test(decoded)) return decoded;
+      }
+    } catch (_) { /* ignore */ }
+    return String(url);
+  }
+
+  const PLACEHOLDER_IMG = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360">'
+    + '<rect width="640" height="360" fill="#0a1628"/>'
+    + '<text x="50%" y="50%" fill="#4db2ff" font-family="Segoe UI,sans-serif" font-size="22" text-anchor="middle" dominant-baseline="middle">Geen afbeelding</text>'
+    + '</svg>'
+  );
+
   function renderGrid() {
     const list = filteredVehicles();
     const cat = activeCategoryMeta();
@@ -155,6 +174,7 @@
       const isFav = state.favorites.has(v.id);
       const stats = v.stats || {};
       const t = state.texts;
+      const imgSrc = normalizeImageUrl(v.image) || PLACEHOLDER_IMG;
 
       card.innerHTML = `
         <div class="card-media">
@@ -162,7 +182,7 @@
           <button type="button" class="fav-btn ${isFav ? 'on' : ''}" data-fav="${escapeAttr(v.id)}" aria-label="Favoriet">
             <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.8L12 16.9 6.8 19.7l1-5.8L3.5 9.7l5.9-.9L12 3.5z"/></svg>
           </button>
-          <img src="${escapeAttr(v.image || '')}" alt="${escapeAttr(v.label)}" loading="lazy" onerror="this.style.opacity='0.25'" />
+          <img src="${escapeAttr(imgSrc)}" alt="" data-label="${escapeAttr(v.label)}" loading="lazy" />
         </div>
         <div class="card-body">
           <h3>${escapeHtml(v.label)}</h3>
@@ -177,6 +197,16 @@
       `;
 
       gridEl.appendChild(card);
+
+      const imgEl = card.querySelector('.card-media img');
+      if (imgEl) {
+        imgEl.addEventListener('error', () => {
+          if (imgEl.dataset.failed === '1') return;
+          imgEl.dataset.failed = '1';
+          imgEl.src = PLACEHOLDER_IMG;
+          imgEl.classList.add('missing');
+        });
+      }
 
       requestAnimationFrame(() => {
         card.querySelectorAll('.bar > i').forEach((el) => {

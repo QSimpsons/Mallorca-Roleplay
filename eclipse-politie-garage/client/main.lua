@@ -42,10 +42,61 @@ local function playerGrade()
     return job.grade or 0
 end
 
-local function vehicleImage(vehicle)
-    if vehicle.image and vehicle.image ~= '' then
-        return vehicle.image
+local function urlDecode(str)
+    str = str:gsub('+', ' ')
+    return (str:gsub('%%(%x%x)', function(hex)
+        return string.char(tonumber(hex, 16))
+    end))
+end
+
+-- imagetourls.com/nl/v?u=... → directe CDN-url (viewer-pagina's werken niet in <img>)
+local function normalizeImageUrl(url)
+    if type(url) ~= 'string' or url == '' then return url end
+
+    local wrapped = url:match('[?&]u=([^&]+)')
+    if wrapped then
+        local decoded = urlDecode(wrapped)
+        if decoded:match('^https?://') then
+            return decoded
+        end
     end
+
+    return url
+end
+
+local function localVehicleImage(model)
+    if not model or model == '' then return nil end
+    local res = GetCurrentResourceName()
+    local exts = { '.png', '.webp', '.jpg', '.jpeg' }
+    for i = 1, #exts do
+        local file = ('html/img/vehicles/%s%s'):format(model, exts[i])
+        if LoadResourceFile(res, file) then
+            return ('img/vehicles/%s%s'):format(model, exts[i])
+        end
+    end
+    return nil
+end
+
+local function vehicleImage(vehicle)
+    local img = vehicle.image
+    if type(img) == 'string' and img ~= '' then
+        img = normalizeImageUrl(img)
+        -- Relatief pad: img/vehicles/naam.png
+        if not img:match('^https?://') and not img:match('^nui://') and not img:match('^data:') then
+            img = img:gsub('^/+', '')
+            if img:sub(1, 5) == 'html/' then
+                img = img:sub(6)
+            end
+            return img
+        end
+        return img
+    end
+
+    local localImg = localVehicleImage(vehicle.model) or localVehicleImage(vehicle.id)
+    if localImg then
+        return localImg
+    end
+
     return (Config.ImageBase or 'https://docs.fivem.net/vehicles/%s.webp'):format(vehicle.model)
 end
 

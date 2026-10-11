@@ -96,7 +96,11 @@ Config.Marker = {
     scale = 0.55
 }
 
--- Thumbnails: FiveM docs CDN. Override per voertuig met image = 'nui://...' of https://...
+-- Thumbnails:
+-- 1) Zet je PNG/WebP in html/img/vehicles/<model>.png  (automatisch gevonden)
+-- 2) Of zet image = 'img/vehicles/mijnauto.png' in Config.Vehicles
+-- 3) Of een DIRECTE image-url (eindigt op .png/.webp/.jpg) — geen imagetourls viewer-pagina
+-- Standaard GTA-modellen vallen terug op docs.fivem.net
 Config.ImageBase = 'https://docs.fivem.net/vehicles/%s.webp'
 
 ------------------------------------------------------------------------
@@ -175,6 +179,18 @@ Config.Vehicles = {
         minGrade = 2,
         badge = 'PATROUILLE',
         stats = { speed = 82, accel = 80, brake = 74, handling = 78 },
+    },
+    -- Addonvoorbeeld: zet je foto in html/img/vehicles/polargento1.png
+    -- of geef image = 'img/vehicles/polargento1.png' (niet preview.html!)
+    {
+        id = 'polargento1',
+        label = 'Pol Argento',
+        model = 'polargento1',
+        category = 'patrol',
+        minGrade = 1,
+        badge = 'PATROUILLE',
+        image = 'img/vehicles/polargento1.png',
+        stats = { speed = 80, accel = 76, brake = 72, handling = 78 },
     },
     {
         id = 'police4',
