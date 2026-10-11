@@ -1,5 +1,6 @@
 local protected = {} -- [veh] = true
 local lastNotifyVeh = 0
+local speedBoostApplied = {} -- [veh] = true
 
 local function dbg(...)
     if Config.Debug then
@@ -39,14 +40,12 @@ end
 local function modelAllowed(vehicle)
     if not DoesEntityExist(vehicle) then return false end
     local model = GetEntityModel(vehicle)
-    local name = string.lower(GetDisplayNameFromVehicleModel(model) or '')
-    -- GetDisplayNameFromVehicleModel geeft vaak de game-naam; voor addons beter joaat-check via Config keys
     for spawnName, enabled in pairs(Config.Models) do
         if enabled and joaat(spawnName) == model then
             return true
         end
     end
-    -- fallback display name match
+    local name = string.lower(GetDisplayNameFromVehicleModel(model) or '')
     if name ~= '' and Config.Models[name] then
         return true
     end
@@ -56,6 +55,30 @@ local function modelAllowed(vehicle)
         end
     end
     return false
+end
+
+local function vehicleSpeedKmh(vehicle)
+    return GetEntitySpeed(vehicle) * 3.6
+end
+
+local function applySpeedSettings(vehicle)
+    -- 0 = geen limiet (sneller dan 295 mag). Anders omrekenen km/h → m/s.
+    local maxKmh = tonumber(Config.MaxSpeedKmh) or 0
+    if maxKmh <= 0 then
+        SetVehicleMaxSpeed(vehicle, 0.0) -- 0 = game default / uncapped for many builds
+        SetEntityMaxSpeed(vehicle, 9999.0)
+    else
+        local ms = maxKmh / 3.6
+        SetVehicleMaxSpeed(vehicle, ms)
+        SetEntityMaxSpeed(vehicle, ms)
+    end
+
+    local mult = tonumber(Config.TopSpeedMultiplier) or 1.0
+    if mult < 0.1 then mult = 0.1 end
+    if not speedBoostApplied[vehicle] or Config.RefreshMs then
+        ModifyVehicleTopSpeed(vehicle, mult)
+        speedBoostApplied[vehicle] = true
+    end
 end
 
 local function applyProtection(vehicle)
@@ -70,7 +93,7 @@ local function applyProtection(vehicle)
         p.collision == true,
         p.melee == true,
         p.steam == true,
-        true, -- bulletproof tires-related flag in some builds; keep true with proofs
+        true,
         p.drown == true
     )
 
@@ -88,24 +111,43 @@ local function applyProtection(vehicle)
         SetVehicleEngineCanDegrade(vehicle, false)
     end
 
+    -- Nooit SetVehicleFixed tijdens het rijden: dat laat de auto "stoppen en weer wegrijden".
+    local moving = vehicleSpeedKmh(vehicle) > 5.0
+
     if Config.KeepEngineHealthy then
-        SetVehicleEngineHealth(vehicle, 1000.0)
-        SetVehiclePetrolTankHealth(vehicle, 1000.0)
+        if GetVehicleEngineHealth(vehicle) < 950.0 then
+            SetVehicleEngineHealth(vehicle, 1000.0)
+        end
+        if GetVehiclePetrolTankHealth(vehicle) < 950.0 then
+            SetVehiclePetrolTankHealth(vehicle, 1000.0)
+        end
+        -- Houd motor aan bij hoge snelheid
+        if moving and not GetIsVehicleEngineRunning(vehicle) then
+            SetVehicleEngineOn(vehicle, true, true, false)
+        end
     end
 
-    if Config.KeepBodyHealthy then
-        SetVehicleBodyHealth(vehicle, 1000.0)
-        SetVehicleFixed(vehicle)
+    if Config.KeepBodyHealthy and not moving then
+        if GetVehicleBodyHealth(vehicle) < 950.0 then
+            SetVehicleBodyHealth(vehicle, 1000.0)
+            SetVehicleDeformationFixed(vehicle)
+        end
         SetVehicleDirtLevel(vehicle, 0.0)
+    elseif Config.KeepBodyHealthy then
+        -- Tijdens rijden alleen health bijhouden, geen Fixed/Deformation (breekt snelheid)
+        if GetVehicleBodyHealth(vehicle) < 200.0 then
+            SetVehicleBodyHealth(vehicle, 1000.0)
+        end
     end
 
     if Config.DisableVehicleWeapons then
         DisableVehicleWeapon(true, vehicle, PlayerPedId())
     end
 
-    -- Extra: geen deuken zichtbaar houden
     SetEntityCanBeDamaged(vehicle, false)
     SetVehicleReceivesRampDamage(vehicle, false)
+
+    applySpeedSettings(vehicle)
 
     protected[vehicle] = true
 end
@@ -114,8 +156,6 @@ local function shouldProtect(vehicle)
     if not DoesEntityExist(vehicle) then return false end
     if not modelAllowed(vehicle) then return false end
     if Config.RequireJob and not jobAllowed() then
-        -- Als RequireJob: alleen beschermen wanneer JIJ de juiste job hebt én in/bij het voertuig zit.
-        -- Andere spelers hun PD-auto's blijven dan normaal tenzij zij het script ook draaien (client-side).
         local ped = PlayerPedId()
         if GetVehiclePedIsIn(ped, false) ~= vehicle then
             return false
@@ -154,23 +194,36 @@ end
 CreateThread(function()
     while true do
         local wait = Config.RefreshMs or 1000
+        local ped = PlayerPedId()
+        local veh = GetVehiclePedIsIn(ped, false)
         local targets = collectTargets()
 
         for i = 1, #targets do
             local v = targets[i]
             applyProtection(v)
 
-            if Config.Debug and v ~= lastNotifyVeh and GetVehiclePedIsIn(PlayerPedId(), false) == v then
+            if Config.Debug and v ~= lastNotifyVeh and veh == v then
                 lastNotifyVeh = v
                 notify(Config.Text.applied)
                 dbg('protected', v)
             end
         end
 
-        -- opruimen van oude refs
-        for veh in pairs(protected) do
-            if not DoesEntityExist(veh) then
-                protected[veh] = nil
+        -- Tijdens hard rijden: geen auto-handrem / engine-off glitches
+        if Config.DisableAutoBrakeAtHighSpeed and veh ~= 0 and shouldProtect(veh) then
+            wait = 0
+            SetVehicleHandbrake(veh, false)
+            if not GetIsVehicleEngineRunning(veh) then
+                SetVehicleEngineOn(veh, true, true, false)
+            end
+            -- Voorkom dat cruise/limiter de auto laat inhouden
+            applySpeedSettings(veh)
+        end
+
+        for entity in pairs(protected) do
+            if not DoesEntityExist(entity) then
+                protected[entity] = nil
+                speedBoostApplied[entity] = nil
             end
         end
 
@@ -178,7 +231,6 @@ CreateThread(function()
     end
 end)
 
--- Direct toepassen bij instappen
 AddEventHandler('gameEventTriggered', function(name, args)
     if name ~= 'CEventNetworkPlayerEnteredVehicle' then return end
     local ped = PlayerPedId()
@@ -191,7 +243,6 @@ AddEventHandler('gameEventTriggered', function(name, args)
     end
 end)
 
--- Export voor andere resources (na spawn)
 exports('ProtectVehicle', function(vehicle)
     if vehicle and DoesEntityExist(vehicle) then
         applyProtection(vehicle)

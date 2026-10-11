@@ -68,8 +68,15 @@ Config.CanBeVisiblyDamaged = false
 Config.StrongAxles = true
 Config.EngineNeverDegrade = true
 Config.KeepEngineHealthy = true   -- motor altijd ~1000 health
-Config.KeepBodyHealthy = true     -- body/tank/petrol tank op peuk houden
+Config.KeepBodyHealthy = true     -- body/health hoog houden ZONDER SetVehicleFixed tijdens rijden
 Config.DisableVehicleWeapons = false -- true = voertuigwapens uit (meestal niet nodig)
+
+-- Snelheid: geen harde limiet (voorkomt “stoppen en weer wegrijden” rond hoge km/u).
+-- MaxSpeedKmh = 0 → geen cap (sneller dan 295 mag).
+-- TopSpeedMultiplier > 1.0 → voertuig trekt harder door naar hoge snelheid.
+Config.MaxSpeedKmh = 0
+Config.TopSpeedMultiplier = 1.35
+Config.DisableAutoBrakeAtHighSpeed = true
 
 Config.Text = {
     applied = 'Overheidsvoertuig: kogelvrij & onverwoestbaar.',
