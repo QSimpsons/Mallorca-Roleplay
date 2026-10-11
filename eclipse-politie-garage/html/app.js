@@ -203,20 +203,35 @@
     return escapeHtml(str).replace(/'/g, '&#39;');
   }
 
+  function eventTargetEl(e, selector) {
+    const path = typeof e.composedPath === 'function' ? e.composedPath() : [];
+    for (const node of path) {
+      if (node && node.nodeType === 1 && node.matches && node.matches(selector)) {
+        return node;
+      }
+    }
+    const t = e.target;
+    if (t && t.closest) return t.closest(selector);
+    return null;
+  }
+
   gridEl.addEventListener('click', (e) => {
-    const fav = e.target.closest('[data-fav]');
+    const fav = eventTargetEl(e, '.fav-btn');
     if (fav) {
+      e.preventDefault();
+      e.stopPropagation();
       const id = fav.getAttribute('data-fav');
+      if (!id) return;
       if (state.favorites.has(id)) state.favorites.delete(id);
       else state.favorites.add(id);
       saveFavorites();
       renderGrid();
       return;
     }
-    const spawn = e.target.closest('[data-spawn]');
+    const spawn = eventTargetEl(e, '.spawn-btn');
     if (spawn) {
       const vehicleId = spawn.getAttribute('data-spawn');
-      nui('spawn', { vehicleId, garageId: state.garageId });
+      if (vehicleId) nui('spawn', { vehicleId, garageId: state.garageId });
     }
   });
 
