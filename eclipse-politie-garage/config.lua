@@ -23,7 +23,7 @@ Config.WarpIntoVehicle = true
 Config.SpawnCooldown = 2500
 
 -- Max afstand tot een spawnpoint (OneSync / ESX client-spawn limiet).
--- Verder weg → spawn voor de speler i.p.v. Mission Row-coords.
+-- Verder weg → spawn voor de speler i.p.v. vaste garage-coords.
 Config.MaxSpawnDistance = 80.0
 
 -- Marker / interactie
@@ -80,7 +80,7 @@ Config.Text = {
 }
 
 Config.Blip = {
-    enabled = true,
+    enabled = false,
     sprite = 357,
     colour = 29,
     scale = 0.75,
@@ -105,8 +105,6 @@ Config.Marker = {
 Config.ImageBase = 'https://docs.fivem.net/vehicles/%s.webp'
 Config.MaxEmbedImageBytes = 450000 -- daarboven gebruikt het nui:// pad
 
-
-
 ------------------------------------------------------------------------
 -- Sidebar-categorieën (id moet uniek zijn)
 -- icon: star | radio | car | ghost | bike | air | shield | armor | heart
@@ -121,34 +119,34 @@ Config.Categories = {
 }
 
 ------------------------------------------------------------------------
--- Locaties (pas coords aan naar jullie MLO)
+-- Locaties (jouw PD spawn-coords)
 ------------------------------------------------------------------------
 Config.Garages = {
     {
         id = 'mission_row',
         label = 'Politiegarage',
-        coords = vector3(452.6, -1017.4, 28.5),
-        deleteCoords = vector3(452.6, -1014.4, 28.5),
+        coords = vector3(-386.6501, -373.1432, 24.7567),
+        deleteCoords = vector3(-373.8991, -366.7350, 24.7510),
         minGrade = 1,
         -- Leeg = alle categorieën behalve special/air filters via vehicles zelf
         categories = nil,
         spawnPoints = {
-            vector4(446.0, -1025.5, 28.6, 5.0),
-            vector4(442.4, -1025.8, 28.7, 5.0),
-            vector4(438.7, -1026.0, 28.8, 5.0),
+            vector4(-366.0790, -369.6954, 24.7567, 349.9594),
+            vector4(-366.3011, -354.0437, 24.7567, 57.8918),
+            vector4(-355.4133, -315.3269, 24.7560, 74.9601),
         },
     },
     {
         id = 'heli_pad',
         label = 'Luchtsteun',
-        coords = vector3(449.2, -981.4, 43.69),
-        deleteCoords = vector3(449.2, -981.4, 43.69),
+        coords = vector3(-378.2807, -355.1767, 72.8401),
+        deleteCoords = vector3(-378.2807, -355.1767, 72.8401),
         minGrade = 6,
         categories = { 'favorites', 'air' },
         spawnPoints = {
-            vector4(449.2, -981.4, 43.69, 90.0),
+            vector4(-393.5467, -336.3737, 72.8401, 6.6495),
         },
-        blip = false,
+        blip = true,
     },
 }
 
@@ -184,8 +182,7 @@ Config.Vehicles = {
         badge = 'PATROUILLE',
         stats = { speed = 82, accel = 80, brake = 74, handling = 78 },
     },
-    -- Addonvoorbeeld: zet je foto in html/img/vehicles/polargento1.png
-    -- of geef image = 'img/vehicles/polargento1.png' (niet preview.html!)
+    -- Addon: zet foto in html/img/vehicles/polargento1.png
     {
         id = 'polargento1',
         label = 'Pol Argento',
