@@ -1,6 +1,7 @@
-local protected = {} -- [veh] = true
+local protected = {}
+local speedBoostApplied = {}
 local lastNotifyVeh = 0
-local speedBoostApplied = {} -- [veh] = true
+local lastFullRepairAt = 0
 
 local function dbg(...)
     if Config.Debug then
@@ -31,7 +32,6 @@ local function playerJobName()
 end
 
 local function jobAllowed()
-    if not Config.RequireJob then return true end
     local job = playerJobName()
     if not job then return false end
     return Config.Jobs[job] == true
@@ -49,10 +49,8 @@ local function modelAllowed(vehicle)
     if name ~= '' and Config.Models[name] then
         return true
     end
-    if Config.ProtectEmergencyClass then
-        if GetVehicleClass(vehicle) == (Config.EmergencyClass or 18) then
-            return true
-        end
+    if Config.ProtectEmergencyClass and GetVehicleClass(vehicle) == (Config.EmergencyClass or 18) then
+        return true
     end
     return false
 end
@@ -61,12 +59,38 @@ local function vehicleSpeedKmh(vehicle)
     return GetEntitySpeed(vehicle) * 3.6
 end
 
+local function shouldProtect(vehicle)
+    if not DoesEntityExist(vehicle) or not IsEntityAVehicle(vehicle) then
+        return false
+    end
+
+    local ped = PlayerPedId()
+    local inThis = GetVehiclePedIsIn(ped, false) == vehicle
+
+    -- Police/ambulance in eender welk voertuig → altijd 0 damage
+    if Config.ProtectAllJobVehicles and inThis and jobAllowed() then
+        return true
+    end
+
+    if not modelAllowed(vehicle) then
+        return false
+    end
+
+    if Config.RequireJob then
+        if inThis then
+            return jobAllowed()
+        end
+        -- Nearby matching models only when jij zelf on-duty bent
+        return jobAllowed()
+    end
+
+    return true
+end
+
 local function applySpeedSettings(vehicle)
-    -- MaxSpeedKmh <= 0 → geen limiet (sneller dan 295 mag).
     local maxKmh = tonumber(Config.MaxSpeedKmh) or 0
     if maxKmh <= 0 then
-        -- Hoge cap i.p.v. 0.0 (0 reset naar standaard game-limiet)
-        SetVehicleMaxSpeed(vehicle, 500.0) -- m/s ≈ ver boven 295 km/h
+        SetVehicleMaxSpeed(vehicle, 500.0)
         SetEntityMaxSpeed(vehicle, 500.0)
     else
         local ms = maxKmh / 3.6
@@ -82,8 +106,21 @@ local function applySpeedSettings(vehicle)
     end
 end
 
+local function restoreDoorsAndExtras(vehicle)
+    for door = 0, 7 do
+        if GetIsDoorValid(vehicle, door) then
+            if IsVehicleDoorDamaged(vehicle, door) then
+                -- Kan deuk/deur-state resetten zonder volledige Fixed
+                SetVehicleDoorControl(vehicle, door, 0, 0.0)
+                SetVehicleDoorShut(vehicle, door, true)
+            end
+            SetVehicleDoorOpen(vehicle, door, false, true)
+            SetVehicleDoorShut(vehicle, door, true)
+        end
+    end
+end
+
 local function lockZeroDamage(vehicle)
-    -- Pure health/proof lock — NOOIT SetVehicleFixed hier (breekt snelheid).
     SetVehicleEngineHealth(vehicle, 1000.0)
     SetVehicleBodyHealth(vehicle, 1000.0)
     SetVehiclePetrolTankHealth(vehicle, 1000.0)
@@ -106,10 +143,46 @@ local function lockZeroDamage(vehicle)
     end
 end
 
+local function fullVisualRepair(vehicle)
+    -- Alleen stilstaand gebruiken — SetVehicleFixed reset snelheid/momentum.
+    local velocity = GetEntityVelocity(vehicle)
+    local heading = GetEntityHeading(vehicle)
+    local coords = GetEntityCoords(vehicle)
+
+    SetVehicleFixed(vehicle)
+    SetVehicleDeformationFixed(vehicle)
+    SetVehicleDirtLevel(vehicle, 0.0)
+    lockZeroDamage(vehicle)
+    restoreDoorsAndExtras(vehicle)
+
+    SetEntityCoordsNoOffset(vehicle, coords.x, coords.y, coords.z, false, false, false)
+    SetEntityHeading(vehicle, heading)
+    SetEntityVelocity(vehicle, velocity.x, velocity.y, velocity.z)
+    SetVehicleOnGroundProperly(vehicle)
+    SetVehicleEngineOn(vehicle, true, true, false)
+end
+
+local function needsVisualRepair(vehicle)
+    if GetVehicleBodyHealth(vehicle) < 999.0 then return true end
+    if GetVehicleEngineHealth(vehicle) < 999.0 then return true end
+    for door = 0, 7 do
+        if GetIsDoorValid(vehicle, door) and IsVehicleDoorDamaged(vehicle, door) then
+            return true
+        end
+    end
+    for i = 0, 7 do
+        if not IsVehicleWindowIntact(vehicle, i) then return true end
+        if IsVehicleTyreBurst(vehicle, i, false) or IsVehicleTyreBurst(vehicle, i, true) then
+            return true
+        end
+    end
+    return false
+end
+
 local function applyProtection(vehicle)
     if not DoesEntityExist(vehicle) or not IsEntityAVehicle(vehicle) then return end
 
-    local zero = Config.ZeroDamage == true
+    local zero = Config.ZeroDamage ~= false
     local p = Config.Proofs or {}
 
     SetEntityProofs(
@@ -124,38 +197,36 @@ local function applyProtection(vehicle)
         zero or p.drown == true
     )
 
-    if Config.Invincible ~= false or zero then
-        SetEntityInvincible(vehicle, true)
-    end
-
+    SetEntityInvincible(vehicle, true)
     SetEntityCanBeDamaged(vehicle, false)
     SetVehicleCanBeVisiblyDamaged(vehicle, false)
+    SetVehicleCanBreak(vehicle, false)
     SetVehicleTyresCanBurst(vehicle, false)
-    SetVehicleWheelsCanBreak(vehicle, Config.WheelsCanBreak == true)
+    SetVehicleWheelsCanBreak(vehicle, false)
     SetDisableVehiclePetrolTankDamage(vehicle, true)
     SetDisableVehiclePetrolTankFires(vehicle, true)
     SetVehicleExplodesOnHighExplosionDamage(vehicle, false)
     SetVehicleReceivesRampDamage(vehicle, false)
+    SetVehicleHasStrongAxles(vehicle, true)
+    SetVehicleEngineCanDegrade(vehicle, false)
     pcall(function()
         SetDisableVehicleEngineFires(vehicle, true)
     end)
 
-    if Config.StrongAxles ~= false then
-        SetVehicleHasStrongAxles(vehicle, true)
-    end
+    lockZeroDamage(vehicle)
+    applySpeedSettings(vehicle)
 
-    if Config.EngineNeverDegrade ~= false then
-        SetVehicleEngineCanDegrade(vehicle, false)
-    end
+    local speed = vehicleSpeedKmh(vehicle)
+    local repairLimit = tonumber(Config.RepairBelowKmh) or 3.0
 
-    local moving = vehicleSpeedKmh(vehicle) > 5.0
-
-    if zero or Config.KeepEngineHealthy or Config.KeepBodyHealthy then
-        lockZeroDamage(vehicle)
-    end
-
-    -- Deformatie alleen stilstaand fixen (niet tijdens rijden)
-    if not moving and (zero or Config.KeepBodyHealthy) then
+    if Config.FullRepairWhenStopped and speed <= repairLimit and needsVisualRepair(vehicle) then
+        local now = GetGameTimer()
+        if now - lastFullRepairAt > 1500 then
+            lastFullRepairAt = now
+            fullVisualRepair(vehicle)
+            dbg('fullVisualRepair', vehicle)
+        end
+    elseif speed <= repairLimit then
         SetVehicleDeformationFixed(vehicle)
         SetVehicleDirtLevel(vehicle, 0.0)
     end
@@ -164,22 +235,7 @@ local function applyProtection(vehicle)
         DisableVehicleWeapon(true, vehicle, PlayerPedId())
     end
 
-    applySpeedSettings(vehicle)
-
     protected[vehicle] = true
-end
-
-local function shouldProtect(vehicle)
-    if not DoesEntityExist(vehicle) then return false end
-    if not modelAllowed(vehicle) then return false end
-    if Config.RequireJob and not jobAllowed() then
-        local ped = PlayerPedId()
-        if GetVehiclePedIsIn(ped, false) ~= vehicle then
-            return false
-        end
-        return jobAllowed()
-    end
-    return true
 end
 
 local function collectTargets()
@@ -197,8 +253,8 @@ local function collectTargets()
         local maxDist = Config.NearbyDistance or 60.0
         for i = 1, #pool do
             local v = pool[i]
-            if v ~= veh and DoesEntityExist(v) then
-                if #(coords - GetEntityCoords(v)) <= maxDist and shouldProtect(v) then
+            if v ~= veh and DoesEntityExist(v) and #(coords - GetEntityCoords(v)) <= maxDist then
+                if shouldProtect(v) then
                     list[#list + 1] = v
                 end
             end
@@ -210,36 +266,40 @@ end
 
 CreateThread(function()
     while true do
-        local wait = Config.RefreshMs or 750
+        local wait = Config.RefreshMs or 500
         local ped = PlayerPedId()
         local veh = GetVehiclePedIsIn(ped, false)
-        local targets = collectTargets()
 
-        for i = 1, #targets do
-            local v = targets[i]
+        for _, v in ipairs(collectTargets()) do
             applyProtection(v)
-
             if Config.Debug and v ~= lastNotifyVeh and veh == v then
                 lastNotifyVeh = v
                 notify(Config.Text.applied)
-                dbg('protected', v)
             end
         end
 
-        -- In jouw overheidswagen: elke frame 0 damage + snelheid vasthouden
         if veh ~= 0 and shouldProtect(veh) then
             wait = 0
-            if Config.ZeroDamage then
-                SetEntityInvincible(veh, true)
-                SetEntityCanBeDamaged(veh, false)
-                lockZeroDamage(veh)
-            end
+            SetEntityInvincible(veh, true)
+            SetEntityCanBeDamaged(veh, false)
+            SetVehicleCanBeVisiblyDamaged(veh, false)
+            SetVehicleCanBreak(veh, false)
+            lockZeroDamage(veh)
+
             if Config.DisableAutoBrakeAtHighSpeed then
                 SetVehicleHandbrake(veh, false)
                 if not GetIsVehicleEngineRunning(veh) then
                     SetVehicleEngineOn(veh, true, true, false)
                 end
                 applySpeedSettings(veh)
+            end
+
+            -- Stilstaand met zichtbare schade → meteen netjes maken
+            if Config.FullRepairWhenStopped and vehicleSpeedKmh(veh) <= (Config.RepairBelowKmh or 3.0) then
+                if needsVisualRepair(veh) and (GetGameTimer() - lastFullRepairAt) > 1500 then
+                    lastFullRepairAt = GetGameTimer()
+                    fullVisualRepair(veh)
+                end
             end
         end
 
@@ -254,21 +314,41 @@ CreateThread(function()
     end
 end)
 
-AddEventHandler('gameEventTriggered', function(name, args)
+AddEventHandler('gameEventTriggered', function(name)
     if name ~= 'CEventNetworkPlayerEnteredVehicle' then return end
-    local ped = PlayerPedId()
-    local veh = GetVehiclePedIsIn(ped, false)
+    local veh = GetVehiclePedIsIn(PlayerPedId(), false)
     if veh ~= 0 and shouldProtect(veh) then
         applyProtection(veh)
+        if vehicleSpeedKmh(veh) <= (Config.RepairBelowKmh or 3.0) then
+            fullVisualRepair(veh)
+        end
         if Config.Debug then
             notify(Config.Text.applied)
         end
     end
 end)
 
+RegisterCommand('repairovh', function()
+    local veh = GetVehiclePedIsIn(PlayerPedId(), false)
+    if veh == 0 then return end
+    if not shouldProtect(veh) and not jobAllowed() then
+        return
+    end
+    if vehicleSpeedKmh(veh) > (Config.RepairBelowKmh or 3.0) then
+        notify('Stop eerst helemaal stil om te repareren.')
+        return
+    end
+    fullVisualRepair(veh)
+    applyProtection(veh)
+    notify(Config.Text.repaired or 'Voertuigschade hersteld.')
+end, false)
+
 exports('ProtectVehicle', function(vehicle)
     if vehicle and DoesEntityExist(vehicle) then
         applyProtection(vehicle)
+        if vehicleSpeedKmh(vehicle) <= (Config.RepairBelowKmh or 3.0) then
+            fullVisualRepair(vehicle)
+        end
         return true
     end
     return false

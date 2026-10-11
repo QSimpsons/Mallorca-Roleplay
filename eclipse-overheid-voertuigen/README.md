@@ -17,11 +17,12 @@ ensure eclipse-overheid-voertuigen
 
 ## Gedrag
 
-- Standaard: alleen met job `police` of `ambulance` (zie config)
-- Match op spawnmodel (`polargento1`, `police`, …) en optioneel emergency-class 18
-- Blijft elke seconde opnieuw toepassen (tegen damage-scripts)
-- Geen snelheidslimiet (`MaxSpeedKmh = 0`) — sneller dan 295 mag
-- Geen `SetVehicleFixed` tijdens het rijden (voorkomt stoppen/haperen op hoge snelheid)
+- Met job `police` / `ambulance`: **elke** auto waarin je zit krijgt 0 damage (ook custom PD-addons)
+- Extra match op spawnmodellen + emergency-class 18
+- Stilstaand: automatische full repair (motorkap/deuren/deuken)
+- Tijdens rijden: geen `SetVehicleFixed` (voorkomt haperen)
+- Geen snelheidslimiet — sneller dan 295 mag
+- Command: `/repairovh` (stilstaand) om schade meteen weg te halen
 - Export na spawn:
 
 ```lua

@@ -32,15 +32,15 @@ def main():
             errors.append(f"config missing {n}")
 
     client = files["client/main.lua"].read_text(encoding="utf-8")
-    for n in ("SetEntityProofs", "SetVehicleTyresCanBurst", "applyProtection", "ProtectVehicle", "applySpeedSettings", "ModifyVehicleTopSpeed", "SetEntityInvincible", "lockZeroDamage", "ZeroDamage"):
-        if n not in client and n != "ZeroDamage":
+    for n in ("SetEntityProofs", "SetVehicleTyresCanBurst", "applyProtection", "ProtectVehicle", "applySpeedSettings", "ModifyVehicleTopSpeed", "SetEntityInvincible", "lockZeroDamage", "ProtectAllJobVehicles", "fullVisualRepair"):
+        if n not in client:
             errors.append(f"client missing {n}")
-    if "ZeroDamage" not in cfg:
-        errors.append("config missing ZeroDamage")
-    if "SetVehicleFixed(" in client:
-        errors.append("client must not call SetVehicleFixed (causes high-speed stutter)")
-    if "MaxSpeedKmh" not in cfg:
-        errors.append("config missing MaxSpeedKmh")
+    for n in ("ZeroDamage", "ProtectAllJobVehicles", "FullRepairWhenStopped", "MaxSpeedKmh"):
+        if n not in cfg:
+            errors.append(f"config missing {n}")
+    # SetVehicleFixed mag alleen in fullVisualRepair (stilstaand)
+    if "fullVisualRepair" not in client or "SetVehicleFixed(" not in client:
+        errors.append("client missing stopped-only SetVehicleFixed repair path")
 
     if errors:
         print("FAIL"); print("\n".join(errors)); return 1

@@ -2,25 +2,27 @@ Config = {}
 
 -- ═══════════════════════════════════════════════════════════════
 -- Eclipse Overheid Voertuigen
--- Kogelvrij + niet kapot (schade / banden / explosies)
+-- 0 damage: kogelvrij, geen deuken, geen kapotte motorkap
 -- ═══════════════════════════════════════════════════════════════
 
 Config.Debug = false
 
--- Alleen toepassen als de bestuurder deze job heeft (leeg = altijd op gematchte modellen).
+-- Jobs die bescherming krijgen
 Config.RequireJob = true
 Config.Jobs = {
     police = true,
     ambulance = true,
-    mechanic = false, -- zet true als ANWB/takel ook mee moet
+    mechanic = false,
     -- kmar = true,
     -- brandweer = true,
 }
 
--- Match op modelnaam (spawnnaam). Kleine letters.
--- Voeg hier jullie addon-modellen toe, bv. 'polargento1'.
+-- BELANGRIJK: als je police/ambulance bent, is ELKE auto waarin je zit protected.
+-- Zo werken ook custom PD-addons (RS6, Argento, …) zonder modelnaam.
+Config.ProtectAllJobVehicles = true
+
+-- Extra: deze modellen altijd (ook als je job-check uitstaat)
 Config.Models = {
-    -- Politie (GTA + addons)
     police = true,
     police2 = true,
     police3 = true,
@@ -33,56 +35,53 @@ Config.Models = {
     riot2 = true,
     polmav = true,
     polargento1 = true,
-
-    -- Ambulance / brandweer
     ambulance = true,
     firetruk = true,
     lguard = true,
 }
 
--- Ook voertuigen met deze class beschermen (18 = Emergency).
--- true = naast de modellijst ook class 18 meenemen.
+-- Class 18 = Emergency (vaak PD/ambulance)
 Config.ProtectEmergencyClass = true
 Config.EmergencyClass = 18
 
--- Alleen het voertuig van de lokale speler, of ook andere dichtbij.
-Config.OnlyOccupiedByPlayer = false -- false = ook andere overheidswagens in de buurt
+-- Alleen jouw voertuig beschermen (aanbevolen)
+Config.OnlyOccupiedByPlayer = true
 Config.NearbyDistance = 60.0
 
--- Hoe vaak opnieuw toepassen (ms). Lager = strakker, iets meer load.
-Config.RefreshMs = 750
+Config.RefreshMs = 500
 
--- 0 damage: volledig onkwetsbaar (invincible + proofs + health lock)
+-- 0 damage
 Config.ZeroDamage = true
 Config.Invincible = true
-
--- Wat er beschermd wordt (bij ZeroDamage allemaal aan)
 Config.Proofs = {
-    bullet = true,      -- kogels
-    fire = true,        -- vuur
-    explosion = true,   -- explosies
-    collision = true,   -- botsingen
-    melee = true,       -- melee
+    bullet = true,
+    fire = true,
+    explosion = true,
+    collision = true,
+    melee = true,
     steam = true,
     drown = true,
 }
 
-Config.TyresCanBurst = false      -- banden knappen niet
+Config.TyresCanBurst = false
 Config.WheelsCanBreak = false
 Config.CanBeVisiblyDamaged = false
 Config.StrongAxles = true
 Config.EngineNeverDegrade = true
-Config.KeepEngineHealthy = true   -- motor altijd 1000
-Config.KeepBodyHealthy = true     -- body/health altijd 1000 (geen SetVehicleFixed tijdens rijden)
-Config.DisableVehicleWeapons = false -- true = voertuigwapens uit (meestal niet nodig)
+Config.KeepEngineHealthy = true
+Config.KeepBodyHealthy = true
+Config.DisableVehicleWeapons = false
 
--- Snelheid: geen harde limiet (voorkomt “stoppen en weer wegrijden” rond hoge km/u).
--- MaxSpeedKmh = 0 → geen cap (sneller dan 295 mag).
--- TopSpeedMultiplier > 1.0 → voertuig trekt harder door naar hoge snelheid.
+-- Stilstaand (< RepairBelowKmh): volledige repair inclusief motorkap/deuren/deuken
+Config.FullRepairWhenStopped = true
+Config.RepairBelowKmh = 3.0
+
+-- Snelheid onbeperkt
 Config.MaxSpeedKmh = 0
 Config.TopSpeedMultiplier = 1.35
 Config.DisableAutoBrakeAtHighSpeed = true
 
 Config.Text = {
-    applied = 'Overheidsvoertuig: 0 damage (kogelvrij & onverwoestbaar).',
+    applied = 'Overheidsvoertuig: 0 damage actief.',
+    repaired = 'Voertuigschade hersteld.',
 }
