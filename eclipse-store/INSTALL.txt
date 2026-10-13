@@ -1,0 +1,12 @@
+Eclipse Store — snelle installatie
+=================================
+
+1. Zet de map eclipse-store in resources/
+2. Open config.lua en vul in:
+   - Config.PublicToken  = jouw Tebex Public Token
+   - Config.StoreUrl     = https://jouwstore.tebex.io
+3. In server.cfg:
+   ensure eclipse-store
+4. In-game: /store
+
+Public Token vind je in Tebex Control Panel → Integrations → API Keys.
